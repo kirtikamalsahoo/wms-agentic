@@ -26,7 +26,6 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npm run build --if-present
           npm run test --if-present
 
       - name: Upload artifact for deployment job
@@ -52,4 +51,5 @@ jobs:
           app-name: 'wms-agentic-frontend'
           slot-name: 'Production'
           package: .
+
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6B3955A027404BCD9876CBDF3C1AF13C }}
