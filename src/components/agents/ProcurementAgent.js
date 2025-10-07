@@ -212,37 +212,36 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
   const [isPaused, setIsPaused] = useState(false);
   const suppliersPerPage = 3;
   const totalPages = Math.ceil(suppliersData.length / suppliersPerPage);
-  const autoSlideInterval = 3000; // 3 seconds
+  const autoSlideInterval = 5000; // 5 seconds - slower to prevent refresh feeling
 
-  const nextSuppliers = () => {
-    setCurrentSupplierIndex((prev) => (prev + 1) % totalPages);
-  };
+  // Navigation functions removed - now handled inline to prevent re-renders
 
-  const prevSuppliers = () => {
-    setCurrentSupplierIndex((prev) => (prev - 1 + totalPages) % totalPages);
-  };
-
-  const getCurrentSuppliers = () => {
-    const start = currentSupplierIndex * suppliersPerPage;
-    return suppliersData.slice(start, start + suppliersPerPage);
-  };
+  // getCurrentSuppliers function removed - now handled inline in the render
 
   const toggleAutoPlay = () => {
     setIsAutoPlaying(!isAutoPlaying);
   };
 
-  // Auto-slide effect
+  // Auto-slide effect - Optimized to prevent page refresh feeling
   React.useEffect(() => {
     if (!isAutoPlaying || isPaused) return;
 
     const interval = setInterval(() => {
-      nextSuppliers();
+      setCurrentSupplierIndex((prev) => (prev + 1) % totalPages);
     }, autoSlideInterval);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, isPaused, currentSupplierIndex, nextSuppliers]);
+  }, [isAutoPlaying, isPaused, totalPages]);
 
-  const SupplierProductChart = ({ supplier }) => (
+  // Reset pause state after component mount to ensure smooth operation
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPaused(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const SupplierProductChart = React.memo(({ supplier }) => (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -325,91 +324,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
         </Box>
       </div>
     </motion.div>
-  );
-
-  const GlassPieChart = ({ percentage, title, color = "#8B5CF6" }) => (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6 }}
-      className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 text-center"
-    >
-      <h3 className="text-lg font-semibold text-white mb-6">{title}</h3>
-      <div className="relative w-32 h-32 mx-auto mb-4">
-        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-          {/* Background circle */}
-          <circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="rgba(255,255,255,0.1)"
-            strokeWidth="8"
-            fill="none"
-          />
-          {/* Progress circle */}
-          <motion.circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke={color}
-            strokeWidth="8"
-            fill="none"
-            strokeLinecap="round"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: percentage / 100 }}
-            transition={{ duration: 2, delay: 0.5 }}
-            style={{
-              strokeDasharray: `${2 * Math.PI * 40}`,
-              strokeDashoffset: `${2 * Math.PI * 40 * (1 - percentage / 100)}`
-            }}
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-white">{percentage}%</span>
-        </div>
-      </div>
-      <p className="text-sm text-white/70 mt-2">Target achievement</p>
-      <motion.button 
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500/50 to-pink-500/50 backdrop-blur-sm border border-white/20 text-white rounded-lg hover:from-purple-500/70 hover:to-pink-500/70 transition-all duration-300"
-      >
-        Success
-      </motion.button>
-    </motion.div>
-  );
-
-  const GlassBarChart = ({ data, title, color = "#8B5CF6" }) => (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300"
-    >
-      <h3 className="text-lg font-semibold text-white mb-6">{title}</h3>
-      <Box sx={{ width: '100%', height: 250 }}>
-        <BarChart
-          series={[{
-            data: data.map(d => d.value),
-            color: color
-          }]}
-          xAxis={[{ 
-            data: data.map(d => d.label), 
-            scaleType: 'band',
-            tickLabelStyle: { fill: 'rgba(255,255,255,0.8)' }
-          }]}
-          yAxis={[{
-            tickLabelStyle: { fill: 'rgba(255,255,255,0.8)' }
-          }]}
-          sx={{
-            '& .MuiChartsAxis-line': { stroke: 'rgba(255,255,255,0.3)' },
-            '& .MuiChartsAxis-tick': { stroke: 'rgba(255,255,255,0.3)' },
-            '& .MuiChartsGrid-line': { stroke: 'rgba(255,255,255,0.1)' }
-          }}
-        />
-      </Box>
-    </motion.div>
-  );
+  ));
 
   return (
     <motion.div
@@ -493,7 +408,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
-                  prevSuppliers();
+                  setCurrentSupplierIndex((prev) => (prev - 1 + totalPages) % totalPages);
                   setIsPaused(true);
                   setTimeout(() => setIsPaused(false), 6000);
                 }}
@@ -505,7 +420,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => {
-                  nextSuppliers();
+                  setCurrentSupplierIndex((prev) => (prev + 1) % totalPages);
                   setIsPaused(true);
                   setTimeout(() => setIsPaused(false), 6000);
                 }}
@@ -518,122 +433,128 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
         </div>
 
         <div 
-          className="overflow-hidden"
+          className="overflow-hidden relative"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
           <motion.div
-            key={currentSupplierIndex}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            animate={{ x: `-${currentSupplierIndex * 100}%` }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              duration: 0.6
+            }}
+            className="flex"
           >
-            {getCurrentSuppliers().map((supplier, index) => (
-              <motion.div 
-                key={supplier.id}
-                initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -5 }}
-                className="bg-gradient-to-br from-gray-600/20 to-gray-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 relative overflow-hidden group"
-              >
-                {/* Background gradient effect */}
+            {Array.from({ length: totalPages }).map((_, pageIndex) => {
+              const start = pageIndex * suppliersPerPage;
+              const pageSuppliers = suppliersData.slice(start, start + suppliersPerPage);
+              return (
                 <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl"
-                  style={{ background: `linear-gradient(135deg, ${supplier.color}20, ${supplier.color}10)` }}
-                />
-                
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm border border-white/20"
-                        style={{ background: `linear-gradient(135deg, ${supplier.color}40, ${supplier.color}60)` }}
+                  key={`page-${pageIndex}`}
+                  className="w-full flex-shrink-0 px-2"
+                  style={{ minWidth: '100%' }}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {pageSuppliers.map((supplier, supplierIndex) => (
+                      <div
+                        key={`${supplier.id}-${pageIndex}`}
+                        className="bg-gradient-to-br from-gray-600/20 to-gray-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 relative overflow-hidden group hover:scale-105 hover:-translate-y-2"
                       >
-                        #{supplier.id}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-white text-sm">Top Supplier</h3>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400 text-sm">⭐</span>
-                          <span className="text-sm text-white/80">{supplier.rating}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <motion.div
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.5 }}
-                      className="w-8 h-8 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center"
-                    >
-                      <span className="text-sm">🏢</span>
-                    </motion.div>
-                  </div>
-                  
-                  <p className="text-lg font-bold text-white mb-2 group-hover:text-purple-200 transition-colors duration-300">
-                    {supplier.name}
-                  </p>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/70">Total Products:</span>
-                      <span className="text-sm font-medium text-white">{supplier.totalProducts}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/70">Best Product:</span>
-                      <span className="text-sm font-medium text-purple-300">{supplier.bestProduct}</span>
-                    </div>
-                  </div>
+                        {/* Background gradient effect */}
+                        <div 
+                          className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl"
+                          style={{ background: `linear-gradient(135deg, ${supplier.color}20, ${supplier.color}10)` }}
+                        />
+                        
+                        <div className="relative z-10">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center space-x-3">
+                              <div 
+                                className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg backdrop-blur-sm border border-white/20"
+                                style={{ background: `linear-gradient(135deg, ${supplier.color}40, ${supplier.color}60)` }}
+                              >
+                                #{supplier.id}
+                              </div>
+                              <div>
+                                <h3 className="font-semibold text-white text-sm">Top Supplier</h3>
+                                <div className="flex items-center space-x-1">
+                                  <span className="text-yellow-400 text-sm">⭐</span>
+                                  <span className="text-sm text-white/80">{supplier.rating}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="w-8 h-8 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center group-hover:rotate-180 transition-transform duration-500">
+                              <span className="text-sm">🏢</span>
+                            </div>
+                          </div>
+                          
+                          <p className="text-lg font-bold text-white mb-2 group-hover:text-purple-200 transition-colors duration-300">
+                            {supplier.name}
+                          </p>
+                          
+                          <div className="space-y-3 mb-4">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-white/70">Total Products:</span>
+                              <span className="text-sm font-medium text-white">{supplier.totalProducts}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-white/70">Best Product:</span>
+                              <span className="text-sm font-medium text-purple-300">{supplier.bestProduct}</span>
+                            </div>
+                          </div>
 
-                  {/* Top Products Mini List */}
-                  <div className="border-t border-white/10 pt-3">
-                    <h4 className="text-xs font-semibold text-white/80 mb-2">Top Products</h4>
-                    <div className="space-y-1 max-h-20 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
-                      {supplier.topProducts.slice(0, 3).map((product, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-xs">
-                          <span className="text-white/70 truncate pr-2">{product.name}</span>
-                          <div className="flex items-center space-x-2 shrink-0">
-                            <span className="text-green-400">{product.performance}%</span>
-                            <span 
-                              className="px-1 py-0.5 rounded text-xs font-medium"
-                              style={{ 
-                                background: `${supplier.color}20`, 
-                                color: supplier.color,
-                                border: `1px solid ${supplier.color}30`
-                              }}
-                            >
-                              +{product.trend}%
-                            </span>
+                          {/* Top Products Mini List */}
+                          <div className="border-t border-white/10 pt-3">
+                            <h4 className="text-xs font-semibold text-white/80 mb-2">Top Products</h4>
+                            <div className="space-y-1 max-h-20 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+                              {supplier.topProducts.slice(0, 3).map((product, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-xs">
+                                  <span className="text-white/70 truncate pr-2">{product.name}</span>
+                                  <div className="flex items-center space-x-2 shrink-0">
+                                    <span className="text-green-400">{product.performance}%</span>
+                                    <span 
+                                      className="px-1 py-0.5 rounded text-xs font-medium"
+                                      style={{ 
+                                        background: `${supplier.color}20`, 
+                                        color: supplier.color,
+                                        border: `1px solid ${supplier.color}30`
+                                      }}
+                                    >
+                                      +{product.trend}%
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Performance indicator */}
+                          <div className="mt-4 pt-3 border-t border-white/10">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs text-white/70">Overall Performance</span>
+                              <span className="text-xs font-medium text-white">
+                                {Math.round(supplier.monthlyPerformance.reduce((a, b) => a + b, 0) / supplier.monthlyPerformance.length)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-white/10 rounded-full h-2">
+                              <div
+                                className="h-2 rounded-full transition-all duration-1000 ease-out"
+                                style={{ 
+                                  width: `${Math.round(supplier.monthlyPerformance.reduce((a, b) => a + b, 0) / supplier.monthlyPerformance.length)}%`,
+                                  background: `linear-gradient(90deg, ${supplier.color}80, ${supplier.color})`
+                                }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Performance indicator */}
-                  <div className="mt-4 pt-3 border-t border-white/10">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-white/70">Overall Performance</span>
-                      <span className="text-xs font-medium text-white">
-                        {Math.round(supplier.monthlyPerformance.reduce((a, b) => a + b, 0) / supplier.monthlyPerformance.length)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-white/10 rounded-full h-2">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ 
-                          width: `${Math.round(supplier.monthlyPerformance.reduce((a, b) => a + b, 0) / supplier.monthlyPerformance.length)}%` 
-                        }}
-                        transition={{ duration: 1, delay: index * 0.2 }}
-                        className="h-2 rounded-full"
-                        style={{ background: `linear-gradient(90deg, ${supplier.color}80, ${supplier.color})` }}
-                      />
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         </div>
 
@@ -1005,11 +926,186 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
         </motion.div>
       )}
       
-      {/* Supplier Product Performance Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {suppliersData.slice(0, 2).map((supplier) => (
-          <SupplierProductChart key={supplier.id} supplier={supplier} />
+      {/* Supplier Product Performance Charts - Fixed to prevent carousel refresh */}
+      <StaticChartsSection suppliersData={suppliersData} />
+    </motion.div>
+  );
+};
+
+// Separate static component that won't re-render when carousel moves
+const StaticChartsSection = React.memo(({ suppliersData }) => {
+  const GlassPieChart = React.memo(({ percentage, title, color = "#8B5CF6" }) => (
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6 }}
+      className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 text-center"
+    >
+      <h3 className="text-lg font-semibold text-white mb-6">{title}</h3>
+      <div className="relative w-32 h-32 mx-auto mb-4">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+          {/* Background circle */}
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="8"
+            fill="none"
+          />
+          {/* Progress circle */}
+          <motion.circle
+            cx="50"
+            cy="50"
+            r="40"
+            stroke={color}
+            strokeWidth="8"
+            fill="none"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: percentage / 100 }}
+            transition={{ duration: 2, delay: 0.5 }}
+            style={{
+              strokeDasharray: `${2 * Math.PI * 40}`,
+              strokeDashoffset: `${2 * Math.PI * 40 * (1 - percentage / 100)}`
+            }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold text-white">{percentage}%</span>
+        </div>
+      </div>
+      <p className="text-sm text-white/70 mt-2">Target achievement</p>
+      <motion.button 
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="mt-4 px-6 py-2 bg-gradient-to-r from-purple-500/50 to-pink-500/50 backdrop-blur-sm border border-white/20 text-white rounded-lg hover:from-purple-500/70 hover:to-pink-500/70 transition-all duration-300"
+      >
+        Success
+      </motion.button>
+    </motion.div>
+  ));
+
+  const GlassBarChart = React.memo(({ data, title, color = "#8B5CF6" }) => (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300"
+    >
+      <h3 className="text-lg font-semibold text-white mb-6">{title}</h3>
+      <Box sx={{ width: '100%', height: 250 }}>
+        <BarChart
+          series={[{
+            data: data.map(d => d.value),
+            color: color
+          }]}
+          xAxis={[{ 
+            data: data.map(d => d.label), 
+            scaleType: 'band',
+            tickLabelStyle: { fill: 'rgba(255,255,255,0.8)' }
+          }]}
+          yAxis={[{
+            tickLabelStyle: { fill: 'rgba(255,255,255,0.8)' }
+          }]}
+          sx={{
+            '& .MuiChartsAxis-line': { stroke: 'rgba(255,255,255,0.3)' },
+            '& .MuiChartsAxis-tick': { stroke: 'rgba(255,255,255,0.3)' },
+            '& .MuiChartsGrid-line': { stroke: 'rgba(255,255,255,0.1)' }
+          }}
+        />
+      </Box>
+    </motion.div>
+  ));
+
+  const SupplierProductChart = React.memo(({ supplier }) => (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-gradient-to-br from-gray-600/20 to-gray-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300"
+    >
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-white">{supplier.name}</h3>
+        <div className="flex items-center space-x-2">
+          <span className="text-yellow-400">⭐</span>
+          <span className="text-sm font-medium text-white/80">{supplier.rating}</span>
+        </div>
+      </div>
+      
+      {/* Best Product Highlight */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-lg border border-white/10">
+        <h4 className="text-sm font-semibold text-purple-200 mb-2">🏆 Best Performing Product</h4>
+        <div className="text-lg font-bold text-white">{supplier.bestProduct}</div>
+        <div className="text-sm text-purple-200">Highest profitability and growth rate</div>
+      </div>
+      
+      {/* Product Performance Bars */}
+      <div className="space-y-4 mb-6">
+        <h4 className="text-sm font-semibold text-white/90">Product Performance Analysis</h4>
+        {supplier.topProducts.map((product, index) => (
+          <div key={`${supplier.id}-${product.name}-${index}`} className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-white/90">{product.name}</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-white/60">{product.sales} units</span>
+                <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
+                  Profit: {product.profitability}%
+                </span>
+              </div>
+            </div>
+            <div className="w-full bg-white/10 rounded-full h-3 backdrop-blur-sm">
+              <div
+                className="h-3 rounded-full transition-all duration-1000 ease-out"
+                style={{ 
+                  width: `${product.performance}%`,
+                  background: `linear-gradient(90deg, ${supplier.color}80, ${supplier.color})`
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs text-white/60">
+              <span>Performance: {product.performance}%</span>
+              <span className={`${product.trend > 15 ? 'text-green-400' : product.trend > 5 ? 'text-yellow-400' : 'text-white/60'}`}>
+                Growth: +{product.trend}%
+              </span>
+            </div>
+          </div>
         ))}
+      </div>
+
+      {/* Monthly Performance Trend */}
+      <div className="border-t border-white/10 pt-4">
+        <h4 className="text-sm font-semibold text-white/90 mb-3">6-Month Performance Trend</h4>
+        <Box sx={{ width: '100%', height: 150 }}>
+          <BarChart
+            series={[{
+              data: supplier.monthlyPerformance,
+              color: supplier.color
+            }]}
+            xAxis={[{ 
+              data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], 
+              scaleType: 'band',
+              tickLabelStyle: { fill: 'rgba(255,255,255,0.6)', fontSize: 10 }
+            }]}
+            yAxis={[{
+              tickLabelStyle: { fill: 'rgba(255,255,255,0.6)', fontSize: 10 }
+            }]}
+            sx={{
+              '& .MuiChartsAxis-line': { stroke: 'rgba(255,255,255,0.2)' },
+              '& .MuiChartsAxis-tick': { stroke: 'rgba(255,255,255,0.2)' },
+              '& .MuiChartsGrid-line': { stroke: 'rgba(255,255,255,0.1)' }
+            }}
+          />
+        </Box>
+      </div>
+    </motion.div>
+  ));
+
+  return (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SupplierProductChart supplier={suppliersData[0]} />
+        <SupplierProductChart supplier={suppliersData[1]} />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1047,7 +1143,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
             { name: 'Samsung Galaxy S24', trend: '+22%', sales: '760' }
           ].map((product, index) => (
             <motion.div 
-              key={index}
+              key={`trending-${product.name}-${index}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -1063,8 +1159,10 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
           ))}
         </div>
       </motion.div>
-    </motion.div>
+    </>
   );
-};
+});
+
+StaticChartsSection.displayName = 'StaticChartsSection';
 
 export default ProcurementAgent;

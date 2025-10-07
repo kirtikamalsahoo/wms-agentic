@@ -614,14 +614,15 @@ const MyOrders = ({ isOpen, onClose }) => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-white/70">Status:</span>
-                        <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor(selectedOrder.status)}`}>
-                          {getStatusIcon(selectedOrder.status)} {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                        {/* Default status set to delivered */}
+                        <span className={`px-2 py-1 rounded-full text-xs border ${getStatusColor('delivered')}`}>
+                          {getStatusIcon('delivered')} Delivered
                         </span>
                       </div>
-                      <div className="flex justify-between">
+                      {/* <div className="flex justify-between">
                         <span className="text-white/70">Total:</span>
                         <span className="text-white font-bold">₹{selectedOrder.total || 0}</span>
-                      </div>
+                      </div> */}
                       {selectedOrder.isApiOrder && (
                         <div className="flex justify-between">
                           <span className="text-white/70">Source:</span>

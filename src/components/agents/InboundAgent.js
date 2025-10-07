@@ -127,10 +127,10 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
                   <div className="text-sm font-semibold text-green-400">156</div>
                   <div className="text-xs text-white/60">Active Trucks</div>
                 </div>
-                <div className="text-center">
+                {/* <div className="text-center">
                   <div className="text-sm font-semibold text-yellow-400">89%</div>
                   <div className="text-xs text-white/60">Efficiency Rate</div>
-                </div>
+                </div> */}
               </div>
             </motion.div>
           </div>
@@ -275,14 +275,14 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
                     </motion.span>
 
                     {/* Value Badge */}
-                    <motion.div
+                    {/* <motion.div
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.8, delay: index * 0.1 + 2.2 }}
                       className="mt-1 px-2 py-1 bg-white/10 backdrop-blur-sm rounded-full border border-white/20"
                     >
                       <span className="text-xs text-white/80 font-mono font-semibold">{bar.value}</span>
-                    </motion.div>
+                    </motion.div> */}
                   </div>
                 ))}
               </div>
@@ -545,7 +545,7 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
             >
               <span className="text-xl">⚠️</span>
             </motion.div>
-            <h4 className="text-lg font-semibold text-white">Delayed Items</h4>
+            <h4 className="text-lg font-semibold text-white">Damaged Items</h4>
           </div>
           <div className="space-y-2">
             <div className="text-3xl font-bold text-orange-400">5</div>
