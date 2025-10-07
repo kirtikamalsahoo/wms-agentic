@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRCode from 'qrcode';
 
@@ -10,17 +10,10 @@ const QRAuthModal = ({ isOpen, onClose, onComplete, userData }) => {
   const [isScanning, setIsScanning] = useState(false);
   const canvasRef = useRef(null);
 
-  useEffect(() => {
-    if (isOpen && userData) {
-      generateQRCode();
-      startTimer();
-    }
-  }, [isOpen, userData]);
-
-  const generateQRCode = async () => {
+  const generateQRCode = useCallback(async () => {
     try {
       // Create a direct URL to the deployed WMS application with user login
-      const deployedUrl = 'https://wms-frontend-gbasfpandrfdcecz.canadacentral-01.azurewebsites.net/';
+      const deployedUrl = 'https://wms-agentic-frontend-a2dvdjgwfybre2g8.canadacentral-01.azurewebsites.net/';
       const loginParams = new URLSearchParams({
         username: userData.username,
         role: userData.role,
@@ -58,9 +51,9 @@ const QRAuthModal = ({ isOpen, onClose, onComplete, userData }) => {
     } catch (error) {
       console.error('Error generating QR code:', error);
     }
-  };
+  }, [userData]);
 
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     setTimeLeft(10);
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -74,7 +67,14 @@ const QRAuthModal = ({ isOpen, onClose, onComplete, userData }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  };
+  }, [onComplete]);
+
+  useEffect(() => {
+    if (isOpen && userData) {
+      generateQRCode();
+      startTimer();
+    }
+  }, [isOpen, userData, generateQRCode, startTimer]);
 
   const handleComplete = () => {
     setIsScanning(true);

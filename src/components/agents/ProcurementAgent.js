@@ -326,6 +326,8 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
     </motion.div>
   ));
 
+  SupplierProductChart.displayName = 'SupplierProductChart';
+
   return (
     <motion.div
       key="procurement"
@@ -986,6 +988,8 @@ const StaticChartsSection = React.memo(({ suppliersData }) => {
     </motion.div>
   ));
 
+  GlassPieChart.displayName = 'GlassPieChart';
+
   const GlassBarChart = React.memo(({ data, title, color = "#8B5CF6" }) => (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -1017,6 +1021,8 @@ const StaticChartsSection = React.memo(({ suppliersData }) => {
       </Box>
     </motion.div>
   ));
+
+  GlassBarChart.displayName = 'GlassBarChart';
 
   const SupplierProductChart = React.memo(({ supplier }) => (
     <motion.div 
@@ -1100,6 +1106,8 @@ const StaticChartsSection = React.memo(({ suppliersData }) => {
       </div>
     </motion.div>
   ));
+
+  SupplierProductChart.displayName = 'SupplierProductChart';
 
   return (
     <>
