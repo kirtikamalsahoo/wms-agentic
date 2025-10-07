@@ -511,9 +511,9 @@ const MyOrders = ({ isOpen, onClose }) => {
                           <p className="text-white/60 text-sm">{formatDate(order.date)}</p>
                         </div>
                         <div className="flex flex-col items-end space-y-2">
-                          <span className={`px-3 py-1 rounded-full text-sm border ${getStatusColor('delivered')}`}>
+                          {/* <span className={`px-3 py-1 rounded-full text-sm border ${getStatusColor('delivered')}`}>
                             {getStatusIcon('delivered')} Delivered
-                          </span>
+                          </span> */}
                           {filter !== 'delivered' && (
                             <span className="text-white font-bold">₹{order.total || 0}</span>
                           )}
