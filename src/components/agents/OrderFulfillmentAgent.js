@@ -531,7 +531,7 @@ const OrderFulfillmentAgent = ({ isAgentRunning, onRunAgent }) => {
             </div>
           ) : (
             <>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              {/* <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white/5 rounded-lg p-3">
                 <div className="text-sm text-white/70">Total Orders</div>
                 <div className="text-2xl font-bold text-blue-400">{fulfillmentResults.results?.length || 0}</div>
@@ -555,7 +555,7 @@ const OrderFulfillmentAgent = ({ isAgentRunning, onRunAgent }) => {
                     Math.round((fulfillmentResults.results.filter(r => r.status === 'Ready to Dispatch' || r.status === 'success').length / fulfillmentResults.results.length) * 100) : 0}%
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-white/5">

@@ -9,6 +9,11 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [selectedMetric, setSelectedMetric] = useState('revenue');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [reportFrequency, setReportFrequency] = useState('monthly');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState({ success: false, message: '' });
 
   // Financial data for different time periods (amounts in INR)
   const allFinancialData = {
@@ -156,11 +161,59 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
   const kpiMetrics = getKpiMetrics();
 
   const runFinancialAnalysis = () => {
-    setIsAnalyzing(true);
-    onRunAgent('financial');
-    setTimeout(() => {
-      setIsAnalyzing(false);
-    }, 3000);
+    setShowEmailModal(true);
+  };
+
+  const handleSendReport = async () => {
+    if (!email) {
+      setEmailStatus({ success: false, message: 'Please enter an email address' });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailStatus({ success: false, message: 'Please enter a valid email address' });
+      return;
+    }
+
+    setIsSendingEmail(true);
+    setEmailStatus({ success: false, message: '' });
+
+    try {
+      const response = await fetch('/api/send-financial-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, frequency: reportFrequency }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setEmailStatus({ success: true, message: data.message });
+        setTimeout(() => {
+          setShowEmailModal(false);
+          setEmail('');
+          setReportFrequency('monthly');
+          setEmailStatus({ success: false, message: '' });
+          onRunAgent('financial');
+        }, 2000);
+      } else {
+        setEmailStatus({ success: false, message: data.error || 'Failed to send email' });
+      }
+    } catch (error) {
+      setEmailStatus({ success: false, message: 'Network error. Please try again.' });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowEmailModal(false);
+    setEmail('');
+    setReportFrequency('monthly');
+    setEmailStatus({ success: false, message: '' });
   };
 
   return (
@@ -539,6 +592,303 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
           )}
         </div>
       </motion.div>
+
+      {/* Email Loading Overlay */}
+      <AnimatePresence>
+        {isSendingEmail && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 flex items-center justify-center z-[60]"
+            style={{
+              background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(0, 0, 0, 0.8) 100%)'
+            }}
+          >
+            {/* Animated Background Elements */}
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.6, 0.3],
+                rotate: [0, 180, 360]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 rounded-full"
+              style={{
+                filter: 'blur(100px)',
+                transform: 'scale(2)'
+              }}
+            />
+            
+            <motion.div
+              animate={{
+                scale: [1.2, 1, 1.2],
+                opacity: [0.2, 0.4, 0.2],
+                rotate: [360, 180, 0]
+              }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 bg-gradient-to-l from-blue-500/10 via-green-500/10 to-yellow-500/10 rounded-full"
+              style={{
+                filter: 'blur(80px)',
+                transform: 'scale(1.5)'
+              }}
+            />
+
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative bg-gray-800/90 backdrop-blur-xl border border-gray-600/50 rounded-2xl p-12 text-center shadow-2xl"
+              style={{
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)'
+              }}
+            >
+              <motion.div
+                animate={{ 
+                  y: [-25, 25, -25]
+                }}
+                transition={{ 
+                  y: { 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    ease: "easeInOut"
+                  }
+                }}
+                className="mb-8 relative flex items-center justify-center"
+              >
+                {/* Image Glow Effect */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="absolute bg-gradient-to-r from-green-400/30 to-blue-400/30 rounded-full blur-xl"
+                  style={{
+                    width: '240px',
+                    height: '240px',
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%) scale(1.2)'
+                  }}
+                />
+                
+                <img 
+                  src="/assets/financial.png" 
+                  alt="Financial Analysis" 
+                  className="relative z-10 mx-auto block"
+                  style={{
+                    width: 'auto',
+                    height: 'auto',
+                    maxHeight: '200px',
+                    objectFit: 'contain',
+                    display: 'block'
+                  }}
+                />
+              </motion.div>
+              
+              <motion.h3 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="text-xl font-semibold text-white mb-2"
+              >
+                Sending Financial Report
+              </motion.h3>
+              
+              <motion.p 
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-gray-300 mb-4"
+              >
+                Preparing and sending your {reportFrequency} report...
+              </motion.p>
+              
+              <motion.div 
+                className="flex items-center justify-center space-x-2"
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0 }}
+                  className="w-2 h-2 bg-green-400 rounded-full"
+                ></motion.div>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                  className="w-2 h-2 bg-blue-400 rounded-full"
+                ></motion.div>
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                  className="w-2 h-2 bg-purple-400 rounded-full"
+                ></motion.div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Email Modal */}
+      <AnimatePresence>
+        {showEmailModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+            onClick={isSendingEmail ? undefined : closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={`bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-md mx-4 transition-all duration-300 ${
+                isSendingEmail ? 'blur-sm opacity-50 pointer-events-none' : ''
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
+                  <DollarSign className="w-6 h-6 text-green-400" />
+                  <span>Send Financial Report</span>
+                </h3>
+                <button
+                  onClick={isSendingEmail ? undefined : closeModal}
+                  disabled={isSendingEmail}
+                  className={`transition-colors ${
+                    isSendingEmail 
+                      ? 'text-gray-600 cursor-not-allowed' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter recipient email address"
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    disabled={isSendingEmail}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="frequency" className="block text-sm font-medium text-gray-300 mb-2">
+                    Report Frequency
+                  </label>
+                  <select
+                    id="frequency"
+                    value={reportFrequency}
+                    onChange={(e) => setReportFrequency(e.target.value)}
+                    className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    disabled={isSendingEmail}
+                  >
+                    <option value="weekly">Weekly Report</option>
+                    <option value="monthly">Monthly Report</option>
+                    <option value="quarterly">Quarterly Report</option>
+                  </select>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Choose the frequency for this financial report
+                  </p>
+                </div>
+
+                {emailStatus.message && (
+                  <div className={`p-3 rounded-lg ${
+                    emailStatus.success 
+                      ? 'bg-green-500/10 border border-green-500/20 text-green-400' 
+                      : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                  }`}>
+                    <div className="flex items-center space-x-2">
+                      {emailStatus.success ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <AlertTriangle className="w-5 h-5" />
+                      )}
+                      <span className="text-sm">{emailStatus.message}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-gray-700/50 p-4 rounded-lg">
+                  <h4 className="text-white font-medium mb-2">
+                    {reportFrequency === 'weekly' ? '📅 Weekly' : reportFrequency === 'quarterly' ? '📈 Quarterly' : '📊 Monthly'} Report Contents (Word Document):
+                  </h4>
+                  <ul className="text-gray-300 text-sm space-y-1">
+                    <li>• Complete financial summary & analysis</li>
+                    <li>• Expense breakdown by warehouse</li>
+                    <li>• Overdue receivables & payables details</li>
+                    <li>• Budget recommendations & strategies</li>
+                    <li>• Actionable recommendations for teams</li>
+                    {reportFrequency === 'quarterly' && <li>• Strategic planning insights & forecasts</li>}
+                  </ul>
+                  <div className="mt-2 text-xs text-gray-400">
+                    📄 Attachment: Financial_Report_{reportFrequency.charAt(0).toUpperCase() + reportFrequency.slice(1)}.docx
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={closeModal}
+                    className="flex-1 px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
+                    disabled={isSendingEmail}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSendReport}
+                    disabled={isSendingEmail || !email}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                  >
+                    {isSendingEmail ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span>Send Report</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

@@ -1359,9 +1359,9 @@ const ManagerDashboard = ({ user, onLogout }) => {
         {[
           { icon: '👤', id: 'analytics', label: 'Analytics', active: activeAgent === 'analytics', color: 'from-pink-500 to-rose-500' },
           { icon: '📊', id: 'forecast', label: 'Forecast', active: activeAgent === 'forecast', color: 'from-blue-500 to-cyan-500' },
-          { icon: '📦', id: 'inbound', label: 'Inbound', active: activeAgent === 'inbound', color: 'from-green-500 to-emerald-500' },
           { icon: '🛒', id: 'procurement', label: 'Procurement', active: activeAgent === 'procurement', color: 'from-purple-500 to-violet-500' },
-          { icon: '🚚', id: 'fulfillment', label: 'Fulfillment', active: activeAgent === 'fulfillment', color: 'from-orange-500 to-red-500' },
+          { icon: '🚚', id: 'inbound', label: 'Inbound', active: activeAgent === 'inbound', color: 'from-green-500 to-emerald-500' },
+          { icon: '📦', id: 'fulfillment', label: 'Fulfillment', active: activeAgent === 'fulfillment', color: 'from-orange-500 to-red-500' },
           { icon: '🔄', id: 'returns', label: 'Returns', active: activeAgent === 'returns', color: 'from-indigo-500 to-purple-500' },
           { icon: '💰', id: 'financial', label: 'Financial', active: activeAgent === 'financial', color: 'from-green-500 to-emerald-500' },
           // { icon: '⚙️', id: 'operational', label: 'Operational', active: activeAgent === 'operational', color: 'from-purple-500 to-pink-500' },

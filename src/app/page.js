@@ -186,6 +186,15 @@ export default function Home() {
                                  shadow-[0_20px_60px_rgba(0,0,0,0.4)] z-50 overflow-hidden"
                     >
                       {[
+                                                { 
+                          role: 'manager', 
+                          title: 'Manager', 
+                          description: 'Manage inventory & run analytics', 
+                          icon: '⚡',
+                          gradient: 'from-green-500/20 to-emerald-500/20',
+                          hoverGradient: 'hover:from-green-500/30 hover:to-emerald-500/30',
+                          iconBg: 'bg-gradient-to-br from-green-500/30 to-emerald-500/30'
+                        },
                         { 
                           role: 'user', 
                           title: 'User', 
@@ -194,16 +203,8 @@ export default function Home() {
                           gradient: 'from-blue-500/20 to-cyan-500/20',
                           hoverGradient: 'hover:from-blue-500/30 hover:to-cyan-500/30',
                           iconBg: 'bg-gradient-to-br from-blue-500/30 to-cyan-500/30'
-                        },
-                        { 
-                          role: 'manager', 
-                          title: 'Manager', 
-                          description: 'Manage inventory & run analytics', 
-                          icon: '⚡',
-                          gradient: 'from-green-500/20 to-emerald-500/20',
-                          hoverGradient: 'hover:from-green-500/30 hover:to-emerald-500/30',
-                          iconBg: 'bg-gradient-to-br from-green-500/30 to-emerald-500/30'
                         }
+
                         // { 
                         //   role: 'admin', 
                         //   title: 'Admin', 
