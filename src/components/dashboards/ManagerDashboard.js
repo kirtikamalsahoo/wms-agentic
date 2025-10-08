@@ -3081,15 +3081,6 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     predictions: '147'
                   },
                   { 
-                    name: 'Inbound Agent', 
-                    icon: '/assets/inbound.png', 
-                    status: 'Active', 
-                    accuracy: '98.2%', 
-                    color: 'from-green-500 to-emerald-500',
-                    lastRun: '30 mins ago',
-                    predictions: '89'
-                  },
-                  { 
                     name: 'Procurement Agent', 
                     icon: '/assets/procurement.png', 
                     status: 'Active', 
@@ -3098,6 +3089,16 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     lastRun: '1 hour ago',
                     predictions: '203'
                   },
+                  { 
+                    name: 'Inbound Agent', 
+                    icon: '/assets/inbound.png', 
+                    status: 'Active', 
+                    accuracy: '98.2%', 
+                    color: 'from-green-500 to-emerald-500',
+                    lastRun: '30 mins ago',
+                    predictions: '89'
+                  },
+
                   { 
                     name: 'Fulfillment Agent', 
                     icon: '/assets/fulfillment.png', 
