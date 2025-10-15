@@ -115,62 +115,146 @@ const ManagerDashboard = ({ user, onLogout }) => {
   const [forecastForm, setForecastForm] = useState({
     timeInterval: '',
     warehouse: '',
-    product: ''
+    category: '',
+    subcategory: ''
   });
   const [isLoadingForecast, setIsLoadingForecast] = useState(false);
-  const [availableProducts, setAvailableProducts] = useState([]);
   const [apiResponse, setApiResponse] = useState(null);
   const [apiWarehouses, setApiWarehouses] = useState([]);
   const [isLoadingWarehouses, setIsLoadingWarehouses] = useState(false);
   const [forecastResults, setForecastResults] = useState(null);
+  const [forecastError, setForecastError] = useState(null);
+
+  // Category hierarchy data
+  const categoryHierarchy = {
+    'Electronics': {
+      icon: '📱',
+      subcategories: {
+        'Phones': ['iPhone 15 Pro', 'Samsung Galaxy S24', 'OnePlus 12', 'Google Pixel 8', 'Xiaomi 14'],
+        'Laptops': ['MacBook Pro', 'Dell XPS 13', 'HP Spectre', 'Gaming Laptop', 'ThinkPad X1']
+      }
+    },
+    'Household': {
+      icon: '🏠',
+      subcategories: {
+        'Grocery': ['Organic Honey', 'Premium Coffee', 'Imported Tea', 'Olive Oil', 'Quinoa'],
+        'Daily Needs': ['Detergent', 'Shampoo', 'Toothpaste', 'Soap', 'Tissue Paper']
+      }
+    },
+    'Fashion': {
+      icon: '👕',
+      subcategories: {
+        'Mens': ['Premium Shirts', 'Casual T-Shirts', 'Formal Pants', 'Jeans', 'Polo Shirts'],
+        'Womens': ['Designer Dresses', 'Blouses', 'Skirts', 'Tops', 'Palazzo Pants'],
+        'Shoes': ['Running Shoes', 'Formal Shoes', 'Sneakers', 'Sandals', 'Boots']
+      }
+    },
+    'Accessories': {
+      icon: '🔌',
+      subcategories: {
+        'Phone': ['Phone Cases', 'Screen Protectors', 'Chargers', 'Power Banks', 'Earphones'],
+        'Laptop': ['Laptop Bags', 'Mouse', 'Keyboards', 'Webcams', 'USB Hubs']
+      }
+    }
+  };
   const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+
+  // Function to generate default forecast chart data
+  const getDefaultForecastData = () => {
+    return {
+      monthly: [
+        { month: 'Jan', predicted: 2400, actual: 2200, variance: -8.3 },
+        { month: 'Feb', predicted: 2600, actual: 2450, variance: -5.8 },
+        { month: 'Mar', predicted: 2800, actual: 2700, variance: -3.6 },
+        { month: 'Apr', predicted: 3000, actual: 2900, variance: -3.3 },
+        { month: 'May', predicted: 3200, actual: 3100, variance: -3.1 },
+        { month: 'Jun', predicted: 3400, actual: 3350, variance: -1.5 },
+      ],
+      weekly: [
+        { week: 'W1', predicted: 600, actual: 580, variance: -3.3 },
+        { week: 'W2', predicted: 650, actual: 620, variance: -4.6 },
+        { week: 'W3', predicted: 700, actual: 690, variance: -1.4 },
+        { week: 'W4', predicted: 750, actual: 720, variance: -4.0 },
+      ]
+    };
+  };
 
   // Function to generate dynamic forecast chart data from API results
   const generateForecastChartData = () => {
     if (!forecastResults || !forecastResults.result) {
       // Default data when no forecast results
-      return {
-        monthly: [
-          { month: 'Jan', predicted: 2400, actual: 2200, variance: -8.3 },
-          { month: 'Feb', predicted: 2600, actual: 2450, variance: -5.8 },
-          { month: 'Mar', predicted: 2800, actual: 2700, variance: -3.6 },
-          { month: 'Apr', predicted: 3000, actual: 2900, variance: -3.3 },
-          { month: 'May', predicted: 3200, actual: 3100, variance: -3.1 },
-          { month: 'Jun', predicted: 3400, actual: 3350, variance: -1.5 },
-        ],
-        weekly: [
-          { week: 'W1', predicted: 600, actual: 580, variance: -3.3 },
-          { week: 'W2', predicted: 650, actual: 620, variance: -4.6 },
-          { week: 'W3', predicted: 700, actual: 690, variance: -1.4 },
-          { week: 'W4', predicted: 750, actual: 720, variance: -4.0 },
-        ]
-      };
+      return getDefaultForecastData();
     }
 
     try {
+      // Use the same robust parsing logic
+      const parseChartAPIResponse = (resultString) => {
+        try {
+          // Remove common prefixes/suffixes
+          resultString = resultString.replace(/^TERMINATE\s*/, '');
+          resultString = resultString.replace(/\s*TERMINATE$/, '');
+          
+          // Handle markdown-formatted JSON (```json ... ```)
+          const jsonCodeBlockMatch = resultString.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+          if (jsonCodeBlockMatch) {
+            resultString = jsonCodeBlockMatch[1];
+          }
+          
+          // Handle cases where the response might have extra text before/after JSON
+          const jsonMatch = resultString.match(/(\{[\s\S]*\})/);
+          if (jsonMatch) {
+            resultString = jsonMatch[1];
+          }
+          
+          return JSON.parse(resultString);
+          
+        } catch (error) {
+          console.error('Chart JSON parsing failed:', error);
+          throw error;
+        }
+      };
+
       // Parse the forecast results from API
-      const parsedResult = JSON.parse(forecastResults.result.replace('TERMINATE', ''));
-      const apiforecastData = parsedResult.forecast || [];
+      const parsedResult = parseChartAPIResponse(forecastResults.result);
       
+      // Use aggregated_forecast for chart data if available, otherwise use individual forecast
+      const apiforecastData = parsedResult.aggregated_forecast || parsedResult.forecast || [];
+      
+      // If no data, return default but don't set error state here (causes infinite re-renders)
       if (apiforecastData.length === 0) {
-        return generateForecastChartData(); // Return default if no data
+        return getDefaultForecastData();
       }
 
-      // Convert API data to chart format
+      // Convert API data to chart format (already filtered for positive values)
       const chartData = apiforecastData.map((item, index) => {
-        const predicted = Math.round(parseFloat(item.predicted_quantity) || 0);
-        // Generate simulated actual data (85-95% of predicted for realistic variance)
-        const actual = Math.round(predicted * (0.85 + Math.random() * 0.1));
-        const variance = ((actual - predicted) / predicted * 100).toFixed(1);
-        
-        return {
-          period: `Week ${index + 1}`,
-          predicted: predicted,
-          actual: actual,
-          variance: parseFloat(variance),
-          date: item.period || `Period ${index + 1}`
-        };
-      });
+          const originalPredicted = parseFloat(item.predicted_quantity) || 0;
+          const predicted = Math.round(originalPredicted);
+          // Generate simulated actual data (85-95% of predicted for realistic variance)
+          const actual = Math.round(predicted * (0.85 + Math.random() * 0.1));
+          const variance = predicted !== 0 ? ((actual - predicted) / predicted * 100).toFixed(1) : 0;
+          
+          // Format the date from week_of field
+          const weekOf = item.week_of || `Week ${index + 1}`;
+          const formattedDate = new Date(weekOf).toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+          
+          // Extract product information
+          const productName = item.product_name || item.product || forecastForm.subcategory || 'Product';
+          
+          return {
+            period: formattedDate || `Week ${index + 1}`,
+            predicted: predicted,
+            actual: actual,
+            variance: parseFloat(variance),
+            date: weekOf,
+            isOverstock: false, // Only positive items now
+            originalValue: originalPredicted,
+            productName: productName,
+            overstockUnits: 0 // No overstock units in filtered data
+          };
+        });
 
       return {
         weekly: chartData,
@@ -178,7 +262,9 @@ const ManagerDashboard = ({ user, onLogout }) => {
       };
     } catch (error) {
       console.error('Error parsing forecast data for chart:', error);
-      return generateForecastChartData(); // Return default on error
+      console.log('Raw forecast result for chart:', forecastResults.result);
+      // Don't set error state here (causes infinite re-renders)
+      return getDefaultForecastData(); // Return default on error
     }
   };
 
@@ -259,19 +345,14 @@ const ManagerDashboard = ({ user, onLogout }) => {
   // Forecast form handlers
   const handleForecastSubmit = async (e) => {
     e.preventDefault();
-    if (!forecastForm.timeInterval || !forecastForm.warehouse || !forecastForm.product) {
-      alert('Please fill in all fields');
-      return;
-    }
-    
-    // Check if "All Products" is selected
-    if (forecastForm.product === 'all') {
-      alert('Please select a specific product for forecast analysis. "All Products" option is not supported by the API.');
+    if (!forecastForm.timeInterval || !forecastForm.warehouse || !forecastForm.category || !forecastForm.subcategory) {
+      alert('Please fill in all required fields: Time Interval, Warehouse, Category, and Subcategory.');
       return;
     }
     
     setIsLoadingForecast(true);
     setShowLoadingOverlay(true);
+    setForecastError(null); // Clear any previous errors
     
     try {
       // Map time interval to periods (weeks)
@@ -284,7 +365,11 @@ const ManagerDashboard = ({ user, onLogout }) => {
       
       const periods = periodsMapping[forecastForm.timeInterval] || 0;
       const warehouse_id = parseInt(forecastForm.warehouse);
-      const product_id = parseInt(forecastForm.product);
+      
+      // Capitalize first letter of category and subcategory
+      const capitalizeFirstLetter = (str) => {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      };
       
       // Prepare API payload
       const apiPayload = {
@@ -294,14 +379,14 @@ const ManagerDashboard = ({ user, onLogout }) => {
         host: "wmsdb.postgres.database.azure.com",
         port: 5432,
         periods: periods,
-        product_id: product_id,
-        warehouse_id: warehouse_id
+        warehouse_id: warehouse_id,
+        category: capitalizeFirstLetter(forecastForm.category),
+        sub_category: capitalizeFirstLetter(forecastForm.subcategory)
       };
       
       console.log('🚀 Calling Forecast API with payload:', apiPayload);
       
-      // Using Next.js API proxy to avoid CORS issues with local backend
-      // The proxy at /api/forecast forwards requests to http://127.0.0.1:8000/run-forecast-agent/
+      // Using Next.js API proxy to call the new forecast endpoint
       const response = await fetch('/api/forecast', {
         method: 'POST',
         headers: { 
@@ -317,12 +402,159 @@ const ManagerDashboard = ({ user, onLogout }) => {
         // Success - show the forecast results
         const selectedWarehouse = apiWarehouses.find(w => w.warehouse_id === warehouse_id) || 
                                  getWarehouseById(warehouse_id);
-        const selectedProduct = availableProducts.find(p => p.product_id === product_id)?.name || 'Selected Product';
         
         console.log('✅ Forecast API Response:', responseData);
         
-        // Store the forecast results for display
-        setForecastResults(responseData);
+        // Enhanced parsing function to handle different response formats
+        const parseAPIResponse = (responseData) => {
+          try {
+            let resultString = responseData.result || '';
+            
+            // Remove common prefixes/suffixes that might interfere with JSON parsing
+            resultString = resultString.replace(/^TERMINATE\s*/, '');
+            resultString = resultString.replace(/\s*TERMINATE$/, '');
+            
+            // Handle markdown-formatted JSON (```json ... ```)
+            const jsonCodeBlockMatch = resultString.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+            if (jsonCodeBlockMatch) {
+              resultString = jsonCodeBlockMatch[1];
+            }
+            
+            // Handle cases where the response might have extra text before/after JSON
+            const jsonMatch = resultString.match(/(\{[\s\S]*\})/);
+            if (jsonMatch) {
+              resultString = jsonMatch[1];
+            }
+            
+            // Try to parse the cleaned string
+            return JSON.parse(resultString);
+            
+          } catch (error) {
+            console.error('JSON parsing failed:', error);
+            console.log('Raw result string:', responseData.result);
+            
+            // If JSON parsing fails, try to extract data using regex patterns
+            const resultString = responseData.result || '';
+            
+            // Try to extract forecast data using regex patterns as fallback
+            const forecastPattern = /"(?:aggregated_)?forecast"\s*:\s*\[([\s\S]*?)\]/;
+            const narrativePattern = /"narrative"\s*:\s*"([^"]*?)"/;
+            
+            const forecastMatch = resultString.match(forecastPattern);
+            const narrativeMatch = resultString.match(narrativePattern);
+            
+            // Return a basic structure if patterns are found
+            if (forecastMatch || narrativeMatch) {
+              const fallbackResult = {};
+              
+              if (narrativeMatch) {
+                fallbackResult.narrative = narrativeMatch[1];
+              }
+              
+              if (forecastMatch) {
+                // Try to parse individual forecast items
+                try {
+                  fallbackResult.forecast = JSON.parse('[' + forecastMatch[1] + ']');
+                } catch {
+                  // If parsing individual items fails, create empty array
+                  fallbackResult.forecast = [];
+                }
+              }
+              
+              return fallbackResult;
+            }
+            
+            // If all parsing attempts fail, throw the original error
+            throw error;
+          }
+        };
+        
+        // Check for no data scenarios in the response
+        try {
+          const parsedResult = parseAPIResponse(responseData);
+          
+          console.log('✅ Parsed Forecast Result:', parsedResult);
+          
+          // Check if there's a narrative indicating no data
+          if (parsedResult.narrative && parsedResult.narrative.includes('No forecast data is available')) {
+            setForecastError({
+              type: 'no_data',
+              message: parsedResult.narrative,
+              suggestion: 'Try selecting a different category, subcategory, or warehouse that has historical data.'
+            });
+            setForecastResults(null); // Clear any previous results
+          } else {
+            // Check if forecast arrays are empty
+            const apiforecastData = parsedResult.aggregated_forecast || parsedResult.forecast || [];
+            
+            // Filter out products with negative forecast values
+            let filteredIndividualForecasts = [];
+            let filteredAggregatedForecasts = [];
+
+            // Filter individual forecasts (by product)
+            if (parsedResult.forecast && parsedResult.forecast.length > 0) {
+              filteredIndividualForecasts = parsedResult.forecast.filter(item => {
+                const forecastValue = parseFloat(item.predicted_quantity || item.demand_forecast || item.forecast || item.demand || 0);
+                return forecastValue > 0;
+              });
+            }
+
+            // Filter aggregated forecasts (by time period)
+            if (parsedResult.aggregated_forecast && parsedResult.aggregated_forecast.length > 0) {
+              filteredAggregatedForecasts = parsedResult.aggregated_forecast.filter(item => {
+                const forecastValue = parseFloat(item.predicted_quantity || item.demand_forecast || item.forecast || item.demand || 0);
+                return forecastValue > 0;
+              });
+            }
+
+            // Check if we have any positive data
+            const hasPositiveData = filteredIndividualForecasts.length > 0 || filteredAggregatedForecasts.length > 0;
+            
+            if (!hasPositiveData) {
+              setForecastError({
+                type: 'empty_data',
+                message: 'No positive forecast data found for the selected criteria.',
+                suggestion: 'All forecasts were negative or zero. Try selecting a different category, subcategory, or warehouse.'
+              });
+              setForecastResults(null); // Clear any previous results
+            } else {
+              // Create filtered parsedResult with only positive forecasts
+              const filteredParsedResult = {
+                ...parsedResult,
+                aggregated_forecast: filteredAggregatedForecasts.length > 0 ? filteredAggregatedForecasts : undefined,
+                forecast: filteredIndividualForecasts.length > 0 ? filteredIndividualForecasts : undefined
+              };
+              
+              // Create a properly formatted response object with filtered data
+              const formattedResponse = {
+                ...responseData,
+                result: JSON.stringify(filteredParsedResult)
+              };
+              
+              // Store the forecast results for display
+              setForecastResults(formattedResponse);
+              setForecastError(null); // Clear any previous errors
+              
+              console.log('✅ Forecast data successfully processed:', {
+                originalIndividualCount: parsedResult.forecast ? parsedResult.forecast.length : 0,
+                filteredIndividualCount: filteredIndividualForecasts.length,
+                originalAggregatedCount: parsedResult.aggregated_forecast ? parsedResult.aggregated_forecast.length : 0,
+                filteredAggregatedCount: filteredAggregatedForecasts.length,
+                hasNarrative: !!parsedResult.narrative
+              });
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing forecast response:', parseError);
+          console.log('Full response object:', responseData);
+          
+          setForecastError({
+            type: 'parse_error',
+            message: `Unable to parse forecast data: ${parseError.message}`,
+            suggestion: 'The API response format is unexpected. Please try again or contact support if the issue persists.'
+          });
+          setForecastResults(null);
+        }
         
         // Hide loading overlay after a brief delay to show completion
         setTimeout(() => {
@@ -333,16 +565,24 @@ const ManagerDashboard = ({ user, onLogout }) => {
       } else {
         // API returned an error
         console.error('❌ Forecast API Error:', responseData);
+        setForecastError({
+          type: 'api_error',
+          message: responseData.message || responseData.error || 'The forecast API returned an error.',
+          suggestion: 'Please check your database connection and ensure the warehouse has sufficient historical data.'
+        });
         setIsLoadingForecast(false);
         setShowLoadingOverlay(false);
-        alert(`❌ Forecast API Error:\n\n${responseData.message || responseData.error || 'Unknown error occurred'}\n\nPlease check the console for more details.`);
       }
       
     } catch (error) {
       console.error('❌ Network/Request Error:', error);
+      setForecastError({
+        type: 'network_error',
+        message: `Network error: ${error.message}`,
+        suggestion: 'Please check your internet connection and try again. If the problem persists, contact support.'
+      });
       setIsLoadingForecast(false);
       setShowLoadingOverlay(false);
-      alert(`❌ Network Error:\n\n${error.message}\n\nPlease check your internet connection and try again.`);
     }
   };
 
@@ -446,46 +686,16 @@ const ManagerDashboard = ({ user, onLogout }) => {
     */
   };
 
-  // Fetch products from local warehouse data (API commented out)
-  const fetchProducts = async (warehouseId) => {
-    setIsLoadingForecast(true);
-    console.log(`🔄 Loading products from local data for warehouse ${warehouseId}...`);
-    
-    // Simulate loading delay for better UX
-    setTimeout(() => {
-      // Use all 45 products from warehouseProducts.js
-      // For demo purposes, we'll show all products regardless of warehouse
-      // In a real scenario, you'd filter by warehouse_id
-      const selectedWarehouseId = parseInt(warehouseId);
-      
-      // Transform the imported products to match the expected format
-      const formattedProducts = warehouseProducts.map(product => ({
-        product_id: product.product_id,
-        name: product.product_name,
-        category: product.category,
-        sub_category: product.sub_category,
-        brand: product.brand,
-        price: product.price,
-        stock: product.stock,
-        warehouse_id: selectedWarehouseId, // Assign to selected warehouse
-        color: product.color,
-        description: product.description
-      }));
-      
-      setAvailableProducts(formattedProducts);
-      console.log(`📦 Successfully loaded ${formattedProducts.length} products for warehouse ${selectedWarehouseId}:`, formattedProducts);
-      setIsLoadingForecast(false);
-    }, 800);
 
-  };
 
   const handleForecastInputChange = async (field, value) => {
     setForecastForm(prev => ({
       ...prev,
       [field]: value,
       // Reset dependent fields when parent changes
-      ...(field === 'timeInterval' ? { warehouse: '', product: '' } : {}),
-      ...(field === 'warehouse' ? { product: '' } : {})
+      ...(field === 'timeInterval' ? { warehouse: '', category: '', subcategory: '' } : {}),
+      ...(field === 'warehouse' ? { category: '', subcategory: '' } : {}),
+      ...(field === 'category' ? { subcategory: '' } : {})
     }));
 
     // Step 1: When time interval is selected, fetch warehouses
@@ -495,12 +705,98 @@ const ManagerDashboard = ({ user, onLogout }) => {
       await fetchWarehouses();
     }
 
-    // Step 2: When warehouse is selected, fetch products from inventory movements
+    // Step 2: When warehouse is selected, log the selection (no product fetching needed)
     if (field === 'warehouse' && value) {
       console.log(`🏢 Warehouse selected: ${value}`);
-      console.log('📦 Now fetching products from inventory movements API...');
-      await fetchProducts(value);
     }
+  };
+
+  // Helper functions for forecast category hierarchy
+  const getAvailableCategories = () => {
+    return Object.keys(categoryHierarchy);
+  };
+
+  const getAvailableSubcategories = (category) => {
+    return category && categoryHierarchy[category] ? Object.keys(categoryHierarchy[category].subcategories) : [];
+  };
+
+  // Helper function to get product information by ID or name
+  const getProductInfo = (productIdentifier) => {
+    console.log('Looking up product:', productIdentifier, 'Type:', typeof productIdentifier);
+    console.log('Available products:', warehouseProducts.slice(0, 5).map(p => ({ id: p.product_id, name: p.product_name })));
+    
+    if (!productIdentifier || productIdentifier === 'undefined' || productIdentifier === 'Unknown Product') {
+      console.log('Invalid product identifier, using fallback');
+      return {
+        name: 'Unknown Product',
+        brand: forecastForm.category || 'Unknown',
+        category: forecastForm.category || 'Unknown',
+        sub_category: forecastForm.subcategory || 'Unknown',
+        price: 0
+      };
+    }
+
+    // Convert to number if it's a string number
+    const numericId = parseInt(productIdentifier);
+    console.log('Numeric ID:', numericId);
+
+    // Try to find by product_id first
+    const productById = warehouseProducts.find(p => p.product_id === numericId);
+    console.log('Found product by ID:', productById);
+    
+    if (productById) {
+      return {
+        name: productById.product_name,
+        brand: productById.brand,
+        category: productById.category,
+        sub_category: productById.sub_category,
+        price: productById.price
+      };
+    }
+
+    // Try to find by exact product_id as string comparison
+    const productByStringId = warehouseProducts.find(p => String(p.product_id) === String(productIdentifier));
+    console.log('Found product by string ID:', productByStringId);
+    
+    if (productByStringId) {
+      return {
+        name: productByStringId.product_name,
+        brand: productByStringId.brand,
+        category: productByStringId.category,
+        sub_category: productByStringId.sub_category,
+        price: productByStringId.price
+      };
+    }
+
+    // Try to find by product name
+    const productByName = warehouseProducts.find(p => 
+      p.product_name && p.product_name.toLowerCase().includes(String(productIdentifier).toLowerCase())
+    );
+    console.log('Found product by name:', productByName);
+    
+    if (productByName) {
+      return {
+        name: productByName.product_name,
+        brand: productByName.brand,
+        category: productByName.category,
+        sub_category: productByName.sub_category,
+        price: productByName.price
+      };
+    }
+
+    console.log('No product found, using fallback for:', productIdentifier);
+    // Fallback with form context
+    return {
+      name: `Product #${productIdentifier}`,
+      brand: forecastForm.category || 'Unknown',
+      category: forecastForm.category || 'Unknown',
+      sub_category: forecastForm.subcategory || 'Unknown',
+      price: 0
+    };
+  };
+
+  const getAvailableProductsBySubcategory = (category, subcategory) => {
+    return category && subcategory && categoryHierarchy[category]?.subcategories[subcategory] || [];
   };
 
   // Chatbot functionality
@@ -616,7 +912,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
           </div>
         </div>
         
-        <Box sx={{ width: '100%', height: 320 }}>
+        <Box sx={{ width: '100%', height: 600 }}>
           <LineChart
             series={[
               {
@@ -637,12 +933,62 @@ const ManagerDashboard = ({ user, onLogout }) => {
               scaleType: 'point',
               tickLabelStyle: { fill: 'rgba(255,255,255,0.8)', fontSize: 12 }
             }]}
+            tooltip={{
+              formatter: (value, name, props) => {
+                const dataIndex = props.dataIndex;
+                const dataPoint = data[dataIndex];
+                
+
+                return [Math.round(value), name];
+              },
+              labelStyle: { color: '#fff' },
+              contentStyle: { 
+                backgroundColor: 'rgba(0,0,0,0.8)', 
+                border: '1px solid rgba(255,255,255,0.2)',
+                borderRadius: '8px',
+                color: '#fff'
+              }
+            }}
             yAxis={[{
               tickLabelStyle: { fill: 'rgba(255,255,255,0.8)', fontSize: 11 },
               label: 'Quantity',
-              labelStyle: { fill: 'rgba(255,255,255,0.7)' }
+              labelStyle: { fill: 'rgba(255,255,255,0.7)' },
+              min: (() => {
+                // Calculate minimum value from all data with smart padding
+                const allValues = [
+                  ...data.map(d => d.predicted || 0),
+                  ...data.map(d => d.actual || 0)
+                ];
+                const minValue = Math.min(...allValues);
+                const maxValue = Math.max(...allValues);
+                const range = maxValue - minValue;
+                
+                // Dynamic padding based on data range
+                const padding = Math.max(range * 0.2, 10); // At least 20% padding or 10 units
+                
+                if (minValue <= 0) {
+                  return Math.floor(minValue - padding);
+                } else {
+                  return Math.max(0, Math.floor(minValue - padding));
+                }
+              })(),
+              max: (() => {
+                // Calculate maximum value from all data with smart padding
+                const allValues = [
+                  ...data.map(d => d.predicted || 0),
+                  ...data.map(d => d.actual || 0)
+                ];
+                const minValue = Math.min(...allValues);
+                const maxValue = Math.max(...allValues);
+                const range = maxValue - minValue;
+                
+                // Dynamic padding based on data range
+                const padding = Math.max(range * 0.2, 10); // At least 20% padding or 10 units
+                
+                return Math.ceil(maxValue + padding);
+              })()
             }]}
-            margin={{ left: 60, right: 30, top: 30, bottom: 50 }}
+            margin={{ left: 80, right: 40, top: 80, bottom: 60 }}
             slotProps={{
               legend: {
                 direction: 'row',
@@ -675,12 +1021,14 @@ const ManagerDashboard = ({ user, onLogout }) => {
           />
         </Box>
         
+
+        
         {/* Chart Statistics */}
-        <div className="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+        <div className="mt-4 grid grid-cols-4 gap-4 pt-4 border-t border-white/10">
           <div className="text-center">
             <div className="text-sm text-white/70">Max Forecast</div>
             <div className="text-lg font-bold text-purple-400">
-              {Math.max(...data.map(d => d.predicted || 0))}
+              {Math.round(Math.max(...data.map(d => d.predicted || 0)))}
             </div>
           </div>
           <div className="text-center">
@@ -695,6 +1043,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
               {data.length}
             </div>
           </div>
+          {/* <div className="text-center">
+            <div className="text-sm text-white/70">Positive Forecasts</div>
+            <div className="text-lg font-bold text-green-400">
+              {data.length}
+            </div>
+          </div> */}
         </div>
       </motion.div>
     );
@@ -1674,7 +2028,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     className="text-4xl font-bold text-white mb-2"
                   >
                     <TypewriterText 
-                      text="Welcome Back Sudhanshu !" 
+                      text="Welcome back Sudhanshu !" 
                       delay={800}
                       speed={60}
                       eraseSpeed={40}
@@ -1694,7 +2048,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
               
               <div className="flex items-center space-x-6">
                 {/* Task Planner - Only show on analytics page */}
-                {activeAgent === 'analytics' && (
+                {/* {activeAgent === 'analytics' && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -1718,7 +2072,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                       </motion.div>
                     </motion.button>
                   </motion.div>
-                )}
+                )} */}
 
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -1769,12 +2123,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
                      activeAgent === 'fulfillment' ? '🚚 Order Fulfillment' :
                      activeAgent === 'returns' ? '🔄 Returns Agent' :
                      activeAgent === 'financial' ? '💰 Financial Agent' :
-                     activeAgent === 'operational' ? '⚙️ Operational Agent' :
+                    //  activeAgent === 'operational' ? '⚙️ Operational Agent' :
                      activeAgent === 'analytics' ? '📊 Analytics Overview' : 'Dashboard'}
                   </span>
                 </motion.div>
                 <div className="flex space-x-2">
-                  {['analytics', 'forecast', 'inbound', 'procurement', 'fulfillment', 'returns', 'financial', 'operational'].map((agent) => (
+                  {['analytics', 'forecast', 'inbound', 'procurement', 'fulfillment', 'returns', 'financial'].map((agent) => (
                     <motion.button
                       key={agent}
                       whileHover={{ scale: 1.1 }}
@@ -2263,20 +2617,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                           </motion.div>
                         ))}
                         
-                        {/* Animated Data Flow */}
-                        <motion.div
-                          animate={{ 
-                            y: [0, 240, 0],
-                            opacity: [0.8, 0.8, 0.8, 0.8, 0]
-                          }}
-                          transition={{ 
-                            duration: 4, 
-                            repeat: Infinity, 
-                            ease: "easeInOut",
-                            delay: 3
-                          }}
-                          className="absolute left-4 top-0 w-2 h-2 bg-white rounded-full shadow-lg"
-                        />
+
                       </div>
                     </div>
                   </div>
@@ -2488,41 +2829,10 @@ const ManagerDashboard = ({ user, onLogout }) => {
                                 <span>🔄 Step 2: Loading warehouses...</span>
                               </motion.div>
                             )}
-                            {forecastForm.warehouse && isLoadingForecast && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-2 px-3 py-2 bg-orange-500/20 backdrop-blur-sm border border-orange-400/30 rounded-xl text-xs text-orange-200 flex items-center space-x-2"
-                              >
-                                <motion.div
-                                  animate={{ rotate: 360 }}
-                                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                  className="w-3 h-3 border border-orange-400 border-t-transparent rounded-full"
-                                />
-                                <span>🔄 Step 3: Fetching products from inventory movements API...</span>
-                              </motion.div>
-                            )}
-                            {forecastForm.warehouse && !isLoadingForecast && availableProducts.length > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-2 px-3 py-2 bg-blue-500/20 backdrop-blur-sm border border-blue-400/30 rounded-xl text-xs text-blue-200"
-                              >
-                                📦 Products loaded
-                              </motion.div>
-                            )}
-                            {forecastForm.warehouse && !isLoadingForecast && availableProducts.length === 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="mt-2 px-3 py-2 bg-red-500/20 backdrop-blur-sm border border-red-400/30 rounded-xl text-xs text-red-200"
-                              >
-                                ⚠️ No products found for this warehouse
-                              </motion.div>
-                            )}
+
                           </motion.div>
 
-                          {/* Product Selection Field */}
+                          {/* Category Selection Field */}
                           <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -2531,55 +2841,34 @@ const ManagerDashboard = ({ user, onLogout }) => {
                           >
                             <label className="block text-sm font-semibold text-white/90 mb-2">
                               <span className="flex items-center space-x-2">
-                                <span>📦</span>
-                                <span>Product Category</span>
+                                <span>🏷️</span>
+                                <span>Category</span>
                               </span>
                               {!forecastForm.warehouse && (
                                 <span className="ml-2 text-xs text-orange-400">(Select warehouse first)</span>
                               )}
-                              {forecastForm.warehouse && isLoadingForecast && (
-                                <span className="ml-2 text-xs text-blue-400">(Loading products...)</span>
-                              )}
                             </label>
                             <div className="relative">
                               <select 
-                                value={forecastForm.product}
-                                onChange={(e) => handleForecastInputChange('product', e.target.value)}
-                                disabled={!forecastForm.warehouse || isLoadingForecast}
+                                value={forecastForm.category}
+                                onChange={(e) => handleForecastInputChange('category', e.target.value)}
+                                disabled={!forecastForm.warehouse}
                                 className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-300 hover:bg-white/15 hover:border-white/30 ${
-                                  !forecastForm.warehouse || isLoadingForecast ? 'opacity-50 cursor-not-allowed' : ''
+                                  !forecastForm.warehouse ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                               >
                                 <option value="" className="bg-gray-800 text-white">
-                                  {!forecastForm.warehouse ? 'Select Warehouse First' : 
-                                   isLoadingForecast ? 'Loading Products from Local Data...' : 
-                                   availableProducts.length === 0 ? 'No Products Available' : 
-                                   'Select Product'}
+                                  {!forecastForm.warehouse ? 'Select Warehouse First' : 'Select Category'}
                                 </option>
-                                {availableProducts.map((product) => {
-                                  const categoryIcon = 
-                                    product.category === 'Electronics' ? '📱' :
-                                    product.category === 'Fashion' ? '👕' :
-                                    product.category === 'Household' ? '🏠' :
-                                    product.category === 'Accessories' ? '🔌' :
-                                    product.category === 'Home' ? '🏠' :
-                                    product.category === 'Sports' ? '⚽' : '📦';
-                                  
-                                  return (
-                                    <option 
-                                      key={product.product_id} 
-                                      value={product.product_id} 
-                                      className="bg-gray-800 text-white"
-                                    >
-                                      {categoryIcon} {product.name} ({product.category})
-                                    </option>
-                                  );
-                                })}
-                                {availableProducts.length > 1 && (
-                                  <option value="all" className="bg-gray-800 text-white">
-                                    🌟 All Products in this Warehouse
+                                {getAvailableCategories().map((category) => (
+                                  <option 
+                                    key={category} 
+                                    value={category} 
+                                    className="bg-gray-800 text-white"
+                                  >
+                                    {categoryHierarchy[category].icon} {category}
                                   </option>
-                                )}
+                                ))}
                               </select>
                               <motion.div
                                 animate={{ rotate: [0, 10, -10, 0] }}
@@ -2590,6 +2879,56 @@ const ManagerDashboard = ({ user, onLogout }) => {
                               </motion.div>
                             </div>
                           </motion.div>
+
+                          {/* Subcategory Selection Field */}
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.6, delay: 0.7 }}
+                            className="group"
+                          >
+                            <label className="block text-sm font-semibold text-white/90 mb-2">
+                              <span className="flex items-center space-x-2">
+                                <span>🏷️</span>
+                                <span>Subcategory</span>
+                              </span>
+                              {!forecastForm.category && (
+                                <span className="ml-2 text-xs text-orange-400">(Select category first)</span>
+                              )}
+                            </label>
+                            <div className="relative">
+                              <select 
+                                value={forecastForm.subcategory}
+                                onChange={(e) => handleForecastInputChange('subcategory', e.target.value)}
+                                disabled={!forecastForm.category}
+                                className={`w-full px-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50 transition-all duration-300 hover:bg-white/15 hover:border-white/30 ${
+                                  !forecastForm.category ? 'opacity-50 cursor-not-allowed' : ''
+                                }`}
+                              >
+                                <option value="" className="bg-gray-800 text-white">
+                                  {!forecastForm.category ? 'Select Category First' : 'Select Subcategory'}
+                                </option>
+                                {getAvailableSubcategories(forecastForm.category).map((subcategory) => (
+                                  <option 
+                                    key={subcategory} 
+                                    value={subcategory} 
+                                    className="bg-gray-800 text-white"
+                                  >
+                                    📂 {subcategory}
+                                  </option>
+                                ))}
+                              </select>
+                              <motion.div
+                                animate={{ rotate: [0, 10, -10, 0] }}
+                                transition={{ duration: 3, repeat: Infinity }}
+                                className="absolute right-4 top-4 text-white/60 pointer-events-none"
+                              >
+                                📂
+                              </motion.div>
+                            </div>
+                          </motion.div>
+
+
 
                           {/* Submit Button */}
                           <motion.div
@@ -2640,8 +2979,71 @@ const ManagerDashboard = ({ user, onLogout }) => {
                 </motion.div>
               </div>
 
+              {/* Forecast Error Display */}
+              {forecastError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.6 }}
+                  className="bg-gradient-to-br from-red-600/20 to-orange-600/20 backdrop-blur-sm rounded-2xl border border-red-400/30 p-6 hover:border-red-400/50 transition-all duration-300"
+                >
+                  <div className="flex items-center space-x-3 mb-4">
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        rotate: [0, 5, -5, 0]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-10 h-10 bg-red-500/30 rounded-full flex items-center justify-center"
+                    >
+                      <span className="text-red-200 text-lg">⚠️</span>
+                    </motion.div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-red-200 mb-1">No Forecast Data Available</h3>
+                      <div className="px-3 py-1 bg-red-500/20 backdrop-blur-sm border border-red-400/30 rounded-full text-xs text-red-200 inline-block">
+                        {forecastError.type === 'no_data' ? 'No Historical Data' : 'Empty Response'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl border border-red-400/20 p-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 bg-red-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-red-200 text-xs">!</span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-red-200 font-semibold text-sm mb-2">Issue Details:</h4>
+                          <p className="text-red-100/90 text-sm leading-relaxed mb-3">
+                            {forecastError.message}
+                          </p>
+                          <h4 className="text-orange-200 font-semibold text-sm mb-2">💡 Suggestion:</h4>
+                          <p className="text-orange-100/90 text-sm leading-relaxed">
+                            {forecastError.suggestion}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-4 border-t border-red-400/20">
+                      <div className="text-xs text-red-200/70">
+                        This message indicates the selected criteria returned no forecast data
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setForecastError(null)}
+                        className="px-4 py-2 bg-gradient-to-r from-red-500/30 to-orange-500/30 backdrop-blur-sm border border-red-400/30 text-red-200 rounded-lg hover:border-red-400/50 transition-all duration-300 text-xs"
+                      >
+                        Dismiss
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Forecast API Response Display */}
-              {forecastResults && (
+              {forecastResults && !forecastError && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -2658,9 +3060,10 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     </motion.div>
                     <h3 className="text-xl font-bold text-white">Forecast API Response</h3>
                     <div className="px-3 py-1 bg-purple-500/20 backdrop-blur-sm border border-purple-400/30 rounded-full text-xs text-purple-200">
-                      ✅ Connected to Local Backend API
+                      ✅ Connected to Backend API
                     </div>
                   </div>
+                
                   
                   
                   {/* Forecast Table */}
@@ -2673,23 +3076,216 @@ const ManagerDashboard = ({ user, onLogout }) => {
                       if (forecastResults.result) {
                         // Parse the JSON string inside the result field
                         const parsedResult = JSON.parse(forecastResults.result.replace('TERMINATE', ''));
-                        forecastData = parsedResult.forecast || [];
+                        // Use aggregated_forecast for the table, fallback to individual forecast
+                        forecastData = parsedResult.aggregated_forecast || parsedResult.forecast || [];
                         narrative = parsedResult.narrative || '';
                       }
                       
                       return (
                         <div className="space-y-6">
-                          {/* Forecast Table */}
+                          {/* Individual Product Forecasts */}
+                          {(() => {
+                            try {
+                              // Use the same robust parsing logic
+                              const parseProductAPIResponse = (resultString) => {
+                                try {
+                                  // Remove common prefixes/suffixes
+                                  resultString = resultString.replace(/^TERMINATE\s*/, '');
+                                  resultString = resultString.replace(/\s*TERMINATE$/, '');
+                                  
+                                  // Handle markdown-formatted JSON
+                                  const jsonCodeBlockMatch = resultString.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+                                  if (jsonCodeBlockMatch) {
+                                    resultString = jsonCodeBlockMatch[1];
+                                  }
+                                  
+                                  // Handle cases with extra text
+                                  const jsonMatch = resultString.match(/(\{[\s\S]*\})/);
+                                  if (jsonMatch) {
+                                    resultString = jsonMatch[1];
+                                  }
+                                  
+                                  return JSON.parse(resultString);
+                                } catch (error) {
+                                  console.error('Product parsing failed:', error);
+                                  throw error;
+                                }
+                              };
+
+                              const parsedResult = parseProductAPIResponse(forecastResults.result);
+                              const individualForecasts = parsedResult.forecast || [];
+                              
+                              if (individualForecasts.length > 0) {
+                                // Group forecasts by product identifier (try multiple field names)
+                                const productGroups = individualForecasts.reduce((groups, item) => {
+                                  console.log('Processing forecast item:', item);
+                                  const productId = item.product_id || item.product_name || item.product || item.name || 'Unknown Product';
+                                  const groupKey = String(productId); // Ensure it's a string for grouping
+                                  console.log('Product ID:', productId, 'Group Key:', groupKey);
+                                  if (!groups[groupKey]) {
+                                    groups[groupKey] = [];
+                                  }
+                                  groups[groupKey].push(item);
+                                  return groups;
+                                }, {});
+                                
+                                console.log('Product Groups:', productGroups);
+
+                                return (
+                                  <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                                      <span>📦</span>
+                                      <span>Product-wise Forecast</span>
+                                    </h4>
+                                    
+                                    <div className="space-y-4">
+                                      {Object.entries(productGroups).map(([productId, forecasts]) => {
+                                        const productInfo = getProductInfo(productId);
+                                        const totalDemand = forecasts.reduce((sum, f) => sum + parseFloat(f.predicted_quantity), 0);
+                                        
+                                        return (
+                                          <motion.div
+                                            key={productId}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300"
+                                          >
+                                            <div className="flex items-center justify-between mb-3">
+                                              <div className="flex items-center space-x-3">
+                                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center border border-white/20">
+                                                  <span className="text-white text-sm font-bold">#{productId}</span>
+                                                </div>
+                                                <div>
+                                                  <div className="text-white font-semibold">{productInfo.name || 'Unknown Product'}</div>
+                                                  <div className="text-white/60 text-sm">{(productInfo.brand || 'Unknown')} • {(productInfo.category || 'Unknown')}</div>
+                                                </div>
+                                              </div>
+                                              <div className="text-right">
+                                                <div className="text-purple-400 font-bold text-lg">
+                                                  {`${Math.round(totalDemand)} units`}
+                                                </div>
+                                                <div className="text-white/60 text-sm">Total Forecast</div>
+                                              </div>
+                                            </div>
+                                            
+                                            {/* Individual forecasts for this product */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                              {forecasts.map((forecast, index) => (
+                                                <div key={index} className="bg-white/5 rounded-lg p-3">
+                                                  <div className="text-white/70 text-xs mb-1">
+                                                    {new Date(forecast.week_of).toLocaleDateString('en-US', { 
+                                                      month: 'short', 
+                                                      day: 'numeric' 
+                                                    })}
+                                                  </div>
+                                                  <div className="text-white font-semibold">
+                                                    {`${Math.round(parseFloat(forecast.predicted_quantity))} units`}
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </motion.div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              
+                              // Fallback: If no individual forecasts, create product view from aggregated data
+                              console.log('No individual forecasts found, checking aggregated forecast');
+                              console.log('Aggregated forecast:', parsedResult.aggregated_forecast);
+                              if (parsedResult.aggregated_forecast && parsedResult.aggregated_forecast.length > 0) {
+                                return (
+                                  <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                                    <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                                      <span>📦</span>
+                                      <span>Product-wise Forecast</span>
+                                    </h4>
+                                    
+                                    <div className="space-y-4">
+                                      <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-300"
+                                      >
+                                        <div className="flex items-center justify-between mb-3">
+                                          <div className="flex items-center space-x-3">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center border border-white/20">
+                                              <span className="text-white text-sm font-bold">📦</span>
+                                            </div>
+                                            <div>
+                                              <div className="text-white font-semibold">{forecastForm.subcategory || 'Selected Products'}</div>
+                                              <div className="text-white/60 text-sm">{forecastForm.category || 'Category'} • {forecastForm.warehouse || 'Warehouse'}</div>
+                                            </div>
+                                          </div>
+                                          <div className="text-right">
+                                            <div className="text-purple-400 font-bold text-lg">
+                                              {Math.round(parsedResult.aggregated_forecast.reduce((sum, item) => sum + parseFloat(item.predicted_quantity || 0), 0))} units
+                                            </div>
+                                            <div className="text-white/60 text-sm">Total Forecast</div>
+                                          </div>
+                                        </div>
+                                        
+                                        {/* Individual forecasts for aggregated data */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                          {parsedResult.aggregated_forecast.map((forecast, index) => (
+                                            <div key={index} className="bg-white/5 rounded-lg p-3">
+                                              <div className="text-white/70 text-xs mb-1">
+                                                {new Date(forecast.week_of).toLocaleDateString('en-US', { 
+                                                  month: 'short', 
+                                                  day: 'numeric' 
+                                                })}
+                                              </div>
+                                              <div className="text-white font-semibold">
+                                                {`${Math.round(parseFloat(forecast.predicted_quantity || 0))} units`}
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </motion.div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              
+                              return null;
+                            } catch (error) {
+                              console.error('Error parsing individual forecasts:', error);
+                              
+                              // Final fallback: Show basic product info from form
+                              return (
+                                <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                                  <h4 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                                    <span>📦</span>
+                                    <span>Product-wise Forecast</span>
+                                  </h4>
+                                  <div className="text-center py-4">
+                                    <div className="text-white/60 text-sm">
+                                      Forecast available for: <span className="text-white font-medium">{forecastForm.subcategory || 'Selected products'}</span>
+                                    </div>
+                                    <div className="text-white/40 text-xs mt-1">
+                                      Category: {forecastForm.category || 'Unknown'} • Warehouse: {forecastForm.warehouse || 'Unknown'}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
+                          })()}
+
+                          {/* Aggregated Forecast Table */}
                           {forecastData.length > 0 && (
                             <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
                               <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-lg font-semibold text-white flex items-center space-x-2">
                                   <span>📊</span>
-                                  <span>Forecast Results</span>
+                                  <span>Weekly Aggregated Forecast</span>
                                 </h4>
                                 
                                 {/* Color Legend */}
-                                <div className="flex items-center space-x-4 text-xs">
+                                <div className="flex items-center space-x-3 text-xs flex-wrap">
                                   <div className="flex items-center space-x-1">
                                     <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-red-400 rounded"></div>
                                     <span className="text-white/70">Low (≤3)</span>
@@ -2755,10 +3351,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
                                           <div className="flex items-center justify-end space-x-3">
                                             {/* Quantity Value */}
                                             <div className="text-right">
-                                              <span className="text-purple-400 font-bold text-lg">
-                                                {Math.round(parseFloat(item.predicted_quantity))}
-                                              </span>
-                                              <span className="text-white/60 text-sm ml-1">units</span>
+                                              <div className="flex items-center justify-end space-x-1">
+                                                <span className="font-bold text-lg text-purple-400">
+                                                  {Math.round(parseFloat(item.predicted_quantity))}
+                                                </span>
+                                                <span className="text-white/60 text-sm ml-1">units</span>
+                                              </div>
                                             </div>
                                             
                                             {/* Visual Progress Bar */}
@@ -2770,10 +3368,13 @@ const ManagerDashboard = ({ user, onLogout }) => {
                                                 }}
                                                 transition={{ duration: 1, delay: index * 0.2 }}
                                                 className={`h-full rounded-full ${
-                                                  parseFloat(item.predicted_quantity) <= 3 ? 'bg-gradient-to-r from-red-500 to-red-400' :
-                                                  parseFloat(item.predicted_quantity) <= 6 ? 'bg-gradient-to-r from-yellow-500 to-orange-400' :
-                                                  parseFloat(item.predicted_quantity) <= 8 ? 'bg-gradient-to-r from-blue-500 to-cyan-400' :
-                                                  'bg-gradient-to-r from-green-500 to-emerald-400'
+                                                  parseFloat(item.predicted_quantity) <= 3 
+                                                    ? 'bg-gradient-to-r from-red-500 to-red-400' 
+                                                    : parseFloat(item.predicted_quantity) <= 6 
+                                                      ? 'bg-gradient-to-r from-yellow-500 to-orange-400' 
+                                                      : parseFloat(item.predicted_quantity) <= 8 
+                                                        ? 'bg-gradient-to-r from-blue-500 to-cyan-400' 
+                                                        : 'bg-gradient-to-r from-green-500 to-emerald-400'
                                                 }`}
                                               />
                                             </div>
@@ -2904,8 +3505,8 @@ const ManagerDashboard = ({ user, onLogout }) => {
                       </div>
                     </div>
                     <div className="bg-white/5 rounded-lg p-3">
-                      <div className="text-sm text-white/70">Available Products</div>
-                      <div className="text-2xl font-bold text-cyan-400">{availableProducts.length}</div>
+                      <div className="text-sm text-white/70">Forecast Active</div>
+                      <div className="text-2xl font-bold text-cyan-400">✓</div>
                     </div>
                   </div>
                   
@@ -3098,7 +3699,6 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     lastRun: '30 mins ago',
                     predictions: '89'
                   },
-
                   { 
                     name: 'Fulfillment Agent', 
                     icon: '/assets/fulfillment.png', 
@@ -3142,12 +3742,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
                               rotate: [0, 3, 0, -3, 0],
                               y: [0, -8, 0, -4, 0]
                             } : index === 1 ? {
-                              // Inbound Agent - Left-Right Glide
+                              // Procurement Agent - Left-Right Glide
                               scale: [1, 1.04, 1],
                               rotate: [0, -2, 0, 2, 0],
                               x: [0, -6, 0, 6, 0]
                             } : index === 2 ? {
-                              // Procurement Agent - Circular Motion
+                              // Inbound Agent - Circular Motion
                               scale: [1, 1.06, 1],
                               rotate: [0, 10, 20, 30, 0],
                               x: [0, 4, 0, -4, 0],
@@ -3204,26 +3804,118 @@ const ManagerDashboard = ({ user, onLogout }) => {
                 ))}
               </div>
 
-              {/* Charts Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <GlassLineChart 
-                  data={[
-                    { period: 'Jan', predicted: 45, actual: 42 },
-                    { period: 'Feb', predicted: 52, actual: 49 },
-                    { period: 'Mar', predicted: 48, actual: 51 },
-                    { period: 'Apr', predicted: 61, actual: 58 },
-                    { period: 'May', predicted: 55, actual: 57 },
-                    { period: 'Jun', predicted: 67, actual: 64 }
-                  ]} 
-                  title="Overall Performance Trends" 
-                />
+              {/* Additional Agent Cards and Analytics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {[
+                  { 
+                    name: 'Return Agent', 
+                    icon: '/assets/return.png', 
+                    status: 'Active', 
+                    accuracy: '95.3%', 
+                    color: 'from-pink-500 to-rose-500',
+                    lastRun: '1.5 hours ago',
+                    predictions: '92'
+                  },
+                  { 
+                    name: 'Financial Agent', 
+                    icon: '/assets/financial.png', 
+                    status: 'Active', 
+                    accuracy: '99.1%', 
+                    color: 'from-yellow-500 to-amber-500',
+                    lastRun: '20 mins ago',
+                    predictions: '78'
+                  }
+                ].map((agent, index) => (
+                  <motion.div
+                    key={agent.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.02, y: -8 }}
+                    className={`bg-gradient-to-br ${agent.color}/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 cursor-pointer`}
+                    onClick={() => setActiveAgent(agent.name.toLowerCase().split(' ')[0])}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <motion.div 
+                        className="flex items-center justify-center relative"
+                        whileHover={{ 
+                          scale: 1.15, 
+                          rotate: [0, -8, 8, -5, 5, 0],
+                          y: -5
+                        }}
+                        transition={{ 
+                          duration: 0.6,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <motion.img 
+                          src={agent.icon} 
+                          alt={agent.name} 
+                          className="w-32 h-32 object-contain drop-shadow-2xl filter brightness-105"
+                          animate={{
+                            ...(index === 0 ? {
+                              // Return Agent - Wobble Motion
+                              scale: [1, 1.07, 1],
+                              rotate: [0, 5, -5, 5, 0],
+                              x: [0, -2, 2, -2, 0],
+                              y: [0, -3, 3, 0]
+                            } : {
+                              // Financial Agent - Pulse Motion
+                              scale: [1, 1.09, 1],
+                              rotate: [0, 2, -2, 0],
+                              y: [0, -6, 0, -3, 0]
+                            })
+                          }}
+                          transition={{ 
+                            duration: index === 0 ? 3.8 : 2.8,
+                            delay: index * 0.3,
+                            ease: "easeInOut",
+                            repeat: Infinity
+                          }}
+                          whileHover={{ 
+                            scale: 1.25,
+                            rotate: [0, 15, -15, 10, -10, 0],
+                            transition: { duration: 0.6 }
+                          }}
+                        />
+                      </motion.div>
+                      <div className="px-2 py-1 bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-full text-xs text-green-200">
+                        {agent.status}
+                      </div>
+                    </div>
+                    <h3 className="text-lg font-semibold text-white mb-2">{agent.name}</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-white/70">Accuracy</span>
+                        <span className="text-sm font-bold text-white">{agent.accuracy}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-white/70">Last Run</span>
+                        <span className="text-sm text-white/80">{agent.lastRun}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-white/70">Predictions</span>
+                        <span className="text-sm text-purple-400 font-bold">{agent.predictions}</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 w-full bg-white/10 rounded-full h-2">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: agent.accuracy }}
+                        transition={{ duration: 2, delay: index * 0.2 }}
+                        className={`h-2 rounded-full bg-gradient-to-r ${agent.color}`}
+                      />
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Real-time Analytics Dashboard */}
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 flex flex-col"
+                  className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 flex flex-col lg:col-span-2"
                 >
-                  {/* <h3 className="text-lg font-semibold text-white mb-6">Agent Accuracy Comparison</h3> */}
                   <div className="relative w-full flex-1 bg-black/20 rounded-xl overflow-hidden border border-white/10">
                     <video 
                       className="w-full h-full object-cover rounded-xl"
@@ -3251,7 +3943,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
               </div>
 
               {/* Warehouse Status Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {[
                   { name: 'WH-Delhi', utilization: 87, orders: 234, status: 'Optimal', route: '/products/delhi' },
                   { name: 'WH-Bhubaneswar', utilization: 92, orders: 189, status: 'High', route: '/products/bbsr' },
@@ -3314,7 +4006,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     </div>
                   </motion.div>
                 ))}
-              </div>
+              </div> */}
 
               
 

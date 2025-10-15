@@ -4,10 +4,10 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    console.log('🔄 Proxy: Forwarding forecast request to backend...', body);
+    console.log('🔄 Proxy: Forwarding forecast request to new backend endpoint...', body);
     
     // Forward the request to the actual forecast API
-    const response = await fetch('https://wms-backend-hrayhaang8hzbdff.canadacentral-01.azurewebsites.net/run-forecast-agent/', {
+    const response = await fetch('https://wms-backend-hrayhaang8hzbdff.canadacentral-01.azurewebsites.net/forecast', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

@@ -439,52 +439,735 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
         </motion.div>
       </div>
 
-      {/* Cash Flow Chart */}
+      {/* Warehouse Budget Analysis */}
       <motion.div
-        key={`cashflow-chart-${selectedTimeframe}`}
+        key={`warehouse-budget-${selectedTimeframe}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
         className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
       >
-        <h3 className="text-xl font-semibold text-white mb-4">Cash Flow Analysis</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={financialData.cashFlow}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="month" stroke="#9CA3AF" />
-            <YAxis stroke="#9CA3AF" tickFormatter={(value) => {
-              if (value >= 100000) {
-                return `₹${(value / 100000).toFixed(1)}L`;
-              } else if (value >= 1000) {
-                return `₹${(value / 1000).toFixed(0)}K`;
-              } else {
-                return `₹${value}`;
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
+            <span>🏭</span>
+            <span>Warehouse Budget Analysis - FY 2025</span>
+          </h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-400">Total Budget:</span>
+            <span className="text-lg font-bold text-green-400">₹18.5 Cr</span>
+          </div>
+        </div>
+
+        {/* Warehouse Budget Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Delhi Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-sm border border-blue-500/30 rounded-xl p-5 hover:border-blue-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-blue-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏢</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Delhi Hub</h4>
+                  <p className="text-xs text-blue-300">North Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-blue-400">₹5.2 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹2.8 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹1.5 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.6 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.3 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-blue-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">87%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '87%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Mumbai Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-5 hover:border-purple-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏭</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Mumbai Hub</h4>
+                  <p className="text-xs text-purple-300">West Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-purple-400">₹6.8 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹3.8 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹2.1 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.7 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.2 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-purple-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">92%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Bangalore Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-xl p-5 hover:border-green-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-green-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🌟</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Bangalore Hub</h4>
+                  <p className="text-xs text-green-300">South Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-green-400">₹4.1 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹2.2 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹1.2 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.5 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.2 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-green-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">78%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Kolkata Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 backdrop-blur-sm border border-orange-500/30 rounded-xl p-5 hover:border-orange-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-orange-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏪</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Kolkata Hub</h4>
+                  <p className="text-xs text-orange-300">East Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-orange-400">₹2.4 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹1.3 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹0.7 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.3 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.1 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-orange-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-yellow-400">65%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Budget Comparison Chart */}
+        <div className="bg-gray-900/50 rounded-xl p-6">
+          <h4 className="text-lg font-semibold text-white mb-4">Budget Allocation Comparison</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={[
+              { 
+                warehouse: 'Delhi', 
+                operations: 2.8, 
+                infrastructure: 1.5, 
+                technology: 0.6, 
+                maintenance: 0.3,
+                total: 5.2
+              },
+              { 
+                warehouse: 'Mumbai', 
+                operations: 3.8, 
+                infrastructure: 2.1, 
+                technology: 0.7, 
+                maintenance: 0.2,
+                total: 6.8
+              },
+              { 
+                warehouse: 'Bangalore', 
+                operations: 2.2, 
+                infrastructure: 1.2, 
+                technology: 0.5, 
+                maintenance: 0.2,
+                total: 4.1
+              },
+              { 
+                warehouse: 'Kolkata', 
+                operations: 1.3, 
+                infrastructure: 0.7, 
+                technology: 0.3, 
+                maintenance: 0.1,
+                total: 2.4
               }
-            }} />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#1F2937', 
-                border: '1px solid #374151',
-                borderRadius: '8px',
-                color: '#fff'
-              }}
-              formatter={(value, name) => {
-                let formattedValue;
-                if (value >= 100000) {
-                  formattedValue = `₹${(value / 100000).toFixed(2)}L`;
-                } else if (value >= 1000) {
-                  formattedValue = `₹${(value / 1000).toFixed(0)}K`;
-                } else {
-                  formattedValue = `₹${value.toLocaleString('en-IN')}`;
-                }
-                return [formattedValue, name];
-              }}
-            />
-            <Bar dataKey="inflow" fill="#10B981" name="Cash Inflow" />
-            <Bar dataKey="outflow" fill="#EF4444" name="Cash Outflow" />
-            <Bar dataKey="net" fill="#3B82F6" name="Net Cash Flow" />
-          </BarChart>
-        </ResponsiveContainer>
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="warehouse" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" tickFormatter={(value) => `₹${value}Cr`} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1F2937', 
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  color: '#fff'
+                }}
+                formatter={(value, name) => [`₹${value} Cr`, name]}
+              />
+              <Bar dataKey="operations" stackId="a" fill="#3B82F6" name="Operations" />
+              <Bar dataKey="infrastructure" stackId="a" fill="#10B981" name="Infrastructure" />
+              <Bar dataKey="technology" stackId="a" fill="#8B5CF6" name="Technology" />
+              <Bar dataKey="maintenance" stackId="a" fill="#F59E0B" name="Maintenance" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
+
+
+
+      {/* Category-wise Best Selling Products */}
+      <motion.div
+        key={`best-selling-${selectedTimeframe}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
+            <span>🏆</span>
+            <span>Category-wise Best Selling Products</span>
+          </h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-400">Total Revenue:</span>
+            <span className="text-lg font-bold text-green-400">
+              {selectedTimeframe === 'month' ? '₹14.5L' : selectedTimeframe === 'quarter' ? '₹38.5L' : '₹1.34Cr'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Electronics Category */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 border border-blue-500/20 rounded-xl p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">📱</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Electronics</h4>
+                  <p className="text-xs text-blue-300">Tech & Gadgets</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-blue-400">
+                  {selectedTimeframe === 'month' ? '₹4.8L' : selectedTimeframe === 'quarter' ? '₹12.5L' : '₹45.2L'}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {selectedTimeframe === 'month' ? '33%' : selectedTimeframe === 'quarter' ? '32%' : '34%'} of total
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">📱</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Smartphones</div>
+                    <div className="text-xs text-gray-400">Latest models</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹2.1L' : selectedTimeframe === 'quarter' ? '₹5.8L' : '₹21.5L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '850' : selectedTimeframe === 'quarter' ? '2,340' : '8,650'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">💻</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Laptops</div>
+                    <div className="text-xs text-gray-400">Business & Gaming</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.8L' : selectedTimeframe === 'quarter' ? '₹4.2L' : '₹15.8L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '320' : selectedTimeframe === 'quarter' ? '890' : '3,250'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🎧</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Audio Devices</div>
+                    <div className="text-xs text-gray-400">Headphones & Speakers</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹0.9L' : selectedTimeframe === 'quarter' ? '₹2.5L' : '₹7.9L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '1,250' : selectedTimeframe === 'quarter' ? '3,420' : '12,800'} units
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Fashion Category */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-gradient-to-br from-pink-500/10 to-purple-600/10 border border-pink-500/20 rounded-xl p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">👗</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Fashion & Apparel</h4>
+                  <p className="text-xs text-pink-300">Clothing & Accessories</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-pink-400">
+                  {selectedTimeframe === 'month' ? '₹3.2L' : selectedTimeframe === 'quarter' ? '₹8.7L' : '₹32.1L'}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {selectedTimeframe === 'month' ? '22%' : selectedTimeframe === 'quarter' ? '23%' : '24%'} of total
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">👔</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Formal Wear</div>
+                    <div className="text-xs text-gray-400">Shirts & Suits</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.4L' : selectedTimeframe === 'quarter' ? '₹3.8L' : '₹14.2L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '2,100' : selectedTimeframe === 'quarter' ? '5,700' : '21,300'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">👟</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Footwear</div>
+                    <div className="text-xs text-gray-400">Sports & Casual</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.1L' : selectedTimeframe === 'quarter' ? '₹3.1L' : '₹11.5L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '980' : selectedTimeframe === 'quarter' ? '2,650' : '9,850'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">👜</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Accessories</div>
+                    <div className="text-xs text-gray-400">Bags & Jewelry</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹0.7L' : selectedTimeframe === 'quarter' ? '₹1.8L' : '₹6.4L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '1,450' : selectedTimeframe === 'quarter' ? '3,900' : '14,600'} units
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Home & Kitchen Category */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-gradient-to-br from-green-500/10 to-emerald-600/10 border border-green-500/20 rounded-xl p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏠</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Home & Kitchen</h4>
+                  <p className="text-xs text-green-300">Appliances & Decor</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-green-400">
+                  {selectedTimeframe === 'month' ? '₹2.8L' : selectedTimeframe === 'quarter' ? '₹7.2L' : '₹26.8L'}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {selectedTimeframe === 'month' ? '19%' : selectedTimeframe === 'quarter' ? '19%' : '20%'} of total
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🔌</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Kitchen Appliances</div>
+                    <div className="text-xs text-gray-400">Mixers & Cookers</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.5L' : selectedTimeframe === 'quarter' ? '₹3.9L' : '₹14.5L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '620' : selectedTimeframe === 'quarter' ? '1,680' : '6,250'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🛋️</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Furniture</div>
+                    <div className="text-xs text-gray-400">Chairs & Tables</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹0.9L' : selectedTimeframe === 'quarter' ? '₹2.4L' : '₹8.9L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '180' : selectedTimeframe === 'quarter' ? '485' : '1,800'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-violet-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🕯️</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Home Decor</div>
+                    <div className="text-xs text-gray-400">Lights & Art</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹0.4L' : selectedTimeframe === 'quarter' ? '₹0.9L' : '₹3.4L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '920' : selectedTimeframe === 'quarter' ? '2,480' : '9,200'} units
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Sports & Books Category */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="bg-gradient-to-br from-orange-500/10 to-red-600/10 border border-orange-500/20 rounded-xl p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">⚽</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">Sports & Books</h4>
+                  <p className="text-xs text-orange-300">Fitness & Education</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-bold text-orange-400">
+                  {selectedTimeframe === 'month' ? '₹3.7L' : selectedTimeframe === 'quarter' ? '₹10.1L' : '₹29.9L'}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {selectedTimeframe === 'month' ? '26%' : selectedTimeframe === 'quarter' ? '26%' : '22%'} of total
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🏋️</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Fitness Equipment</div>
+                    <div className="text-xs text-gray-400">Gym & Yoga</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.8L' : selectedTimeframe === 'quarter' ? '₹4.9L' : '₹18.2L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '450' : selectedTimeframe === 'quarter' ? '1,220' : '4,550'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">📚</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Books & Stationery</div>
+                    <div className="text-xs text-gray-400">Education & Office</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹1.2L' : selectedTimeframe === 'quarter' ? '₹3.3L' : '₹7.8L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '2,800' : selectedTimeframe === 'quarter' ? '7,600' : '28,200'} units
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-700/30 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center">
+                    <span className="text-sm">🎮</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Gaming</div>
+                    <div className="text-xs text-gray-400">Consoles & Games</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-green-400">
+                    {selectedTimeframe === 'month' ? '₹0.7L' : selectedTimeframe === 'quarter' ? '₹1.9L' : '₹3.9L'}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {selectedTimeframe === 'month' ? '320' : selectedTimeframe === 'quarter' ? '870' : '1,950'} units
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Revenue Distribution Chart */}
+        <div className="mt-8 bg-gray-900/50 rounded-xl p-6">
+          <h4 className="text-lg font-semibold text-white mb-4">Category Revenue Distribution</h4>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={[
+              { 
+                category: 'Electronics', 
+                revenue: selectedTimeframe === 'month' ? 4.8 : selectedTimeframe === 'quarter' ? 12.5 : 45.2,
+                percentage: selectedTimeframe === 'month' ? 33 : selectedTimeframe === 'quarter' ? 32 : 34
+              },
+              { 
+                category: 'Fashion', 
+                revenue: selectedTimeframe === 'month' ? 3.2 : selectedTimeframe === 'quarter' ? 8.7 : 32.1,
+                percentage: selectedTimeframe === 'month' ? 22 : selectedTimeframe === 'quarter' ? 23 : 24
+              },
+              { 
+                category: 'Home & Kitchen', 
+                revenue: selectedTimeframe === 'month' ? 2.8 : selectedTimeframe === 'quarter' ? 7.2 : 26.8,
+                percentage: selectedTimeframe === 'month' ? 19 : selectedTimeframe === 'quarter' ? 19 : 20
+              },
+              { 
+                category: 'Sports & Books', 
+                revenue: selectedTimeframe === 'month' ? 3.7 : selectedTimeframe === 'quarter' ? 10.1 : 29.9,
+                percentage: selectedTimeframe === 'month' ? 26 : selectedTimeframe === 'quarter' ? 26 : 22
+              }
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="category" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" tickFormatter={(value) => `₹${value}${selectedTimeframe === 'year' ? 'Cr' : 'L'}`} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#1F2937', 
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  color: '#fff'
+                }}
+                formatter={(value, name) => [
+                  `₹${value}${selectedTimeframe === 'year' ? 'Cr' : 'L'}`, 
+                  'Revenue'
+                ]}
+              />
+              <Bar dataKey="revenue" fill="url(#categoryGradient)" radius={[4, 4, 0, 0]} />
+              <defs>
+                <linearGradient id="categoryGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.8}/>
+                </linearGradient>
+              </defs>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </motion.div>
 
       {/* Financial Insights */}
@@ -492,7 +1175,7 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
         key={`insights-${selectedTimeframe}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
         className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
       >
         <h3 className="text-xl font-semibold text-white mb-4">Financial Insights - {selectedTimeframe === 'month' ? 'Monthly' : selectedTimeframe === 'quarter' ? 'Quarterly' : 'Yearly'} View</h3>

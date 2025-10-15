@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PieChart } from '@mui/x-charts';
 import { Box } from '@mui/material';
@@ -62,8 +62,8 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
     });
   };
 
-  // Calculate pipeline statistics from returns data
-  const calculatePipelineStats = () => {
+  // Calculate pipeline statistics from returns data - memoized to prevent re-renders
+  const pipelineStats = useMemo(() => {
     if (returnsData.length === 0) {
       return {
         returnRequest: 0,
@@ -105,7 +105,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
     });
 
     return stats;
-  };
+  }, [returnsData]);
 
   const handleSubmitNote = async (e) => {
     e.preventDefault();
@@ -242,7 +242,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
     }
   };
 
-  const KPICard = ({ title, value, icon, color, description }) => (
+  const KPICard = useCallback(({ title, value, icon, color, description }) => (
     <motion.div 
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -259,9 +259,9 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         <div className="text-4xl opacity-80">{icon}</div>
       </div>
     </motion.div>
-  );
+  ), []);
 
-  const ReturnPieChart = () => {
+  const ReturnPieChart = useMemo(() => {
     if (!agentResults) return null;
 
     // Filter out zero values for cleaner pie chart
@@ -372,7 +372,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         )}
       </motion.div>
     );
-  };
+  }, [agentResults]);
 
   return (
     <motion.div
@@ -463,6 +463,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
           >
             <label className="block text-white/80 text-sm font-medium">Return ID</label>
             <input
+              key="return-id-input"
               type="number"
               value={returnId}
               onChange={(e) => setReturnId(e.target.value)}
@@ -478,6 +479,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
           >
             <label className="block text-white/80 text-sm font-medium">Inspection Notes</label>
             <textarea
+              key="inspection-note-textarea"
               value={inspectionNote}
               onChange={(e) => setInspectionNote(e.target.value)}
               placeholder="Enter inspection details, condition assessment, recommended actions..."
@@ -616,7 +618,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
       </motion.div>
 
       {/* Agent Results - Pie Chart */}
-      {agentResults && <ReturnPieChart />}
+      {agentResults && ReturnPieChart}
 
       {/* Return Processing Pipeline */}
       <motion.div 
@@ -636,7 +638,6 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         </div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {(() => {
-            const pipelineStats = calculatePipelineStats();
             return [
               { 
                 stage: 'Return Request', 
@@ -711,7 +712,7 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
             <div className="text-white/70">
               Completion Rate: <span className="text-green-400 font-medium">
                 {returnsData.length > 0 
-                  ? `${Math.round((calculatePipelineStats().completed / returnsData.length) * 100)}%`
+                  ? `${Math.round((pipelineStats.completed / returnsData.length) * 100)}%`
                   : '0%'
                 }
               </span>
@@ -918,4 +919,4 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
   );
 };
 
-export default ReturnAgent;
+export default React.memo(ReturnAgent);

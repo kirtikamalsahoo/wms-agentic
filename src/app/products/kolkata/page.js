@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 // Kolkata warehouse products data
 const warehouseProducts = [
@@ -150,50 +149,255 @@ const ProductCard = ({ product, onHover, onLeave }) => {
   );
 };
 
-// Rack-style card with Kolkata green theme
+// Enhanced Rack-style card with brand-specific compartments - Kolkata theme
 const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   const pct = Math.max(0, Math.min(100, (product.quantity / product.maxCapacity) * 100));
   const filled = Math.round((pct / 100) * bins);
   const cols = bins === 6 ? 3 : 4; // 2 rows always
+  const empty = bins - filled;
 
   const handleMouseEnter = (e) => onHover(product, e);
 
+  // Generate brand data for each compartment
+  const generateBrandData = () => {
+    const brands = {
+      'Fashion': ['StyleCraft', 'TrendSet', 'FashionForward', 'UrbanWear', 'ClassicChoice', 'ModernStyle', 'ChicLine', 'ElegantEdge'],
+      'Electronics': ['TechPro', 'DigitalMax', 'SmartTech', 'InnovateX', 'FutureTech', 'ElectroPlus', 'TechStar', 'GadgetHub'],
+      'Home & Garden': ['HomeStyle', 'GardenPro', 'LivingSpace', 'ComfortZone', 'NatureTouch', 'HomeEssence', 'GreenThumb', 'CozyCorner'],
+      'Sports': ['ActiveGear', 'SportsPro', 'FitLife', 'GameOn', 'PowerPlay', 'AthleticEdge', 'WinnerCircle', 'SportStar'],
+      'Beauty': ['GlowUp', 'BeautyBliss', 'PureLook', 'RadiantSkin', 'GlamourGlow', 'NaturalGrace', 'BeautyBoost', 'SkinCare+'],
+      'Books': ['WisdomWorks', 'KnowledgeHub', 'BookCraft', 'LearnMore', 'ReadWell', 'StorySphere', 'BookVault', 'PageTurner']
+    };
+    
+    const categoryBrands = brands[product.category] || brands['Fashion'];
+    const compartments = [];
+    
+    for (let i = 0; i < bins; i++) {
+      if (i < filled) {
+        const brand = categoryBrands[i % categoryBrands.length];
+        const baseQuantity = Math.floor(product.quantity / filled);
+        const remainder = product.quantity % filled;
+        const quantity = baseQuantity + (i < remainder ? 1 : 0);
+        const maxPerCompartment = Math.floor(product.maxCapacity / bins);
+        const fillPercentage = Math.min(100, (quantity / maxPerCompartment) * 100);
+        
+        compartments.push({
+          id: i + 1,
+          brand,
+          quantity,
+          maxCapacity: maxPerCompartment,
+          fillPercentage,
+          isEmpty: false
+        });
+      } else {
+        compartments.push({
+          id: i + 1,
+          brand: null,
+          quantity: 0,
+          maxCapacity: Math.floor(product.maxCapacity / bins),
+          fillPercentage: 0,
+          isEmpty: true
+        });
+      }
+    }
+    
+    return compartments;
+  };
+
+  const compartments = generateBrandData();
+
+  // Get product category icon
+  const getCategoryIcon = () => {
+    switch (product.category) {
+      case 'Fashion': return '👕';
+      case 'Electronics': return '📱';
+      case 'Home & Garden': return '🏡';
+      case 'Sports': return '⚽';
+      case 'Beauty': return '💄';
+      case 'Books': return '📚';
+      default: return '📦';
+    }
+  };
+
+  // Handle compartment hover - Updated to show empty compartments too
+  const handleCompartmentHover = (compartment, e) => {
+    const compartmentData = {
+      ...product,
+      compartmentId: compartment.id,
+      brand: compartment.isEmpty ? 'Empty' : compartment.brand,
+      compartmentQuantity: compartment.quantity,
+      compartmentCapacity: compartment.maxCapacity,
+      compartmentFill: compartment.fillPercentage
+    };
+    onHover(compartmentData, e);
+  };
+
+  // Handle rack header hover (for general product info)
+  const handleRackHover = (e) => {
+    onHover(product, e);
+  };
+
   return (
     <div
-      className="group relative w-56 rounded-xl border-2 border-green-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-green-500/30 transition-all"
-      onMouseMove={handleMouseEnter}
-      onMouseLeave={onLeave}
+      className="group relative w-64 rounded-xl border-2 border-green-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-green-500/30 transition-all hover:scale-105"
     >
-      <div className="px-3 pt-2 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
-          <span className="text-xs text-gray-300 bg-black/30 rounded px-1 py-0.5">{Math.round(pct)}%</span>
+      {/* Rack Header with clear labeling */}
+      <div 
+        className="px-3 pt-2 pb-1 border-b border-green-400/30 cursor-pointer"
+        onMouseEnter={handleRackHover}
+        onMouseLeave={onLeave}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{getCategoryIcon()}</span>
+            <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-green-300 font-bold">{Math.round(pct)}%</span>
+            <span className="text-xs text-gray-400">FULL</span>
+          </div>
         </div>
+        
+        {/* Rack ID and Category */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-green-300 font-mono bg-green-500/20 px-2 py-0.5 rounded">
+            RACK-{product.id.toString().padStart(3, '0')}
+          </span>
+          <span className="text-xs text-gray-300 bg-gray-700/50 px-2 py-0.5 rounded">
+            {product.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Storage Compartments Visualization */}
+      <div className="px-3 py-3">
+        <div className="mb-2">
+          <div className="flex items-center justify-between text-xs text-gray-300 mb-1">
+            <span className="flex items-center gap-1">
+              📦 <strong>Storage Compartments</strong>
+            </span>
+            <span>{filled}/{bins} occupied</span>
+          </div>
+          <div className="text-[10px] text-gray-400 mb-1">
+            Hover over each compartment to see brand details
+          </div>
+        </div>
+        
         <div
-          className="grid gap-1.5"
+          className="grid gap-1.5 mb-3"
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
-          {Array.from({ length: bins }).map((_, i) => (
+          {compartments.map((compartment, i) => (
             <div
               key={i}
-              className={`h-5 w-full rounded-[4px] border border-green-200/40 ${
-                i < filled ? 'bg-green-400/90 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-white/20'
+              className={`relative h-8 w-full rounded-[4px] border-2 transition-all duration-300 cursor-pointer z-10 ${
+                !compartment.isEmpty
+                  ? 'bg-gray-800 border-green-300 hover:border-green-400 shadow-[0_0_8px_rgba(34,197,94,0.4)] hover:z-20' 
+                  : 'bg-white/20 border-green-200/40 hover:bg-white/30'
               }`}
-            />
+              onMouseEnter={(e) => {
+                e.stopPropagation();
+                handleCompartmentHover(compartment, e);
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation();
+                onLeave();
+              }}
+            >
+              {/* Compartment number - Enhanced visibility */}
+              <span className="absolute top-0.5 left-1 text-[8px] font-bold text-white bg-gray-800/80 px-1 py-0 rounded-sm shadow-md border border-white/20 z-20">
+                {compartment.id}
+              </span>
+              
+              {/* Battery-style fill indicator */}
+              {!compartment.isEmpty && (
+                <div className="absolute inset-1 rounded-[2px] overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r transition-all duration-500 ${
+                      compartment.fillPercentage >= 80 ? 'from-green-400 to-emerald-500' :
+                      compartment.fillPercentage >= 50 ? 'from-yellow-400 to-orange-500' :
+                      compartment.fillPercentage >= 25 ? 'from-orange-400 to-red-500' :
+                      'from-red-500 to-red-600'
+                    }`}
+                    style={{ width: `${compartment.fillPercentage}%` }}
+                  />
+                  {/* Battery segments - Enhanced visibility */}
+                  <div className="absolute inset-0 flex">
+                    {[25, 50, 75].map((segment) => (
+                      <div
+                        key={segment}
+                        className="border-r border-gray-700/80 shadow-sm"
+                        style={{ width: '25%' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Brand indicator dot */}
+              {!compartment.isEmpty && (
+                <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_4px_rgba(34,197,94,0.8)]" />
+              )}
+              
+              {/* Fill percentage text - Enhanced visibility */}
+              {!compartment.isEmpty && (
+                <span className="absolute bottom-0.5 right-0.5 text-[8px] font-black text-white bg-black/60 px-0.5 py-0 rounded-sm shadow-lg border border-white/20">
+                  {Math.round(compartment.fillPercentage)}%
+                </span>
+              )}
+              
+              {/* Brand initial (first letter of brand name) - Enhanced visibility */}
+              {!compartment.isEmpty && (
+                <span className="absolute top-0.5 left-0.5 text-[7px] font-black text-green-100 bg-gray-900/70 px-0.5 py-0 rounded-sm shadow-md border border-green-300/30">
+                  {compartment.brand.charAt(0)}
+                </span>
+              )}
+            </div>
           ))}
         </div>
-        <div className="flex items-center justify-between mt-2 text-[10px] text-gray-300">
+
+        {/* Detailed Status Information */}
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Current Stock:</span>
+            <span className="text-white font-semibold">{product.quantity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Max Capacity:</span>
+            <span className="text-green-300 font-semibold">{product.maxCapacity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Active Brands:</span>
+            <span className="text-purple-300 font-semibold">{filled} brands</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Available Space:</span>
+            <span className="text-green-300 font-semibold">{product.maxCapacity - product.quantity} units</span>
+          </div>
+        </div>
+
+        {/* Visual Legend */}
+        <div className="flex items-center justify-between mt-3 text-[10px] text-gray-300">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded-[3px] bg-green-400/90 border border-green-300" />
-            <span>Loaded</span>
+            <span className="inline-block h-3 w-3 rounded-[3px] bg-gradient-to-r from-green-400 to-green-600 border border-green-300" />
+            <span>Occupied ({filled})</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-[3px] bg-white/20 border border-green-200/40" />
-            <span>Free</span>
+            <span>Empty ({empty})</span>
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-green-400/0 group-hover:ring-green-400/40 transition" />
+      
+      {/* Hover Ring Effect */}
+      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-green-400/0 group-hover:ring-green-400/60 transition" />
+      
+      {/* Rack Status Badge */}
+      <div className="absolute -top-2 -right-2">
+        <div className={`w-4 h-4 rounded-full border-2 border-white ${
+          pct >= 70 ? 'bg-purple-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-emerald-500'
+        } animate-pulse`} />
+      </div>
     </div>
   );
 };
@@ -469,17 +673,7 @@ export default function KolkataWarehousePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link 
-            href="/"
-            className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 
-                       text-white hover:bg-white/20 transition-all duration-300 group"
-          >
-            <span className="mr-2 transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
-            Back to Home
-          </Link>
-        </div>
+
 
         {/* Header */}
         <div className="text-center mb-12">

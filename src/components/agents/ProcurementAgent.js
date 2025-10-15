@@ -9,6 +9,7 @@ import { Box } from '@mui/material';
 const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
   const [procurementResults, setProcurementResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [emailStatuses, setEmailStatuses] = useState({});
 
   // Supplier and Product mapping for display
   const supplierMapping = {
@@ -85,6 +86,8 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
           
           const resultData = JSON.parse(resultStr);
           setProcurementResults(resultData);
+          // Reset email statuses when new results are loaded
+          setEmailStatuses({});
         } catch (parseError) {
           console.error('Error parsing API response:', parseError);
           // Fallback: create a mock result for display
@@ -101,6 +104,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
             ],
             status: 'POs created successfully'
           });
+          setEmailStatuses({});
         }
       } else {
         console.error('API call failed:', data);
@@ -109,6 +113,101 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
       console.error('Error calling procurement agent API:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSendEmail = async (poIndex, purchaseOrder) => {
+    setEmailStatuses(prev => ({
+      ...prev,
+      [poIndex]: { status: 'sending', timestamp: null }
+    }));
+
+    try {
+      const emailData = {
+        to: 'kamalkirti16@gmail.com',
+        subject: `Purchase Order #${poIndex + 1} - ${purchaseOrder.supplier_name || `Supplier ${purchaseOrder.supplier_id}`}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 15px;">
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #4c51bf; margin-bottom: 10px; font-size: 28px;">🛒 Purchase Order</h1>
+                <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 10px 20px; border-radius: 25px; display: inline-block; font-weight: bold;">
+                  PO #${poIndex + 1}
+                </div>
+              </div>
+              
+              <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                <h2 style="color: #2d3748; margin-bottom: 15px; font-size: 20px;">📋 Order Details</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Supplier:</td>
+                    <td style="padding: 10px 0; color: #2d3748;">${purchaseOrder.supplier_name || `Supplier ${purchaseOrder.supplier_id}`}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Product:</td>
+                    <td style="padding: 10px 0; color: #2d3748;">${purchaseOrder.product_name || `Product ${purchaseOrder.product_id}`}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Quantity:</td>
+                    <td style="padding: 10px 0; color: #2d3748; font-weight: bold;">${purchaseOrder.quantity} units</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Unit Price:</td>
+                    <td style="padding: 10px 0; color: #2d3748;">₹${purchaseOrder.unit_price?.toLocaleString()}</td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Total Value:</td>
+                    <td style="padding: 10px 0; color: #667eea; font-weight: bold; font-size: 18px;">₹${(purchaseOrder.quantity * purchaseOrder.unit_price)?.toLocaleString()}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; font-weight: bold; color: #4a5568;">Delivery Date:</td>
+                    <td style="padding: 10px 0; color: #2d3748;">${purchaseOrder.delivery_date ? new Date(purchaseOrder.delivery_date).toLocaleDateString() : 'To be determined'}</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+                <h3 style="margin: 0 0 10px 0; font-size: 18px;">🎯 AI-Generated Purchase Order</h3>
+                <p style="margin: 0; opacity: 0.9;">This order was automatically generated based on demand forecasting and inventory optimization algorithms.</p>
+              </div>
+              
+              <div style="text-align: center; padding: 20px 0; border-top: 2px solid #e2e8f0;">
+                <p style="color: #718096; margin: 0 0 10px 0;">Generated by WMS Agentic System</p>
+                <p style="color: #a0aec0; margin: 0; font-size: 14px;">Sent on ${new Date().toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        `
+      };
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setEmailStatuses(prev => ({
+          ...prev,
+          [poIndex]: { 
+            status: 'sent', 
+            timestamp: new Date().toLocaleTimeString(),
+            recipient: emailData.to
+          }
+        }));
+      } else {
+        throw new Error(result.error || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setEmailStatuses(prev => ({
+        ...prev,
+        [poIndex]: { status: 'error', error: error.message, timestamp: null }
+      }));
     }
   };
 
@@ -208,7 +307,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
 
   // Carousel state
   const [currentSupplierIndex, setCurrentSupplierIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const suppliersPerPage = 3;
   const totalPages = Math.ceil(suppliersData.length / suppliersPerPage);
@@ -222,7 +321,7 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
     setIsAutoPlaying(!isAutoPlaying);
   };
 
-  // Auto-slide effect - Optimized to prevent page refresh feeling
+  // Auto-slide effect - Disabled by default, only manual navigation
   React.useEffect(() => {
     if (!isAutoPlaying || isPaused) return;
 
@@ -355,10 +454,10 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
                   isAutoPlaying 
                     ? 'bg-green-500/20 text-green-300 border border-green-400/30' 
-                    : 'bg-red-500/20 text-red-300 border border-red-400/30'
+                    : 'bg-blue-500/20 text-blue-300 border border-blue-400/30'
                 }`}
               >
-                {isAutoPlaying ? '⏸️ Auto' : '▶️ Manual'}
+                {isAutoPlaying ? '⏸️ Auto' : '🖱️ Manual'}
               </motion.button>
               {isAutoPlaying && (
                 <div className="flex items-center space-x-1">
@@ -874,23 +973,25 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-semibold text-purple-300">PO #{index + 1}</span>
-                      <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-200 rounded-full border border-purple-400/30">
-                        Active
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs px-2 py-1 bg-purple-500/20 text-purple-200 rounded-full border border-purple-400/30">
+                          Active
+                        </span>
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-xs text-white/60">Supplier:</span>
                         <span className="text-xs font-medium text-white">
-                          {supplierMapping[po.supplier_id] || `Supplier ${po.supplier_id}`}
+                          {po.supplier_name || po.supplier || `Supplier ${po.supplier_id}`}
                         </span>
                       </div>
                       
                       <div className="flex justify-between">
                         <span className="text-xs text-white/60">Product:</span>
                         <span className="text-xs font-medium text-blue-300">
-                          {productMapping[po.product_id] || `Product ${po.product_id}`}
+                          {po.product_name || po.product || `Product ${po.product_id}`}
                         </span>
                       </div>
                       
@@ -915,6 +1016,99 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
                           {po.delivery_date ? new Date(po.delivery_date).toLocaleDateString() : 'TBD'}
                         </span>
                       </div>
+                      
+                      {/* Email Action Section */}
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.3 }}
+                        className="mt-3 pt-3 border-t border-white/10"
+                      >
+                        {!emailStatuses[index] ? (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleSendEmail(index, po)}
+                            className="w-full py-2 px-4 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-500 hover:to-purple-500 text-white text-sm font-semibold rounded-lg border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 flex items-center justify-center space-x-2"
+                          >
+                            <span>📧</span>
+                            <span>Send Email</span>
+                          </motion.button>
+                        ) : emailStatuses[index].status === 'sending' ? (
+                          <div className="w-full py-2 px-4 bg-gradient-to-r from-yellow-500/80 to-orange-500/80 text-white text-sm font-semibold rounded-lg border border-yellow-400/30 flex items-center justify-center space-x-2">
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                            />
+                            <span>Sending...</span>
+                          </div>
+                        ) : emailStatuses[index].status === 'sent' ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <motion.div
+                                  animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    rotate: [0, 10, -10, 0]
+                                  }}
+                                  transition={{ 
+                                    duration: 2, 
+                                    repeat: Infinity,
+                                    delay: index * 0.2
+                                  }}
+                                  className="w-4 h-4 bg-green-500/30 rounded-full flex items-center justify-center"
+                                >
+                                  <span className="text-xs">📧</span>
+                                </motion.div>
+                                <span className="text-xs text-green-300 font-medium">Email Sent</span>
+                              </div>
+                              <div className="text-xs px-2 py-1 bg-green-500/20 text-green-200 rounded-full border border-green-400/30">
+                                ✅ Delivered
+                              </div>
+                            </div>
+                            <div className="text-xs text-white/70">
+                              Sent to: <span className="text-green-300 font-medium">{emailStatuses[index].recipient}</span>
+                            </div>
+                            <div className="text-xs text-white/50">
+                              Sent at: {emailStatuses[index].timestamp}
+                            </div>
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleSendEmail(index, po)}
+                              className="w-full py-1.5 px-3 bg-gradient-to-r from-blue-500/40 to-purple-500/40 hover:from-blue-500/60 hover:to-purple-500/60 text-white text-xs font-medium rounded-md border border-blue-400/20 hover:border-blue-400/40 transition-all duration-300"
+                            >
+                              📧 Resend Email
+                            </motion.button>
+                          </div>
+                        ) : emailStatuses[index].status === 'error' ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-4 h-4 bg-red-500/30 rounded-full flex items-center justify-center">
+                                  <span className="text-xs">❌</span>
+                                </div>
+                                <span className="text-xs text-red-300 font-medium">Email Failed</span>
+                              </div>
+                              <div className="text-xs px-2 py-1 bg-red-500/20 text-red-200 rounded-full border border-red-400/30">
+                                ❌ Error
+                              </div>
+                            </div>
+                            <div className="text-xs text-red-300">
+                              Error: {emailStatuses[index].error}
+                            </div>
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              onClick={() => handleSendEmail(index, po)}
+                              className="w-full py-1.5 px-3 bg-gradient-to-r from-red-500/60 to-orange-500/60 hover:from-red-500/80 hover:to-orange-500/80 text-white text-xs font-medium rounded-md border border-red-400/30 hover:border-red-400/50 transition-all duration-300"
+                            >
+                              🔄 Retry Send
+                            </motion.button>
+                          </div>
+                        ) : null}
+                      </motion.div>
                     </div>
                   </motion.div>
                 )) || (
@@ -1089,7 +1283,7 @@ const StaticChartsSection = React.memo(({ suppliersData }) => {
               color: supplier.color
             }]}
             xAxis={[{ 
-              data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], 
+              data: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept'], 
               scaleType: 'band',
               tickLabelStyle: { fill: 'rgba(255,255,255,0.6)', fontSize: 10 }
             }]}

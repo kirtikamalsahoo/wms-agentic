@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 // BBSR warehouse products data
 const warehouseProducts = [
@@ -150,50 +149,253 @@ const ProductCard = ({ product, onHover, onLeave }) => {
   );
 };
 
-// Rack-style card with BBSR blue theme
+// Enhanced Rack-style card with brand-specific compartments - BBSR theme
 const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   const pct = Math.max(0, Math.min(100, (product.quantity / product.maxCapacity) * 100));
   const filled = Math.round((pct / 100) * bins);
   const cols = bins === 6 ? 3 : 4; // 2 rows always
+  const empty = bins - filled;
 
   const handleMouseEnter = (e) => onHover(product, e);
 
+  // Generate brand data for each compartment
+  const generateBrandData = () => {
+    const brands = {
+      'Food': ['Organic Valley', 'Farm Fresh', 'Nature\'s Best', 'Golden Harvest', 'Pure & Simple', 'Green Fields', 'Sunrise', 'Premium Choice'],
+      'Personal Care': ['Herbal Essentials', 'Natural Glow', 'Pure Care', 'Ayur Life', 'Wellness Plus', 'Bio Natural', 'Fresh Look', 'Gentle Touch'],
+      'Baby Care': ['Little Angels', 'Baby Soft', 'Tiny Tots', 'Pure Baby', 'Comfort Care', 'Sweet Dreams', 'Baby Bliss', 'Cuddle Care'],
+      'Household': ['EcoClean', 'Fresh Home', 'Green Clean', 'Pure Living', 'Home Essentials', 'Clean & Shine', 'Sparkling', 'Natural Care'],
+      'Beverages': ['Morning Brew', 'Pure Taste', 'Natural Sip', 'Fresh Blend', 'Premium Pour', 'Golden Cup', 'Pure Energy', 'Refresh Plus']
+    };
+    
+    const categoryBrands = brands[product.category] || brands['Food'];
+    const compartments = [];
+    
+    for (let i = 0; i < bins; i++) {
+      if (i < filled) {
+        const brand = categoryBrands[i % categoryBrands.length];
+        const baseQuantity = Math.floor(product.quantity / filled);
+        const remainder = product.quantity % filled;
+        const quantity = baseQuantity + (i < remainder ? 1 : 0);
+        const maxPerCompartment = Math.floor(product.maxCapacity / bins);
+        const fillPercentage = Math.min(100, (quantity / maxPerCompartment) * 100);
+        
+        compartments.push({
+          id: i + 1,
+          brand,
+          quantity,
+          maxCapacity: maxPerCompartment,
+          fillPercentage,
+          isEmpty: false
+        });
+      } else {
+        compartments.push({
+          id: i + 1,
+          brand: null,
+          quantity: 0,
+          maxCapacity: Math.floor(product.maxCapacity / bins),
+          fillPercentage: 0,
+          isEmpty: true
+        });
+      }
+    }
+    
+    return compartments;
+  };
+
+  const compartments = generateBrandData();
+
+  // Get product category icon
+  const getCategoryIcon = () => {
+    switch (product.category) {
+      case 'Food': return '🍽️';
+      case 'Personal Care': return '🧴';
+      case 'Baby Care': return '👶';
+      case 'Household': return '🏠';
+      case 'Beverages': return '🥤';
+      default: return '📦';
+    }
+  };
+
+  // Handle compartment hover - Updated to show empty compartments too
+  const handleCompartmentHover = (compartment, e) => {
+    const compartmentData = {
+      ...product,
+      compartmentId: compartment.id,
+      brand: compartment.isEmpty ? 'Empty' : compartment.brand,
+      compartmentQuantity: compartment.quantity,
+      compartmentCapacity: compartment.maxCapacity,
+      compartmentFill: compartment.fillPercentage
+    };
+    onHover(compartmentData, e);
+  };
+
+  // Handle rack header hover (for general product info)
+  const handleRackHover = (e) => {
+    onHover(product, e);
+  };
+
   return (
     <div
-      className="group relative w-56 rounded-xl border-2 border-cyan-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-cyan-500/30 transition-all"
-      onMouseMove={handleMouseEnter}
-      onMouseLeave={onLeave}
+      className="group relative w-64 rounded-xl border-2 border-blue-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105"
     >
-      <div className="px-3 pt-2 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
-          <span className="text-xs text-gray-300 bg-black/30 rounded px-1 py-0.5">{Math.round(pct)}%</span>
+      {/* Rack Header with clear labeling */}
+      <div 
+        className="px-3 pt-2 pb-1 border-b border-blue-400/30 cursor-pointer"
+        onMouseEnter={handleRackHover}
+        onMouseLeave={onLeave}
+      >
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{getCategoryIcon()}</span>
+            <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-blue-300 font-bold">{Math.round(pct)}%</span>
+            <span className="text-xs text-gray-400">FULL</span>
+          </div>
         </div>
+        
+        {/* Rack ID and Category */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-blue-300 font-mono bg-blue-500/20 px-2 py-0.5 rounded">
+            RACK-{product.id.toString().padStart(3, '0')}
+          </span>
+          <span className="text-xs text-gray-300 bg-gray-700/50 px-2 py-0.5 rounded">
+            {product.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Storage Compartments Visualization */}
+      <div className="px-3 py-3">
+        <div className="mb-2">
+          <div className="flex items-center justify-between text-xs text-gray-300 mb-1">
+            <span className="flex items-center gap-1">
+              📦 <strong>Storage Compartments</strong>
+            </span>
+            <span>{filled}/{bins} occupied</span>
+          </div>
+          <div className="text-[10px] text-gray-400 mb-1">
+            Hover over each compartment to see brand details
+          </div>
+        </div>
+        
         <div
-          className="grid gap-1.5"
+          className="grid gap-1.5 mb-3"
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
-          {Array.from({ length: bins }).map((_, i) => (
+          {compartments.map((compartment, i) => (
             <div
               key={i}
-              className={`h-5 w-full rounded-[4px] border border-cyan-200/40 ${
-                i < filled ? 'bg-cyan-400/90 shadow-[0_0_8px_rgba(34,211,238,0.6)]' : 'bg-white/20'
+              className={`relative h-8 w-full rounded-[4px] border-2 transition-all duration-300 cursor-pointer z-10 ${
+                !compartment.isEmpty
+                  ? 'bg-gray-800 border-blue-300 hover:border-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.4)] hover:z-20' 
+                  : 'bg-white/20 border-blue-200/40 hover:bg-white/30'
               }`}
-            />
+              onMouseEnter={(e) => {
+                e.stopPropagation();
+                handleCompartmentHover(compartment, e);
+              }}
+              onMouseLeave={(e) => {
+                e.stopPropagation();
+                onLeave();
+              }}
+            >
+              {/* Compartment number - Enhanced visibility */}
+              <span className="absolute top-0.5 left-1 text-[8px] font-bold text-white bg-gray-800/80 px-1 py-0 rounded-sm shadow-md border border-white/20 z-20">
+                {compartment.id}
+              </span>
+              
+              {/* Battery-style fill indicator */}
+              {!compartment.isEmpty && (
+                <div className="absolute inset-1 rounded-[2px] overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r transition-all duration-500 ${
+                      compartment.fillPercentage >= 80 ? 'from-green-400 to-emerald-500' :
+                      compartment.fillPercentage >= 50 ? 'from-yellow-400 to-orange-500' :
+                      compartment.fillPercentage >= 25 ? 'from-orange-400 to-red-500' :
+                      'from-red-500 to-red-600'
+                    }`}
+                    style={{ width: `${compartment.fillPercentage}%` }}
+                  />
+                  {/* Battery segments - Enhanced visibility */}
+                  <div className="absolute inset-0 flex">
+                    {[25, 50, 75].map((segment) => (
+                      <div
+                        key={segment}
+                        className="border-r border-gray-700/80 shadow-sm"
+                        style={{ width: '25%' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Brand indicator dot */}
+              {!compartment.isEmpty && (
+                <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse shadow-[0_0_4px_rgba(59,130,246,0.8)]" />
+              )}
+              
+              {/* Fill percentage text - Enhanced visibility */}
+              {!compartment.isEmpty && (
+                <span className="absolute bottom-0.5 right-0.5 text-[8px] font-black text-white bg-black/60 px-0.5 py-0 rounded-sm shadow-lg border border-white/20">
+                  {Math.round(compartment.fillPercentage)}%
+                </span>
+              )}
+              
+              {/* Brand initial (first letter of brand name) - Enhanced visibility */}
+              {!compartment.isEmpty && (
+                <span className="absolute top-0.5 left-0.5 text-[7px] font-black text-blue-100 bg-gray-900/70 px-0.5 py-0 rounded-sm shadow-md border border-blue-300/30">
+                  {compartment.brand.charAt(0)}
+                </span>
+              )}
+            </div>
           ))}
         </div>
-        <div className="flex items-center justify-between mt-2 text-[10px] text-gray-300">
+
+        {/* Detailed Status Information */}
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Current Stock:</span>
+            <span className="text-white font-semibold">{product.quantity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Max Capacity:</span>
+            <span className="text-blue-300 font-semibold">{product.maxCapacity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Active Brands:</span>
+            <span className="text-purple-300 font-semibold">{filled} brands</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Available Space:</span>
+            <span className="text-green-300 font-semibold">{product.maxCapacity - product.quantity} units</span>
+          </div>
+        </div>
+
+        {/* Visual Legend */}
+        <div className="flex items-center justify-between mt-3 text-[10px] text-gray-300">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded-[3px] bg-cyan-400/90 border border-cyan-300" />
-            <span>Loaded</span>
+            <span className="inline-block h-3 w-3 rounded-[3px] bg-gradient-to-r from-blue-400 to-blue-600 border border-blue-300" />
+            <span>Occupied ({filled})</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block h-3 w-3 rounded-[3px] bg-white/20 border border-cyan-200/40" />
-            <span>Free</span>
+            <span className="inline-block h-3 w-3 rounded-[3px] bg-white/20 border border-blue-200/40" />
+            <span>Empty ({empty})</span>
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-cyan-400/0 group-hover:ring-cyan-400/40 transition" />
+      
+      {/* Hover Ring Effect */}
+      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-blue-400/0 group-hover:ring-blue-400/60 transition" />
+      
+      {/* Rack Status Badge */}
+      <div className="absolute -top-2 -right-2">
+        <div className={`w-4 h-4 rounded-full border-2 border-white ${
+          pct >= 70 ? 'bg-purple-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-emerald-500'
+        } animate-pulse`} />
+      </div>
     </div>
   );
 };
@@ -358,12 +560,15 @@ const TooltipCard = ({ item, position, type }) => {
   
   // Handle different item types
   const isProduct = type === 'product';
+  const isCompartment = isProduct && item.compartmentId !== undefined;
   const stockPercentage = isProduct ? (item.quantity / item.maxCapacity) * 100 : null;
+  const compartmentPercentage = isCompartment ? item.compartmentFill : null;
   
   const getStockStatus = () => {
     if (!isProduct) return null;
-    if (stockPercentage >= 70) return { text: 'In Stock', color: 'text-green-400' };
-    if (stockPercentage >= 40) return { text: 'Low Stock', color: 'text-yellow-400' };
+    const percentage = isCompartment ? compartmentPercentage : stockPercentage;
+    if (percentage >= 70) return { text: 'Well Stocked', color: 'text-green-400' };
+    if (percentage >= 40) return { text: 'Low Stock', color: 'text-yellow-400' };
     return { text: 'Critical', color: 'text-red-400' };
   };
 
@@ -378,47 +583,120 @@ const TooltipCard = ({ item, position, type }) => {
         transform: 'translateY(-100%)'
       }}
     >
-      <h3 className="text-white font-semibold text-lg mb-2">{item.name}</h3>
+      <h3 className="text-white font-semibold text-lg mb-2">
+        {isCompartment ? `${item.name} - Compartment ${item.compartmentId}` : item.name}
+      </h3>
       <div className="space-y-1 text-sm">
         {isProduct ? (
           // Product tooltip content
           <>
-            <p className="text-gray-300">Category: <span className="text-cyan-400">{item.category}</span></p>
-            <p className="text-gray-300">
-              Quantity: <span className="text-white font-medium">{item.quantity}</span>
-              <span className="text-gray-400">/{item.maxCapacity}</span>
-            </p>
-            <p className="text-gray-300">
-              Status: <span className={status.color}>{status.text}</span>
-            </p>
-            <div className="mt-2">
-              <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full bg-gradient-to-r ${
-                    stockPercentage >= 70 ? 'from-green-500 to-emerald-600' :
-                    stockPercentage >= 40 ? 'from-yellow-500 to-orange-500' :
-                    'from-red-500 to-red-600'
-                  } transition-all duration-300`}
-                  style={{ width: `${stockPercentage}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-1">{stockPercentage.toFixed(1)}% filled</p>
-            </div>
+            {isCompartment ? (
+              // Compartment-specific tooltip
+              <>
+                <p className="text-gray-300">Brand: <span className={item.brand === 'Empty' ? 'text-gray-500 font-semibold' : 'text-blue-400 font-semibold'}>{item.brand}</span></p>
+                <p className="text-gray-300">Category: <span className="text-purple-400">{item.category}</span></p>
+                <p className="text-gray-300">Compartment: <span className="text-yellow-400">#{item.compartmentId}</span></p>
+                <p className="text-gray-300">
+                  Stock: <span className="text-white font-medium">{item.compartmentQuantity}</span>
+                  <span className="text-gray-400">/{item.compartmentCapacity} units</span>
+                </p>
+                <p className="text-gray-300">
+                  Status: <span className={item.brand === 'Empty' ? 'text-gray-500' : status.color}>{item.brand === 'Empty' ? 'Available Space' : status.text}</span>
+                </p>
+                {item.brand !== 'Empty' ? (
+                  <div className="mt-2">
+                    <div className="w-32 h-3 bg-gray-700 rounded-full overflow-hidden border border-gray-600">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${
+                          compartmentPercentage >= 80 ? 'from-green-400 to-emerald-500' :
+                          compartmentPercentage >= 50 ? 'from-yellow-400 to-orange-500' :
+                          compartmentPercentage >= 25 ? 'from-orange-400 to-red-500' :
+                          'from-red-500 to-red-600'
+                        } transition-all duration-300`}
+                        style={{ width: `${compartmentPercentage}%` }}
+                      />
+                      {/* Battery segments overlay */}
+                      <div className="absolute inset-0 flex">
+                        {[25, 50, 75].map((segment) => (
+                          <div
+                            key={segment}
+                            className="border-r border-gray-600/70"
+                            style={{ width: '25%' }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      <span className="text-blue-300 font-medium">{compartmentPercentage.toFixed(1)}%</span> compartment filled
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-2">
+                    <div className="w-32 h-3 bg-gray-700 rounded-full overflow-hidden border border-gray-600">
+                      <div className="h-full bg-gray-600" style={{ width: '0%' }} />
+                      {/* Battery segments overlay for empty */}
+                      <div className="absolute inset-0 flex">
+                        {[25, 50, 75].map((segment) => (
+                          <div
+                            key={segment}
+                            className="border-r border-gray-600/70"
+                            style={{ width: '25%' }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">
+                      <span className="text-gray-500 font-medium">0.0%</span> compartment filled - <span className="text-green-400">Ready for new stock</span>
+                    </p>
+                  </div>
+                )}
+                <div className="mt-2 pt-2 border-t border-gray-600">
+                  <p className="text-xs text-gray-400">
+                    <strong className="text-gray-300">Total Rack:</strong> {item.quantity}/{item.maxCapacity} units
+                  </p>
+                </div>
+              </>
+            ) : (
+              // Regular product tooltip
+              <>
+                <p className="text-gray-300">Category: <span className="text-blue-400">{item.category}</span></p>
+                <p className="text-gray-300">
+                  Quantity: <span className="text-white font-medium">{item.quantity}</span>
+                  <span className="text-gray-400">/{item.maxCapacity}</span>
+                </p>
+                <p className="text-gray-300">
+                  Status: <span className={status.color}>{status.text}</span>
+                </p>
+                <div className="mt-2">
+                  <div className="w-32 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full bg-gradient-to-r ${
+                        stockPercentage >= 70 ? 'from-green-500 to-emerald-600' :
+                        stockPercentage >= 40 ? 'from-yellow-500 to-orange-500' :
+                        'from-red-500 to-red-600'
+                      } transition-all duration-300`}
+                      style={{ width: `${stockPercentage}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">{stockPercentage.toFixed(1)}% filled</p>
+                </div>
+              </>
+            )}
           </>
         ) : (
           // Operational item tooltip content
           <>
             <p className="text-gray-300">Quantity: <span className="text-white font-medium">{item.quantity}</span></p>
-            <p className="text-gray-300">Status: <span className="text-cyan-400">{item.status}</span></p>
+            <p className="text-gray-300">Status: <span className="text-red-400">{item.status}</span></p>
             {type === 'inbound' && (
               <>
-                <p className="text-gray-300">Supplier: <span className="text-teal-400">{item.supplier}</span></p>
-                <p className="text-gray-300">ETA: <span className="text-blue-400">{item.eta}</span></p>
+                <p className="text-gray-300">Supplier: <span className="text-amber-400">{item.supplier}</span></p>
+                <p className="text-gray-300">ETA: <span className="text-yellow-400">{item.eta}</span></p>
               </>
             )}
             {type === 'dispatch' && (
               <>
-                <p className="text-gray-300">Destination: <span className="text-teal-400">{item.destination}</span></p>
+                <p className="text-gray-300">Destination: <span className="text-amber-400">{item.destination}</span></p>
                 <p className="text-gray-300">Priority: <span className={
                   item.priority === 'High' ? 'text-red-400' :
                   item.priority === 'Medium' ? 'text-yellow-400' : 'text-green-400'
@@ -469,17 +747,7 @@ export default function BhubaneswarWarehousePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link 
-            href="/"
-            className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 
-                       text-white hover:bg-white/20 transition-all duration-300 group"
-          >
-            <span className="mr-2 transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
-            Back to Home
-          </Link>
-        </div>
+
 
         {/* Header */}
         <div className="text-center mb-12">

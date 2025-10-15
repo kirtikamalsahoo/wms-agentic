@@ -46,6 +46,134 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
     ]
   };
 
+  // Warehouse-specific shipment data
+  const warehouseShipments = {
+    'wh-delhi': [
+      { id: 'DL001234', supplier: 'TechCorp Industries', products: 'iPhone 15 Pro (50 units)', eta: '2024-01-15', status: 'In Transit' },
+      { id: 'DL005678', supplier: 'Global Electronics Hub', products: 'MacBook Pro (30 units)', eta: '2024-01-16', status: 'Scheduled' },
+      { id: 'DL009876', supplier: 'Fashion Hub Limited', products: 'Premium Shirts (100 units)', eta: '2024-01-17', status: 'Delayed' },
+      { id: 'DL002345', supplier: 'TechCorp Industries', products: 'Samsung Galaxy S24 (40 units)', eta: '2024-01-18', status: 'Processing' },
+      { id: 'DL006789', supplier: 'Global Electronics Hub', products: 'Gaming Laptops (15 units)', eta: '2024-01-19', status: 'In Transit' }
+    ],
+    'wh-bhubaneswar': [
+      { id: 'BB001345', supplier: 'Regional Tech Supply', products: 'Xiaomi Phones (35 units)', eta: '2024-01-15', status: 'Scheduled' },
+      { id: 'BB005789', supplier: 'Eastern Electronics', products: 'Tablets (25 units)', eta: '2024-01-16', status: 'In Transit' },
+      { id: 'BB009987', supplier: 'Coastal Fashion', products: 'Casual Wear (80 units)', eta: '2024-01-17', status: 'Processing' },
+      { id: 'BB002456', supplier: 'Regional Tech Supply', products: 'Smart Watches (20 units)', eta: '2024-01-18', status: 'Scheduled' },
+      { id: 'BB006890', supplier: 'Eastern Electronics', products: 'Headphones (45 units)', eta: '2024-01-19', status: 'In Transit' }
+    ],
+    'wh-pune': [
+      { id: 'PN001456', supplier: 'Western Tech Hub', products: 'OnePlus Devices (40 units)', eta: '2024-01-15', status: 'In Transit' },
+      { id: 'PN005890', supplier: 'Maharashtra Electronics', products: 'Smart TVs (12 units)', eta: '2024-01-16', status: 'Scheduled' },
+      { id: 'PN009098', supplier: 'Pune Fashion House', products: 'Designer Shirts (60 units)', eta: '2024-01-17', status: 'In Transit' },
+      { id: 'PN002567', supplier: 'Western Tech Hub', products: 'Bluetooth Speakers (55 units)', eta: '2024-01-18', status: 'Processing' },
+      { id: 'PN006901', supplier: 'Maharashtra Electronics', products: 'Monitors (18 units)', eta: '2024-01-19', status: 'Scheduled' }
+    ],
+    'wh-kolkata': [
+      { id: 'KL001567', supplier: 'Bengal Electronics', products: 'Vivo Smartphones (28 units)', eta: '2024-01-15', status: 'Processing' },
+      { id: 'KL005901', supplier: 'Eastern Fashion Co', products: 'Traditional Wear (45 units)', eta: '2024-01-16', status: 'In Transit' },
+      { id: 'KL009109', supplier: 'Kolkata Tech Center', products: 'Keyboards & Mouse (70 units)', eta: '2024-01-17', status: 'Scheduled' },
+      { id: 'KL002678', supplier: 'Bengal Electronics', products: 'Power Banks (35 units)', eta: '2024-01-18', status: 'In Transit' },
+      { id: 'KL006012', supplier: 'Eastern Fashion Co', products: 'Winter Jackets (25 units)', eta: '2024-01-19', status: 'Delayed' }
+    ]
+  };
+
+  // Warehouse-specific delivery slots
+  const warehouseDeliverySlots = {
+    'wh-delhi': [
+      { slot: '09:00 - 11:00', supplier: 'TechCorp Industries', items: '25 Electronics', status: 'Scheduled', action: 'Prepare' },
+      { slot: '11:00 - 13:00', supplier: 'Fashion Hub Limited', items: '50 Apparel', status: 'In Progress', action: 'Processing' },
+      { slot: '13:00 - 15:00', supplier: 'Global Electronics Hub', items: '15 Laptops', status: 'Scheduled', action: 'Prepare' },
+      { slot: '15:00 - 17:00', supplier: 'Home Essentials Co', items: '30 Home Items', status: 'Scheduled', action: 'Prepare' }
+    ],
+    'wh-bhubaneswar': [
+      { slot: '09:00 - 11:00', supplier: 'Regional Tech Supply', items: '20 Mobile Phones', status: 'Received', action: 'Complete' },
+      { slot: '11:00 - 13:00', supplier: 'Coastal Fashion', items: '35 Casual Wear', status: 'Scheduled', action: 'Prepare' },
+      { slot: '13:00 - 15:00', supplier: 'Eastern Electronics', items: '12 Tablets', status: 'In Progress', action: 'Processing' },
+      { slot: '15:00 - 17:00', supplier: 'Local Suppliers', items: '18 Accessories', status: 'Scheduled', action: 'Prepare' }
+    ],
+    'wh-pune': [
+      { slot: '09:00 - 11:00', supplier: 'Western Tech Hub', items: '30 Smart Devices', status: 'In Progress', action: 'Processing' },
+      { slot: '11:00 - 13:00', supplier: 'Pune Fashion House', items: '40 Designer Items', status: 'Received', action: 'Complete' },
+      { slot: '13:00 - 15:00', supplier: 'Maharashtra Electronics', items: '8 Smart TVs', status: 'Scheduled', action: 'Prepare' },
+      { slot: '15:00 - 17:00', supplier: 'Local Distributors', items: '22 Audio Equipment', status: 'Scheduled', action: 'Prepare' }
+    ],
+    'wh-kolkata': [
+      { slot: '09:00 - 11:00', supplier: 'Bengal Electronics', items: '15 Smartphones', status: 'Scheduled', action: 'Prepare' },
+      { slot: '11:00 - 13:00', supplier: 'Eastern Fashion Co', items: '28 Traditional Wear', status: 'Received', action: 'Complete' },
+      { slot: '13:00 - 15:00', supplier: 'Kolkata Tech Center', items: '32 Computer Peripherals', status: 'In Progress', action: 'Processing' },
+      { slot: '15:00 - 17:00', supplier: 'Regional Suppliers', items: '14 Power Accessories', status: 'Scheduled', action: 'Prepare' }
+    ]
+  };
+
+  // Warehouse-specific received goods
+  const warehouseReceivedGoods = {
+    'wh-delhi': [
+      { date: '2024-01-13', supplier: 'TechCorp Industries', items: '25 Electronics', quantity: '25 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-12', supplier: 'Fashion Hub Limited', items: '30 Apparel', quantity: '30 units', status: 'Received', quality: 'Excellent' },
+      { date: '2024-01-11', supplier: 'Global Electronics Hub', items: '20 Laptops', quantity: '20 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-10', supplier: 'Home Essentials Co', items: '40 Home Items', quantity: '40 units', status: 'Received', quality: 'Fair' }
+    ],
+    'wh-bhubaneswar': [
+      { date: '2024-01-13', supplier: 'Regional Tech Supply', items: '18 Mobile Phones', quantity: '18 units', status: 'Received', quality: 'Excellent' },
+      { date: '2024-01-12', supplier: 'Coastal Fashion', items: '25 Casual Wear', quantity: '25 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-11', supplier: 'Eastern Electronics', items: '15 Tablets', quantity: '15 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-10', supplier: 'Local Suppliers', items: '22 Accessories', quantity: '22 units', status: 'Received', quality: 'Excellent' }
+    ],
+    'wh-pune': [
+      { date: '2024-01-13', supplier: 'Western Tech Hub', items: '28 Smart Devices', quantity: '28 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-12', supplier: 'Pune Fashion House', items: '35 Designer Items', quantity: '35 units', status: 'Received', quality: 'Excellent' },
+      { date: '2024-01-11', supplier: 'Maharashtra Electronics', items: '10 Smart TVs', quantity: '10 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-10', supplier: 'Local Distributors', items: '20 Audio Equipment', quantity: '20 units', status: 'Received', quality: 'Fair' }
+    ],
+    'wh-kolkata': [
+      { date: '2024-01-13', supplier: 'Bengal Electronics', items: '12 Smartphones', quantity: '12 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-12', supplier: 'Eastern Fashion Co', items: '28 Traditional Wear', quantity: '28 units', status: 'Received', quality: 'Excellent' },
+      { date: '2024-01-11', supplier: 'Kolkata Tech Center', items: '32 Computer Peripherals', quantity: '32 units', status: 'Received', quality: 'Good' },
+      { date: '2024-01-10', supplier: 'Regional Suppliers', items: '16 Power Accessories', quantity: '16 units', status: 'Received', quality: 'Fair' }
+    ]
+  };
+
+  // Warehouse-specific analytics data
+  const warehouseAnalytics = {
+    'wh-delhi': {
+      incomingShipments: 47,
+      incomingProgress: 78,
+      onTimeRate: 92,
+      onTimeProgress: 92,
+      damagedItems: 5,
+      damagedProgress: 15,
+      activeTrucks: 156
+    },
+    'wh-bhubaneswar': {
+      incomingShipments: 32,
+      incomingProgress: 65,
+      onTimeRate: 88,
+      onTimeProgress: 88,
+      damagedItems: 3,
+      damagedProgress: 12,
+      activeTrucks: 89
+    },
+    'wh-pune': {
+      incomingShipments: 52,
+      incomingProgress: 85,
+      onTimeRate: 94,
+      onTimeProgress: 94,
+      damagedItems: 2,
+      damagedProgress: 8,
+      activeTrucks: 142
+    },
+    'wh-kolkata': {
+      incomingShipments: 28,
+      incomingProgress: 58,
+      onTimeRate: 85,
+      onTimeProgress: 85,
+      damagedItems: 7,
+      damagedProgress: 20,
+      activeTrucks: 76
+    }
+  };
+
   const warehouses = [
     { id: 'wh-delhi', name: 'WH-Delhi', location: 'Delhi' },
     { id: 'wh-bhubaneswar', name: 'WH-Bhubaneswar', location: 'Bhubaneswar' },
@@ -54,6 +182,11 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
   ];
 
   const currentWarehouseData = warehouseData[selectedWarehouse];
+  const currentShipments = warehouseShipments[selectedWarehouse];
+  const currentDeliverySlots = warehouseDeliverySlots[selectedWarehouse];
+  const currentReceivedGoods = warehouseReceivedGoods[selectedWarehouse];
+  const currentAnalytics = warehouseAnalytics[selectedWarehouse];
+  
   const weeklyAverage = Math.round(currentWarehouseData.reduce((sum, day) => sum + day.value, 0) / 7);
   const peakDay = currentWarehouseData.reduce((max, day) => day.value > max.value ? day : max, currentWarehouseData[0]);
   const weeklyTotal = currentWarehouseData.reduce((sum, day) => sum + day.value, 0);
@@ -75,64 +208,119 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
       
       {/* Truck Image and Bar Graph Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
-        {/* Left Card - Truck Image */}
+        {/* Left Card - Fleet Operations Dashboard */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative bg-white/5 backdrop-blur-xl rounded-2xl border border-white/20 hover:border-white/30 transition-all duration-300 p-4 shadow-2xl before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-2xl before:pointer-events-none"
+          className="relative bg-gradient-to-br from-blue-900/40 via-indigo-900/30 to-purple-900/40 backdrop-blur-xl rounded-2xl border border-white/20 hover:border-white/30 transition-all duration-300 p-6 shadow-2xl overflow-hidden"
         >
-          <div className="relative z-10 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">🚛 Active Shipments</h3>
-            <div className="flex justify-center items-center overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl"></div>
+          </div>
+
+          <div className="relative z-10 h-full">
+            {/* Header Section */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <motion.div
+                  animate={{ rotate: [0, 0] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-full flex items-center justify-center border border-blue-400/30"
+                >
+                  <span className="text-2xl">🚛</span>
+                </motion.div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Fleet Operations</h3>
+                  <p className="text-sm text-white/60">Real-time logistics dashboard</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-300 font-semibold">LIVE</span>
+              </div>
+            </div>
+
+            {/* Truck Image Section */}
+            <div className="flex items-center justify-center mb-6">
               <motion.img
                 src="/assets/truck.png"
                 alt="Logistics Truck"
-                className="w-80 h-80 object-contain"
-                initial={{ scale: 0.8, opacity: 0, x: -100 }}
+                className="w-48 h-36 object-contain"
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ 
                   scale: 1, 
-                  opacity: 1,
-                  x: [0, 25, -25, 0]
+                  opacity: 1
                 }}
                 transition={{ 
                   scale: { duration: 0.8 },
-                  opacity: { duration: 0.8 },
-                  x: { 
-                    duration: 5, 
-                    repeat: Infinity, 
-                    ease: "easeInOut" 
-                  }
-                }}
-                whileHover={{ 
-                  scale: 1.15,
-                  y: [-8, -15, -8],
-                  transition: { 
-                    duration: 0.6,
-                    y: { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                  }
+                  opacity: { duration: 0.8 }
                 }}
               />
             </div>
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="mt-2 space-y-1"
-            >
-              <div className="text-xl font-bold text-blue-400">24/7</div>
-              <div className="text-xs text-white/70">Active Fleet Operations</div>
-              <div className="flex justify-center space-x-3 mt-2">
-                <div className="text-center">
-                  <div className="text-sm font-semibold text-green-400">156</div>
-                  <div className="text-xs text-white/60">Active Trucks</div>
+
+            {/* Main Metrics Grid - Simplified */}
+            <div className="grid grid-cols-2 gap-6">
+              {/* Active Shipments */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl p-6 border border-orange-400/20 hover:border-orange-400/40 transition-all duration-300"
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  <span className="text-2xl">📦</span>
+                  <span className="text-base text-white/70 font-medium">Active Shipments</span>
                 </div>
-                {/* <div className="text-center">
-                  <div className="text-sm font-semibold text-yellow-400">89%</div>
-                  <div className="text-xs text-white/60">Efficiency Rate</div>
-                </div> */}
-              </div>
-            </motion.div>
+                <div className="text-4xl font-black bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent mb-2">
+                  26
+                </div>
+                <div className="text-sm text-white/50 mb-3">Currently in transit</div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-white/10 rounded-full h-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "65%" }}
+                      transition={{ duration: 2, delay: 0.5 }}
+                      className="h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500"
+                    />
+                  </div>
+                  <span className="text-sm text-orange-300 font-semibold">65%</span>
+                </div>
+              </motion.div>
+
+              {/* Active Trucks */}
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl p-6 border border-green-400/20 hover:border-green-400/40 transition-all duration-300"
+              >
+                <div className="flex items-center space-x-3 mb-3">
+                  <span className="text-2xl">🚚</span>
+                  <span className="text-base text-white/70 font-medium">Fleet Size</span>
+                </div>
+                <div className="text-4xl font-black bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                  {currentAnalytics.activeTrucks}
+                </div>
+                <div className="text-sm text-white/50 mb-3">Active vehicles</div>
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-white/10 rounded-full h-2">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: "87%" }}
+                      transition={{ duration: 2, delay: 0.7 }}
+                      className="h-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
+                    />
+                  </div>
+                  <span className="text-sm text-green-300 font-semibold">87%</span>
+                </div>
+              </motion.div>
+            </div>
+
+
           </div>
         </motion.div>
 
@@ -196,25 +384,25 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
               </div>
 
               {/* Bar Chart */}
-              <div className="relative h-full flex items-end justify-center space-x-3 pt-8">
+              <div className="relative h-full flex items-end justify-center space-x-3 pt-12 pb-8">
                 {currentWarehouseData.map((bar, index) => (
-                  <div key={bar.day} className="flex flex-col items-center group">
-                    {/* Value Display on Top */}
+                  <div key={bar.day} className="flex flex-col items-center relative">
+                    {/* Bar */}
+                    {/* Value Display on Top of Bar - Always Visible */}
                     <motion.div
                       initial={{ opacity: 0, y: -20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.8, delay: index * 0.1 + 1.8 }}
-                      className="mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      className="mb-2 z-10"
                     >
                       <div className="bg-black/60 backdrop-blur-sm px-2 py-1 rounded-lg border border-white/20">
                         <span className="text-xs text-white font-bold">{bar.value}</span>
                       </div>
                     </motion.div>
 
-                    {/* Bar */}
                     <motion.div
                       initial={{ height: 0, opacity: 0, scale: 0.8 }}
-                      animate={{ height: `${(bar.value / 100) * 160}px`, opacity: 1, scale: 1 }}
+                      animate={{ height: `${(bar.value / 100) * 140}px`, opacity: 1, scale: 1 }}
                       transition={{ 
                         duration: 1.8, 
                         delay: index * 0.2, 
@@ -222,13 +410,7 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
                         stiffness: 80,
                         damping: 12
                       }}
-                      className={`w-12 bg-gradient-to-t ${bar.color} rounded-t-2xl shadow-xl ${bar.shadow} border-2 border-white/30 relative overflow-hidden group-hover:scale-110 transition-all duration-300`}
-                      whileHover={{ 
-                        scale: 1.2,
-                        y: -8,
-                        filter: "brightness(1.2)",
-                        boxShadow: `0 20px 40px ${bar.glow}`
-                      }}
+                      className={`w-12 bg-gradient-to-t ${bar.color} rounded-t-2xl shadow-xl ${bar.shadow} border-2 border-white/30 relative overflow-hidden`}
                     >
                       {/* Glossy Effect */}
                       <motion.div
@@ -269,7 +451,7 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.6, delay: index * 0.1 + 2 }}
-                      className="text-sm text-white/90 font-bold mt-2 group-hover:text-white transition-colors duration-300"
+                      className="text-sm text-white/90 font-bold mt-2"
                     >
                       {bar.day}
                     </motion.span>
@@ -313,29 +495,6 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
                   <div className="text-xs text-white/50">{peakDay.day}</div>
                 </div>
               </div>
-              
-              {/* Progress Indicator */}
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-                  <span>Weekly Target: 420</span>
-                  <span>Current: {weeklyTotal} ({targetProgress > 100 ? '+' : ''}{Math.round(targetProgress - 100)}%)</span>
-                </div>
-                <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                  <motion.div
-                    key={selectedWarehouse}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(targetProgress, 150)}%` }}
-                    transition={{ duration: 2, delay: 3 }}
-                    className="h-2 rounded-full bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 relative overflow-hidden"
-                  >
-                    <motion.div
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent"
-                    />
-                  </motion.div>
-                </div>
-              </div>
             </motion.div>
           </div>
         </motion.div>
@@ -363,13 +522,7 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {[
-                { id: 'TC001234', supplier: 'TechCorp Industries', products: 'iPhone 15 Pro (50 units)', eta: '2024-01-15', status: 'In Transit' },
-                { id: 'GE005678', supplier: 'Global Electronics Hub', products: 'MacBook Pro (30 units)', eta: '2024-01-16', status: 'Scheduled' },
-                { id: 'FH009876', supplier: 'Fashion Hub Limited', products: 'Premium Shirts (100 units)', eta: '2024-01-17', status: 'Delayed' },
-                { id: 'TC002345', supplier: 'TechCorp Industries', products: 'Samsung Galaxy S24 (40 units)', eta: '2024-01-18', status: 'Processing' },
-                { id: 'GE006789', supplier: 'Global Electronics Hub', products: 'Gaming Laptops (15 units)', eta: '2024-01-19', status: 'In Transit' }
-              ].map((shipment, index) => (
+              {currentShipments.map((shipment, index) => (
                 <motion.tr 
                   key={index} 
                   initial={{ opacity: 0, x: -20 }}
@@ -398,71 +551,109 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
         </div>
       </motion.div>
 
-      {/* Delivery Slots Table */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="bg-gradient-to-br from-gray-600/20 to-gray-800/20 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden"
-      >
-        <div className="p-6 border-b border-white/10">
-          <h3 className="text-lg font-semibold text-white">🚚 Delivery Slots & Received Goods</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-white/5">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Time Slot</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Supplier</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Items</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/10">
-              {[
-                { slot: '09:00 - 11:00', supplier: 'TechCorp Industries', items: '25 Electronics', status: 'Received', action: 'Complete' },
-                { slot: '11:00 - 13:00', supplier: 'Fashion Hub Limited', items: '50 Apparel', status: 'In Progress', action: 'Processing' },
-                { slot: '13:00 - 15:00', supplier: 'Global Electronics Hub', items: '15 Laptops', status: 'Scheduled', action: 'Prepare' },
-                { slot: '15:00 - 17:00', supplier: 'Home Essentials Co', items: '30 Home Items', status: 'Scheduled', action: 'Prepare' }
-              ].map((slot, index) => (
-                <motion.tr 
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="hover:bg-white/5 transition-all duration-300"
-                >
-                  <td className="px-6 py-4 text-sm font-medium text-white">{slot.slot}</td>
-                  <td className="px-6 py-4 text-sm text-white">{slot.supplier}</td>
-                  <td className="px-6 py-4 text-sm text-white/80">{slot.items}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${
-                      slot.status === 'Received' ? 'bg-green-500/20 text-green-200 border-green-400/30' :
-                      slot.status === 'In Progress' ? 'bg-yellow-500/20 text-yellow-200 border-yellow-400/30' :
-                      'bg-blue-500/20 text-blue-200 border-blue-400/30'
-                    }`}>
-                      {slot.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`px-3 py-1 text-xs rounded-lg transition-all duration-300 ${
-                        slot.status === 'Received' ? 'bg-white/10 text-white/60 border border-white/20' :
-                        'bg-gradient-to-r from-purple-500/50 to-pink-500/50 text-white border border-white/20 hover:from-purple-500/70 hover:to-pink-500/70'
-                      }`}
-                    >
-                      {slot.action}
-                    </motion.button>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+      {/* Delivery Slots and Received Goods Tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Table - Delivery Slots */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden"
+        >
+          <div className="p-6 border-b border-white/10">
+            <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+              <span>🚚</span>
+              <span>Delivery Slots</span>
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-white/5">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Time Slot</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Supplier</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Items</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {currentDeliverySlots.map((slot, index) => (
+                  <motion.tr 
+                    key={index}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="hover:bg-white/5 transition-all duration-300"
+                  >
+                    <td className="px-4 py-4 text-sm font-medium text-white">{slot.slot}</td>
+                    <td className="px-4 py-4 text-sm text-white">{slot.supplier}</td>
+                    <td className="px-4 py-4 text-sm text-white/80">{slot.items}</td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${
+                        slot.status === 'In Progress' ? 'bg-yellow-500/20 text-yellow-200 border-yellow-400/30' :
+                        'bg-blue-500/20 text-blue-200 border-blue-400/30'
+                      }`}>
+                        {slot.status}
+                      </span>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {/* Right Table - Received Goods */}
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden"
+        >
+          <div className="p-6 border-b border-white/10">
+            <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+              <span>📦</span>
+              <span>Received Goods</span>
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-white/5">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Supplier</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Items</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-white/70 uppercase">Quality</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {currentReceivedGoods.map((goods, index) => (
+                  <motion.tr 
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="hover:bg-white/5 transition-all duration-300"
+                  >
+                    <td className="px-4 py-4 text-sm font-medium text-white">{goods.date}</td>
+                    <td className="px-4 py-4 text-sm text-white">{goods.supplier}</td>
+                    <td className="px-4 py-4 text-sm text-white/80">{goods.items}</td>
+                    <td className="px-4 py-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full backdrop-blur-sm border ${
+                        goods.quality === 'Excellent' ? 'bg-green-500/20 text-green-200 border-green-400/30' :
+                        goods.quality === 'Good' ? 'bg-blue-500/20 text-blue-200 border-blue-400/30' :
+                        'bg-yellow-500/20 text-yellow-200 border-yellow-400/30'
+                      }`}>
+                        {goods.quality}
+                      </span>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Inbound Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -484,12 +675,13 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
             <h4 className="text-lg font-semibold text-white">Incoming Shipments</h4>
           </div>
           <div className="space-y-2">
-            <div className="text-3xl font-bold text-blue-400">47</div>
+            <div className="text-3xl font-bold text-blue-400">{currentAnalytics.incomingShipments}</div>
             <div className="text-sm text-white/70">Expected this week</div>
             <div className="w-full bg-white/10 rounded-full h-2">
               <motion.div
+                key={selectedWarehouse + '-incoming'}
                 initial={{ width: 0 }}
-                animate={{ width: "78%" }}
+                animate={{ width: `${currentAnalytics.incomingProgress}%` }}
                 transition={{ duration: 2, delay: 0.5 }}
                 className="h-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500"
               />
@@ -515,12 +707,13 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
             <h4 className="text-lg font-semibold text-white">Goods Received</h4>
           </div>
           <div className="space-y-2">
-            <div className="text-3xl font-bold text-green-400">92%</div>
+            <div className="text-3xl font-bold text-green-400">{currentAnalytics.onTimeRate}%</div>
             <div className="text-sm text-white/70">On-time delivery rate</div>
             <div className="w-full bg-white/10 rounded-full h-2">
               <motion.div
+                key={selectedWarehouse + '-ontime'}
                 initial={{ width: 0 }}
-                animate={{ width: "92%" }}
+                animate={{ width: `${currentAnalytics.onTimeProgress}%` }}
                 transition={{ duration: 2, delay: 0.7 }}
                 className="h-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"
               />
@@ -548,12 +741,13 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
             <h4 className="text-lg font-semibold text-white">Damaged Items</h4>
           </div>
           <div className="space-y-2">
-            <div className="text-3xl font-bold text-orange-400">5</div>
+            <div className="text-3xl font-bold text-orange-400">{currentAnalytics.damagedItems}</div>
             <div className="text-sm text-white/70">Require attention</div>
             <div className="w-full bg-white/10 rounded-full h-2">
               <motion.div
+                key={selectedWarehouse + '-damaged'}
                 initial={{ width: 0 }}
-                animate={{ width: "15%" }}
+                animate={{ width: `${currentAnalytics.damagedProgress}%` }}
                 transition={{ duration: 2, delay: 0.9 }}
                 className="h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500"
               />

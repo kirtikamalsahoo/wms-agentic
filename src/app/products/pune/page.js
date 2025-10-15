@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 
 // Pune warehouse products data
 const warehouseProducts = [
@@ -150,50 +149,133 @@ const ProductCard = ({ product, onHover, onLeave }) => {
   );
 };
 
-// Rack-style card with Pune purple theme
+// Enhanced Rack-style card with Pune purple theme - More informative design
 const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   const pct = Math.max(0, Math.min(100, (product.quantity / product.maxCapacity) * 100));
   const filled = Math.round((pct / 100) * bins);
   const cols = bins === 6 ? 3 : 4; // 2 rows always
+  const empty = bins - filled;
 
   const handleMouseEnter = (e) => onHover(product, e);
 
+  // Get product category icon
+  const getCategoryIcon = () => {
+    switch (product.category) {
+      case 'Automotive': return '🚗';
+      case 'Tools & Hardware': return '🔧';
+      case 'Industrial': return '🏭';
+      case 'Machinery': return '⚙️';
+      case 'Electronics': return '💻';
+      case 'Parts': return '🔩';
+      default: return '📦';
+    }
+  };
+
   return (
     <div
-      className="group relative w-56 rounded-xl border-2 border-purple-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-purple-500/30 transition-all"
+      className="group relative w-64 rounded-xl border-2 border-purple-400/40 bg-gray-900/60 backdrop-blur-md shadow-lg hover:shadow-purple-500/30 transition-all hover:scale-105"
       onMouseMove={handleMouseEnter}
       onMouseLeave={onLeave}
     >
-      <div className="px-3 pt-2 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
-          <span className="text-xs text-gray-300 bg-black/30 rounded px-1 py-0.5">{Math.round(pct)}%</span>
+      {/* Rack Header with clear labeling */}
+      <div className="px-3 pt-2 pb-1 border-b border-purple-400/30">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">{getCategoryIcon()}</span>
+            <span className="text-white/90 text-sm font-semibold truncate pr-2">{product.name}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-purple-300 font-bold">{Math.round(pct)}%</span>
+            <span className="text-xs text-gray-400">FULL</span>
+          </div>
         </div>
+        
+        {/* Rack ID and Category */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-purple-300 font-mono bg-purple-500/20 px-2 py-0.5 rounded">
+            RACK-{product.id.toString().padStart(3, '0')}
+          </span>
+          <span className="text-xs text-gray-300 bg-gray-700/50 px-2 py-0.5 rounded">
+            {product.category}
+          </span>
+        </div>
+      </div>
+
+      {/* Storage Compartments Visualization */}
+      <div className="px-3 py-3">
+        <div className="mb-2">
+          <div className="flex items-center justify-between text-xs text-gray-300 mb-1">
+            <span className="flex items-center gap-1">
+              📦 <strong>Storage Compartments</strong>
+            </span>
+            <span>{filled}/{bins} occupied</span>
+          </div>
+        </div>
+        
         <div
-          className="grid gap-1.5"
+          className="grid gap-1.5 mb-3"
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: bins }).map((_, i) => (
             <div
               key={i}
-              className={`h-5 w-full rounded-[4px] border border-purple-200/40 ${
-                i < filled ? 'bg-purple-400/90 shadow-[0_0_8px_rgba(147,51,234,0.6)]' : 'bg-white/20'
+              className={`relative h-6 w-full rounded-[4px] border-2 transition-all duration-300 ${
+                i < filled 
+                  ? 'bg-purple-400/90 border-purple-300 shadow-[0_0_8px_rgba(147,51,234,0.6)]' 
+                  : 'bg-white/20 border-purple-200/40 hover:bg-white/30'
               }`}
-            />
+            >
+              {/* Compartment number */}
+              <span className="absolute inset-0 flex items-center justify-center text-[8px] font-mono text-white/70">
+                {i + 1}
+              </span>
+              
+              {/* Filled indicator */}
+              {i < filled && (
+                <div className="absolute top-0.5 right-0.5 w-1 h-1 bg-white/80 rounded-full animate-pulse" />
+              )}
+            </div>
           ))}
         </div>
-        <div className="flex items-center justify-between mt-2 text-[10px] text-gray-300">
+
+        {/* Detailed Status Information */}
+        <div className="space-y-2 text-xs">
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Current Stock:</span>
+            <span className="text-white font-semibold">{product.quantity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Max Capacity:</span>
+            <span className="text-purple-300 font-semibold">{product.maxCapacity} units</span>
+          </div>
+          <div className="flex items-center justify-between bg-black/20 rounded-lg px-2 py-1">
+            <span className="text-gray-300">Available Space:</span>
+            <span className="text-green-300 font-semibold">{product.maxCapacity - product.quantity} units</span>
+          </div>
+        </div>
+
+        {/* Visual Legend */}
+        <div className="flex items-center justify-between mt-3 text-[10px] text-gray-300">
           <div className="flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-[3px] bg-purple-400/90 border border-purple-300" />
-            <span>Loaded</span>
+            <span>Occupied ({filled})</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-block h-3 w-3 rounded-[3px] bg-white/20 border border-purple-200/40" />
-            <span>Free</span>
+            <span>Empty ({empty})</span>
           </div>
         </div>
       </div>
-      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-purple-400/0 group-hover:ring-purple-400/40 transition" />
+      
+      {/* Hover Ring Effect */}
+      <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-purple-400/0 group-hover:ring-purple-400/60 transition" />
+      
+      {/* Rack Status Badge */}
+      <div className="absolute -top-2 -right-2">
+        <div className={`w-4 h-4 rounded-full border-2 border-white ${
+          pct >= 70 ? 'bg-purple-500' : pct >= 40 ? 'bg-yellow-500' : 'bg-green-500'
+        } animate-pulse`} />
+      </div>
     </div>
   );
 };
@@ -470,17 +552,7 @@ export default function PuneWarehousePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Navigation */}
-        <div className="mb-6">
-          <Link 
-            href="/"
-            className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 
-                       text-white hover:bg-white/20 transition-all duration-300 group"
-          >
-            <span className="mr-2 transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
-            Back to Home
-          </Link>
-        </div>
+
 
         {/* Header */}
         <div className="text-center mb-12">

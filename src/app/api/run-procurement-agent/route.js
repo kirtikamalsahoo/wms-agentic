@@ -4,7 +4,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
     
-    const response = await fetch('https://wms-backend-hrayhaang8hzbdff.canadacentral-01.azurewebsites.net/run-procurement-agent/', {
+    const response = await fetch('https://wms-backend-hrayhaang8hzbdff.canadacentral-01.azurewebsites.net/run-procurement-workflow/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
