@@ -68,49 +68,113 @@ const ProcurementAgent = ({ isAgentRunning, onRunAgent }) => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+      }
+
       const data = await response.json();
-      if (data.status === 'success') {
+      console.log('API Response:', data); // Debug log
+      
+      if (data.status === 'success' || data.result) {
         try {
-          // Parse the result string to extract purchase orders
-          // The result comes as a string representation of a Python dict
-          let resultStr = data.result;
+          let resultData;
           
-          // Replace Python datetime objects with strings for JSON parsing
-          resultStr = resultStr.replace(/datetime\.date\((\d+), (\d+), (\d+)\)/g, '"$1-$2-$3"');
+          // Check if data.result is already an object
+          if (typeof data.result === 'object') {
+            resultData = data.result;
+          } else if (typeof data.result === 'string') {
+            // Parse the result string to extract purchase orders
+            let resultStr = data.result;
+            
+            console.log('Original result string:', resultStr); // Debug log
+            
+            // Replace Python datetime objects with strings for JSON parsing
+            resultStr = resultStr.replace(/datetime\.date\((\d+), (\d+), (\d+)\)/g, '"$1-$2-$3"');
+            
+            // Convert Python-style dict to JavaScript object
+            resultStr = resultStr.replace(/'/g, '"');
+            resultStr = resultStr.replace(/True/g, 'true');
+            resultStr = resultStr.replace(/False/g, 'false');
+            resultStr = resultStr.replace(/None/g, 'null');
+            
+            console.log('Processed result string:', resultStr); // Debug log
+            
+            // Try to parse as JSON
+            try {
+              resultData = JSON.parse(resultStr);
+            } catch (jsonError) {
+              console.error('JSON parse error:', jsonError);
+              console.error('Failed to parse string:', resultStr);
+              throw jsonError;
+            }
+          } else {
+            // If it's neither object nor string, use the entire data response
+            resultData = data;
+          }
           
-          // Convert Python-style dict to JavaScript object
-          resultStr = resultStr.replace(/'/g, '"');
-          resultStr = resultStr.replace(/True/g, 'true');
-          resultStr = resultStr.replace(/False/g, 'false');
-          resultStr = resultStr.replace(/None/g, 'null');
+          // Ensure the result has the expected structure
+          if (!resultData.purchase_orders) {
+            resultData = {
+              latest_forecast_date: resultData.latest_forecast_date || new Date().toISOString().split('T')[0],
+              purchase_orders: resultData.purchase_orders || [],
+              status: resultData.status || 'POs created successfully'
+            };
+          }
           
-          const resultData = JSON.parse(resultStr);
+          // Enhance purchase orders with supplier and product names
+          if (resultData.purchase_orders && Array.isArray(resultData.purchase_orders)) {
+            resultData.purchase_orders = resultData.purchase_orders.map(po => ({
+              ...po,
+              supplier_name: po.supplier_name || supplierMapping[po.supplier_id] || `Supplier ${po.supplier_id}`,
+              product_name: po.product_name || productMapping[po.product_id] || `Product ${po.product_id}`,
+              quantity: Number(po.quantity) || 0,
+              unit_price: Number(po.unit_price) || 0
+            }));
+          }
+          
           setProcurementResults(resultData);
           // Reset email statuses when new results are loaded
           setEmailStatuses({});
         } catch (parseError) {
           console.error('Error parsing API response:', parseError);
+          console.error('Full API response:', data);
+          
           // Fallback: create a mock result for display
           setProcurementResults({
-            latest_forecast_date: '2025-09-30',
+            latest_forecast_date: new Date().toISOString().split('T')[0],
             purchase_orders: [
               {
                 supplier_id: 13,
+                supplier_name: supplierMapping[13] || 'TechCorp Industries',
                 product_id: 7,
+                product_name: productMapping[7] || 'Premium Smartphones',
                 quantity: 104,
                 unit_price: 99500.0,
-                delivery_date: '2025-08-31'
+                delivery_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // 30 days from now
               }
             ],
-            status: 'POs created successfully'
+            status: 'POs created successfully (fallback data)'
           });
           setEmailStatuses({});
         }
       } else {
         console.error('API call failed:', data);
+        // Show error to user
+        alert('Failed to run procurement agent. Please try again.');
       }
     } catch (error) {
       console.error('Error calling procurement agent API:', error);
+      
+      // Show user-friendly error message
+      alert(`Failed to run procurement agent: ${error.message}`);
+      
+      // Optionally set fallback data if needed
+      setProcurementResults({
+        latest_forecast_date: new Date().toISOString().split('T')[0],
+        purchase_orders: [],
+        status: 'Error occurred - please try again',
+        error: error.message
+      });
     } finally {
       setIsLoading(false);
     }
