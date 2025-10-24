@@ -3833,7 +3833,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     transition={{ duration: 0.6, delay: index * 0.1 }}
                     whileHover={{ scale: 1.02, y: -8 }}
                     className={`bg-gradient-to-br ${agent.color}/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300 cursor-pointer`}
-                    onClick={() => setActiveAgent(agent.name.toLowerCase().split(' ')[0])}
+                    onClick={() => setActiveAgent(agent.name === 'Return Agent' ? 'returns' : agent.name.toLowerCase().split(' ')[0])}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <motion.div 

@@ -779,7 +779,8 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Return ID</th>
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Order ID</th>
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Product</th>
-                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Reason</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Cusomer Reason</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Inspection Note</th>
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Status</th>
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Classification</th>
                   <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Quantity</th>
@@ -809,6 +810,11 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
                     <td className="py-4 px-2">
                       <div className="text-white/80 text-sm max-w-40 truncate" title={returnItem.reason_for_return}>
                         {returnItem.reason_for_return}
+                      </div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/80 text-sm max-w-40 truncate" title={returnItem.inspection_notes}>
+                        {returnItem.inspection_notes}
                       </div>
                     </td>
                     <td className="py-4 px-2">
