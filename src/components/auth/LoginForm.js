@@ -17,11 +17,17 @@ const LoginForm = ({ onLogin }) => {
     const { username, password } = formData;
     let role = null;
 
-    if (username === 'user' && password === 'user') {
+    // Trim whitespace to avoid issues
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (cleanUsername === 'user' && cleanPassword === 'user') {
       role = 'user';
-    } else if (username === 'admin' && password === 'admin') {
+    } else if (cleanUsername === 'admin' && cleanPassword === 'admin') {
       role = 'admin';
-    } else if (username === 'manager' && password === 'manager') {
+    } else if (cleanUsername === 'manager' && cleanPassword === 'manager') {
+      role = 'manager';
+    } else if (cleanUsername === 'chinmay' && cleanPassword === 'chinmay123') {
       role = 'manager';
     } else {
       setError('Invalid credentials');
@@ -32,7 +38,7 @@ const LoginForm = ({ onLogin }) => {
     // Simulate loading
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsLoading(false);
-    onLogin(role, username);
+    onLogin(role, username.trim());
   };
 
   const handleInputChange = (e) => {
@@ -151,6 +157,9 @@ const LoginForm = ({ onLogin }) => {
             </div>
             <div className="bg-white/5 rounded-lg p-2">
               <span className="font-medium text-green-400">Manager:</span> manager / manager
+            </div>
+            <div className="bg-white/5 rounded-lg p-2">
+              <span className="font-medium text-green-400">Manager:</span> chinmay / chinmay123
             </div>
             <div className="bg-white/5 rounded-lg p-2">
               <span className="font-medium text-purple-400">Admin:</span> admin / admin

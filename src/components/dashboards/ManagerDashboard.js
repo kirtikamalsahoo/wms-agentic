@@ -94,6 +94,15 @@ const ManagerDashboard = ({ user, onLogout }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
+  // Function to get display name based on username
+  const getDisplayName = (username) => {
+    const userDisplayNames = {
+      'manager': 'Sudhanshu',
+      'chinmay': 'Chinmay'
+    };
+    return userDisplayNames[username.toLowerCase()] || username;
+  };
+  
   // Chatbot states
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
@@ -2028,7 +2037,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                     className="text-4xl font-bold text-white mb-2"
                   >
                     <TypewriterText 
-                      text="Welcome back Sudhanshu !" 
+                      text={`Welcome back ${getDisplayName(user)} !`} 
                       delay={800}
                       speed={60}
                       eraseSpeed={40}

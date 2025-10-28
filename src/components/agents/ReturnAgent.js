@@ -298,39 +298,134 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
                   outerRadius: 120,
                   paddingAngle: 3,
                   cornerRadius: 8,
-                  highlightScope: { faded: 'global', highlighted: 'item' }
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                  arcLabel: (item) => `${item.label}`,
+                  arcLabelMinAngle: 35
                 }]}
                 margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
                 slotProps={{
                   legend: {
                     direction: 'column',
                     position: { vertical: 'middle', horizontal: 'right' },
-                    padding: 0
+                    padding: 0,
+                    itemMarkWidth: 12,
+                    itemMarkHeight: 12,
+                    markGap: 8,
+                    itemGap: 16
                   }
                 }}
                 sx={{
-                  '& .MuiChartsLegend-series text': { fill: 'white !important' },
-                  '& .MuiChartsLegend-label': { fill: 'white !important' },
-                  '& .MuiChartsLegend-root text': { fill: 'white !important' },
-                  '& text': { fill: 'white !important' }
+                  // Legend text styling
+                  '& .MuiChartsLegend-series text': { 
+                    fill: 'rgba(255, 255, 255, 0.9) !important',
+                    fontSize: '14px !important',
+                    fontWeight: '500 !important'
+                  },
+                  '& .MuiChartsLegend-label': { 
+                    fill: 'rgba(255, 255, 255, 0.9) !important',
+                    fontSize: '14px !important'
+                  },
+                  '& .MuiChartsLegend-root text': { 
+                    fill: 'rgba(255, 255, 255, 0.9) !important',
+                    fontSize: '14px !important'
+                  },
+                  // Arc label styling (text on pie slices)
+                  '& .MuiChartsArcLabel-root text': {
+                    fill: 'white !important',
+                    fontSize: '12px !important',
+                    fontWeight: 'bold !important',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.8) !important'
+                  },
+                  // All other text elements
+                  '& text': { 
+                    fill: 'rgba(255, 255, 255, 0.9) !important'
+                  },
+                  // Pie slice labels
+                  '& .MuiPieArc-label': {
+                    fill: 'white !important',
+                    fontSize: '12px !important',
+                    fontWeight: 'bold !important'
+                  }
                 }}
               />
             </Box>
 
-            {/* Statistics */}
+            {/* Enhanced Statistics with Beautiful Cards */}
             <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">{agentResults.refurbished}</div>
-                <div className="text-xs text-white/70">Refurbished</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">{agentResults.restock}</div>
-                <div className="text-xs text-white/70">Restock</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-400">{agentResults.discard}</div>
-                <div className="text-xs text-white/70">Discard</div>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ duration: 0.6 }}
+                className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-xl border border-green-400/30 p-4 text-center hover:border-green-400/50 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-8 h-8 bg-green-500/30 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-lg">🔧</span>
+                  </div>
+                  <div className="text-2xl font-bold text-green-400">{agentResults.refurbished}</div>
+                </div>
+                <div className="text-sm font-medium text-green-300 mb-1">Refurbished</div>
+                <div className="text-xs text-green-200/70">Ready for resale</div>
+                <div className="mt-2 w-full bg-green-900/30 rounded-full h-1">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${agentResults.totalProcessed > 0 ? (agentResults.refurbished / agentResults.totalProcessed) * 100 : 0}%` }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                    className="h-1 rounded-full bg-gradient-to-r from-green-500 to-green-400"
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-sm rounded-xl border border-blue-400/30 p-4 text-center hover:border-blue-400/50 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-8 h-8 bg-blue-500/30 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-lg">📦</span>
+                  </div>
+                  <div className="text-2xl font-bold text-blue-400">{agentResults.restock}</div>
+                </div>
+                <div className="text-sm font-medium text-blue-300 mb-1">Restock</div>
+                <div className="text-xs text-blue-200/70">Return to inventory</div>
+                <div className="mt-2 w-full bg-blue-900/30 rounded-full h-1">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${agentResults.totalProcessed > 0 ? (agentResults.restock / agentResults.totalProcessed) * 100 : 0}%` }}
+                    transition={{ duration: 1, delay: 0.7 }}
+                    className="h-1 rounded-full bg-gradient-to-r from-blue-500 to-blue-400"
+                  />
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05, y: -2 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-gradient-to-br from-red-600/20 to-red-800/20 backdrop-blur-sm rounded-xl border border-red-400/30 p-4 text-center hover:border-red-400/50 transition-all duration-300"
+              >
+                <div className="flex items-center justify-center mb-2">
+                  <div className="w-8 h-8 bg-red-500/30 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-lg">🗑️</span>
+                  </div>
+                  <div className="text-2xl font-bold text-red-400">{agentResults.discard}</div>
+                </div>
+                <div className="text-sm font-medium text-red-300 mb-1">Discard</div>
+                <div className="text-xs text-red-200/70">Remove from inventory</div>
+                <div className="mt-2 w-full bg-red-900/30 rounded-full h-1">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${agentResults.totalProcessed > 0 ? (agentResults.discard / agentResults.totalProcessed) * 100 : 0}%` }}
+                    transition={{ duration: 1, delay: 0.9 }}
+                    className="h-1 rounded-full bg-gradient-to-r from-red-500 to-red-400"
+                  />
+                </div>
+              </motion.div>
             </div>
           </>
         ) : (
@@ -342,6 +437,43 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         )}
 
         {/* Updated Returns Details */}
+        {/* Classification Summary Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 p-4 bg-gradient-to-r from-purple-600/20 via-indigo-600/20 to-blue-600/20 rounded-xl border border-white/20"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center"
+              >
+                <span className="text-sm">🤖</span>
+              </motion.div>
+              <div>
+                <div className="text-sm font-semibold text-white">AI Classification Complete!</div>
+                <div className="text-xs text-white/70">Smart categorization powered by AI analysis</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span className="text-xs text-green-300">{agentResults.refurbished} Refurbished</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                <span className="text-xs text-blue-300">{agentResults.restock} Restock</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                <span className="text-xs text-red-300">{agentResults.discard} Discard</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {agentResults.updates && agentResults.updates.length > 0 && (
           <div className="mt-6 pt-4 border-t border-white/10">
             <h4 className="text-sm font-medium text-white/80 mb-3 flex items-center space-x-2">
@@ -358,12 +490,21 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
                   className="flex items-center justify-between text-sm bg-white/5 rounded-lg p-2"
                 >
                   <span className="text-white/90">Return #{update.return_id}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    update.classification?.toLowerCase() === 'restock' ? 'bg-blue-500/20 text-blue-300' :
-                    update.classification?.toLowerCase() === 'refurbished' ? 'bg-green-500/20 text-green-300' :
-                    'bg-red-500/20 text-red-300'
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm border ${
+                    update.classification?.toLowerCase() === 'restock' ? 'bg-blue-500/20 text-blue-300 border-blue-400/30' :
+                    update.classification?.toLowerCase() === 'refurbished' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                    'bg-red-500/20 text-red-300 border-red-400/30'
                   }`}>
+                    <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                      update.classification?.toLowerCase() === 'restock' ? 'bg-blue-400' :
+                      update.classification?.toLowerCase() === 'refurbished' ? 'bg-green-400' :
+                      'bg-red-400'
+                    }`} />
                     {update.classification}
+                    <span className="ml-1">
+                      {update.classification?.toLowerCase() === 'restock' ? '📦' :
+                       update.classification?.toLowerCase() === 'refurbished' ? '🔧' : '🗑️'}
+                    </span>
                   </span>
                 </motion.div>
               ))}
@@ -823,9 +964,33 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
                       </span>
                     </td>
                     <td className="py-4 px-2">
-                      <div className="text-white/80 text-sm">
-                        {returnItem.classification || 'Pending'}
-                      </div>
+                      {returnItem.classification ? (
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold backdrop-blur-sm border ${
+                          returnItem.classification.toLowerCase() === 'restock' 
+                            ? 'bg-blue-500/20 text-blue-300 border-blue-400/30' :
+                          returnItem.classification.toLowerCase() === 'refurbished' 
+                            ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                          returnItem.classification.toLowerCase() === 'discard' 
+                            ? 'bg-red-500/20 text-red-300 border-red-400/30' :
+                          'bg-gray-500/20 text-gray-300 border-gray-400/30'
+                        }`}>
+                          <div className={`w-2 h-2 rounded-full mr-2 ${
+                            returnItem.classification.toLowerCase() === 'restock' 
+                              ? 'bg-blue-400' :
+                            returnItem.classification.toLowerCase() === 'refurbished' 
+                              ? 'bg-green-400' :
+                            returnItem.classification.toLowerCase() === 'discard' 
+                              ? 'bg-red-400' :
+                            'bg-gray-400'
+                          }`} />
+                          {returnItem.classification}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-300 border border-yellow-400/30">
+                          <div className="w-2 h-2 rounded-full mr-2 bg-yellow-400" />
+                          Pending
+                        </span>
+                      )}
                     </td>
                     <td className="py-4 px-2">
                       <div className="text-white/90 text-center">{returnItem.return_quantity}</div>

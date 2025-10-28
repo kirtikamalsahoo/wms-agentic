@@ -76,7 +76,7 @@ const RoleModal = ({ isOpen, onClose, role, onLogin }) => {
       color: 'from-green-500 to-emerald-600',
       bgColor: 'from-green-600/20 to-emerald-600/20',
       borderColor: 'border-green-400/50',
-      credentials: 'manager / manager'
+      credentials: 'manager / manager OR chinmay / chinmay123'
     },
     admin: {
       title: 'Admin Login',
@@ -98,12 +98,30 @@ const RoleModal = ({ isOpen, onClose, role, onLogin }) => {
 
     const { username, password } = formData;
     
-    if (username === role && password === role) {
+    // Trim whitespace and handle case sensitivity
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanPassword = password.trim();
+    
+    let isValidCredentials = false;
+    let actualUsername = username.trim();
+    
+    if (role === 'user' && cleanUsername === 'user' && cleanPassword === 'user') {
+      isValidCredentials = true;
+    } else if (role === 'admin' && cleanUsername === 'admin' && cleanPassword === 'admin') {
+      isValidCredentials = true;
+    } else if (role === 'manager') {
+      if ((cleanUsername === 'manager' && cleanPassword === 'manager') || 
+          (cleanUsername === 'chinmay' && cleanPassword === 'chinmay123')) {
+        isValidCredentials = true;
+      }
+    }
+    
+    if (isValidCredentials) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setIsLoading(false);
       
-      // Direct login for all roles (user can also use form login)
-      onLogin(role, username);
+      // Pass the actual username for proper display name mapping
+      onLogin(role, actualUsername);
       onClose();
     } else {
       setError(`Invalid credentials for ${role} role`);

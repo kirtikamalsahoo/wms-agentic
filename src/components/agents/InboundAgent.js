@@ -6,43 +6,43 @@ import { motion } from 'framer-motion';
 const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
   const [selectedWarehouse, setSelectedWarehouse] = useState('wh-delhi');
 
-  // Warehouse data with different inbound volumes
+  // Warehouse data with different inbound volumes - Professional Color Palette
   const warehouseData = {
     'wh-delhi': [
-      { day: 'Mon', value: 85, color: 'from-blue-400 via-blue-500 to-blue-600', shadow: 'shadow-blue-500/60', glow: 'shadow-blue-400/40' },
-      { day: 'Tue', value: 92, color: 'from-emerald-400 via-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/60', glow: 'shadow-emerald-400/40' },
-      { day: 'Wed', value: 78, color: 'from-amber-400 via-amber-500 to-amber-600', shadow: 'shadow-amber-500/60', glow: 'shadow-amber-400/40' },
-      { day: 'Thu', value: 95, color: 'from-purple-400 via-purple-500 to-purple-600', shadow: 'shadow-purple-500/60', glow: 'shadow-purple-400/40' },
-      { day: 'Fri', value: 88, color: 'from-pink-400 via-pink-500 to-pink-600', shadow: 'shadow-pink-500/60', glow: 'shadow-pink-400/40' },
-      { day: 'Sat', value: 65, color: 'from-orange-400 via-orange-500 to-orange-600', shadow: 'shadow-orange-500/60', glow: 'shadow-orange-400/40' },
-      { day: 'Sun', value: 45, color: 'from-red-400 via-red-500 to-red-600', shadow: 'shadow-red-500/60', glow: 'shadow-red-400/40' }
+      { day: 'Mon', value: 85, color: 'from-slate-600 via-slate-700 to-slate-800', shadow: 'shadow-slate-600/40', glow: 'shadow-slate-500/30' },
+      { day: 'Tue', value: 92, color: 'from-indigo-600 via-indigo-700 to-indigo-800', shadow: 'shadow-indigo-600/40', glow: 'shadow-indigo-500/30' },
+      { day: 'Wed', value: 78, color: 'from-blue-600 via-blue-700 to-blue-800', shadow: 'shadow-blue-600/40', glow: 'shadow-blue-500/30' },
+      { day: 'Thu', value: 95, color: 'from-teal-600 via-teal-700 to-teal-800', shadow: 'shadow-teal-600/40', glow: 'shadow-teal-500/30' },
+      { day: 'Fri', value: 88, color: 'from-emerald-600 via-emerald-700 to-emerald-800', shadow: 'shadow-emerald-600/40', glow: 'shadow-emerald-500/30' },
+      { day: 'Sat', value: 65, color: 'from-cyan-600 via-cyan-700 to-cyan-800', shadow: 'shadow-cyan-600/40', glow: 'shadow-cyan-500/30' },
+      { day: 'Sun', value: 45, color: 'from-sky-600 via-sky-700 to-sky-800', shadow: 'shadow-sky-600/40', glow: 'shadow-sky-500/30' }
     ],
     'wh-bhubaneswar': [
-      { day: 'Mon', value: 72, color: 'from-blue-400 via-blue-500 to-blue-600', shadow: 'shadow-blue-500/60', glow: 'shadow-blue-400/40' },
-      { day: 'Tue', value: 68, color: 'from-emerald-400 via-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/60', glow: 'shadow-emerald-400/40' },
-      { day: 'Wed', value: 84, color: 'from-amber-400 via-amber-500 to-amber-600', shadow: 'shadow-amber-500/60', glow: 'shadow-amber-400/40' },
-      { day: 'Thu', value: 91, color: 'from-purple-400 via-purple-500 to-purple-600', shadow: 'shadow-purple-500/60', glow: 'shadow-purple-400/40' },
-      { day: 'Fri', value: 76, color: 'from-pink-400 via-pink-500 to-pink-600', shadow: 'shadow-pink-500/60', glow: 'shadow-pink-400/40' },
-      { day: 'Sat', value: 58, color: 'from-orange-400 via-orange-500 to-orange-600', shadow: 'shadow-orange-500/60', glow: 'shadow-orange-400/40' },
-      { day: 'Sun', value: 41, color: 'from-red-400 via-red-500 to-red-600', shadow: 'shadow-red-500/60', glow: 'shadow-red-400/40' }
+      { day: 'Mon', value: 72, color: 'from-slate-600 via-slate-700 to-slate-800', shadow: 'shadow-slate-600/40', glow: 'shadow-slate-500/30' },
+      { day: 'Tue', value: 68, color: 'from-indigo-600 via-indigo-700 to-indigo-800', shadow: 'shadow-indigo-600/40', glow: 'shadow-indigo-500/30' },
+      { day: 'Wed', value: 84, color: 'from-blue-600 via-blue-700 to-blue-800', shadow: 'shadow-blue-600/40', glow: 'shadow-blue-500/30' },
+      { day: 'Thu', value: 91, color: 'from-teal-600 via-teal-700 to-teal-800', shadow: 'shadow-teal-600/40', glow: 'shadow-teal-500/30' },
+      { day: 'Fri', value: 76, color: 'from-emerald-600 via-emerald-700 to-emerald-800', shadow: 'shadow-emerald-600/40', glow: 'shadow-emerald-500/30' },
+      { day: 'Sat', value: 58, color: 'from-cyan-600 via-cyan-700 to-cyan-800', shadow: 'shadow-cyan-600/40', glow: 'shadow-cyan-500/30' },
+      { day: 'Sun', value: 41, color: 'from-sky-600 via-sky-700 to-sky-800', shadow: 'shadow-sky-600/40', glow: 'shadow-sky-500/30' }
     ],
     'wh-pune': [
-      { day: 'Mon', value: 96, color: 'from-blue-400 via-blue-500 to-blue-600', shadow: 'shadow-blue-500/60', glow: 'shadow-blue-400/40' },
-      { day: 'Tue', value: 89, color: 'from-emerald-400 via-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/60', glow: 'shadow-emerald-400/40' },
-      { day: 'Wed', value: 93, color: 'from-amber-400 via-amber-500 to-amber-600', shadow: 'shadow-amber-500/60', glow: 'shadow-amber-400/40' },
-      { day: 'Thu', value: 87, color: 'from-purple-400 via-purple-500 to-purple-600', shadow: 'shadow-purple-500/60', glow: 'shadow-purple-400/40' },
-      { day: 'Fri', value: 94, color: 'from-pink-400 via-pink-500 to-pink-600', shadow: 'shadow-pink-500/60', glow: 'shadow-pink-400/40' },
-      { day: 'Sat', value: 73, color: 'from-orange-400 via-orange-500 to-orange-600', shadow: 'shadow-orange-500/60', glow: 'shadow-orange-400/40' },
-      { day: 'Sun', value: 52, color: 'from-red-400 via-red-500 to-red-600', shadow: 'shadow-red-500/60', glow: 'shadow-red-400/40' }
+      { day: 'Mon', value: 96, color: 'from-slate-600 via-slate-700 to-slate-800', shadow: 'shadow-slate-600/40', glow: 'shadow-slate-500/30' },
+      { day: 'Tue', value: 89, color: 'from-indigo-600 via-indigo-700 to-indigo-800', shadow: 'shadow-indigo-600/40', glow: 'shadow-indigo-500/30' },
+      { day: 'Wed', value: 93, color: 'from-blue-600 via-blue-700 to-blue-800', shadow: 'shadow-blue-600/40', glow: 'shadow-blue-500/30' },
+      { day: 'Thu', value: 87, color: 'from-teal-600 via-teal-700 to-teal-800', shadow: 'shadow-teal-600/40', glow: 'shadow-teal-500/30' },
+      { day: 'Fri', value: 94, color: 'from-emerald-600 via-emerald-700 to-emerald-800', shadow: 'shadow-emerald-600/40', glow: 'shadow-emerald-500/30' },
+      { day: 'Sat', value: 73, color: 'from-cyan-600 via-cyan-700 to-cyan-800', shadow: 'shadow-cyan-600/40', glow: 'shadow-cyan-500/30' },
+      { day: 'Sun', value: 52, color: 'from-sky-600 via-sky-700 to-sky-800', shadow: 'shadow-sky-600/40', glow: 'shadow-sky-500/30' }
     ],
     'wh-kolkata': [
-      { day: 'Mon', value: 63, color: 'from-blue-400 via-blue-500 to-blue-600', shadow: 'shadow-blue-500/60', glow: 'shadow-blue-400/40' },
-      { day: 'Tue', value: 71, color: 'from-emerald-400 via-emerald-500 to-emerald-600', shadow: 'shadow-emerald-500/60', glow: 'shadow-emerald-400/40' },
-      { day: 'Wed', value: 59, color: 'from-amber-400 via-amber-500 to-amber-600', shadow: 'shadow-amber-500/60', glow: 'shadow-amber-400/40' },
-      { day: 'Thu', value: 82, color: 'from-purple-400 via-purple-500 to-purple-600', shadow: 'shadow-purple-500/60', glow: 'shadow-purple-400/40' },
-      { day: 'Fri', value: 67, color: 'from-pink-400 via-pink-500 to-pink-600', shadow: 'shadow-pink-500/60', glow: 'shadow-pink-400/40' },
-      { day: 'Sat', value: 55, color: 'from-orange-400 via-orange-500 to-orange-600', shadow: 'shadow-orange-500/60', glow: 'shadow-orange-400/40' },
-      { day: 'Sun', value: 38, color: 'from-red-400 via-red-500 to-red-600', shadow: 'shadow-red-500/60', glow: 'shadow-red-400/40' }
+      { day: 'Mon', value: 63, color: 'from-slate-600 via-slate-700 to-slate-800', shadow: 'shadow-slate-600/40', glow: 'shadow-slate-500/30' },
+      { day: 'Tue', value: 71, color: 'from-indigo-600 via-indigo-700 to-indigo-800', shadow: 'shadow-indigo-600/40', glow: 'shadow-indigo-500/30' },
+      { day: 'Wed', value: 59, color: 'from-blue-600 via-blue-700 to-blue-800', shadow: 'shadow-blue-600/40', glow: 'shadow-blue-500/30' },
+      { day: 'Thu', value: 82, color: 'from-teal-600 via-teal-700 to-teal-800', shadow: 'shadow-teal-600/40', glow: 'shadow-teal-500/30' },
+      { day: 'Fri', value: 67, color: 'from-emerald-600 via-emerald-700 to-emerald-800', shadow: 'shadow-emerald-600/40', glow: 'shadow-emerald-500/30' },
+      { day: 'Sat', value: 55, color: 'from-cyan-600 via-cyan-700 to-cyan-800', shadow: 'shadow-cyan-600/40', glow: 'shadow-cyan-500/30' },
+      { day: 'Sun', value: 38, color: 'from-sky-600 via-sky-700 to-sky-800', shadow: 'shadow-sky-600/40', glow: 'shadow-sky-500/30' }
     ]
   };
 
