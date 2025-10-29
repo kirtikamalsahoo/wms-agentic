@@ -8,6 +8,7 @@ import { TrendingUp, TrendingDown, DollarSign, CreditCard, PieChart as PieChartI
 const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [selectedMetric, setSelectedMetric] = useState('revenue');
+  const [selectedWarehouse, setSelectedWarehouse] = useState('all');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [email, setEmail] = useState('');
@@ -96,8 +97,117 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
     }
   };
 
-  // Get current financial data based on selected timeframe
-  const financialData = allFinancialData[selectedTimeframe];
+  // Warehouse-specific financial data
+  const warehouseData = {
+    delhi: {
+      month: {
+        revenue: [
+          { period: 'Jan 2024', value: 200000, expenses: 145000, profit: 55000, growth: 15.2 },
+          { period: 'Feb 2024', value: 220000, expenses: 165000, profit: 55000, growth: 10.0 },
+          { period: 'Mar 2024', value: 250000, expenses: 180000, profit: 70000, growth: 13.6 },
+          { period: 'Apr 2024', value: 230000, expenses: 170000, profit: 60000, growth: -8.0 },
+          { period: 'May 2024', value: 270000, expenses: 200000, profit: 70000, growth: 17.4 },
+          { period: 'Jun 2024', value: 320000, expenses: 220000, profit: 100000, growth: 18.5 },
+          { period: 'Jul 2024', value: 280000, expenses: 210000, profit: 70000, growth: -12.5 },
+          { period: 'Aug 2024', value: 350000, expenses: 240000, profit: 110000, growth: 25.0 },
+          { period: 'Sep 2024', value: 380000, expenses: 260000, profit: 120000, growth: 8.6 },
+        ],
+        expenses: [
+          { category: 'Operations', amount: 95000, percentage: 36.5, color: '#8B5CF6' },
+          { category: 'Labor', amount: 88000, percentage: 33.8, color: '#06B6D4' },
+          { category: 'Technology', amount: 32000, percentage: 12.3, color: '#10B981' },
+          { category: 'Marketing', amount: 25000, percentage: 9.6, color: '#F59E0B' },
+          { category: 'Maintenance', amount: 20000, percentage: 7.8, color: '#EF4444' },
+        ]
+      }
+    },
+    kolkata: {
+      month: {
+        revenue: [
+          { period: 'Jan 2024', value: 150000, expenses: 110000, profit: 40000, growth: 8.5 },
+          { period: 'Feb 2024', value: 165000, expenses: 125000, profit: 40000, growth: 10.0 },
+          { period: 'Mar 2024', value: 185000, expenses: 135000, profit: 50000, growth: 12.1 },
+          { period: 'Apr 2024', value: 170000, expenses: 130000, profit: 40000, growth: -8.1 },
+          { period: 'May 2024', value: 195000, expenses: 145000, profit: 50000, growth: 14.7 },
+          { period: 'Jun 2024', value: 230000, expenses: 165000, profit: 65000, growth: 17.9 },
+          { period: 'Jul 2024', value: 210000, expenses: 155000, profit: 55000, growth: -8.7 },
+          { period: 'Aug 2024', value: 250000, expenses: 175000, profit: 75000, growth: 19.0 },
+          { period: 'Sep 2024', value: 270000, expenses: 190000, profit: 80000, growth: 8.0 },
+        ],
+        expenses: [
+          { category: 'Operations', amount: 78000, percentage: 41.1, color: '#8B5CF6' },
+          { category: 'Labor', amount: 60000, percentage: 31.6, color: '#06B6D4' },
+          { category: 'Technology', amount: 22000, percentage: 11.6, color: '#10B981' },
+          { category: 'Marketing', amount: 18000, percentage: 9.5, color: '#F59E0B' },
+          { category: 'Maintenance', amount: 12000, percentage: 6.2, color: '#EF4444' },
+        ]
+      }
+    },
+    pune: {
+      month: {
+        revenue: [
+          { period: 'Jan 2024', value: 180000, expenses: 130000, profit: 50000, growth: 12.5 },
+          { period: 'Feb 2024', value: 200000, expenses: 145000, profit: 55000, growth: 11.1 },
+          { period: 'Mar 2024', value: 225000, expenses: 160000, profit: 65000, growth: 12.5 },
+          { period: 'Apr 2024', value: 210000, expenses: 155000, profit: 55000, growth: -6.7 },
+          { period: 'May 2024', value: 235000, expenses: 175000, profit: 60000, growth: 11.9 },
+          { period: 'Jun 2024', value: 275000, expenses: 195000, profit: 80000, growth: 17.0 },
+          { period: 'Jul 2024', value: 255000, expenses: 185000, profit: 70000, growth: -7.3 },
+          { period: 'Aug 2024', value: 290000, expenses: 205000, profit: 85000, growth: 13.7 },
+          { period: 'Sep 2024', value: 315000, expenses: 220000, profit: 95000, growth: 8.6 },
+        ],
+        expenses: [
+          { category: 'Operations', amount: 88000, percentage: 40.0, color: '#8B5CF6' },
+          { category: 'Labor', amount: 72000, percentage: 32.7, color: '#06B6D4' },
+          { category: 'Technology', amount: 26000, percentage: 11.8, color: '#10B981' },
+          { category: 'Marketing', amount: 20000, percentage: 9.1, color: '#F59E0B' },
+          { category: 'Maintenance', amount: 14000, percentage: 6.4, color: '#EF4444' },
+        ]
+      }
+    },
+    bhubaneswar: {
+      month: {
+        revenue: [
+          { period: 'Jan 2024', value: 220000, expenses: 165000, profit: 55000, growth: 10.0 },
+          { period: 'Feb 2024', value: 235000, expenses: 175000, profit: 60000, growth: 6.8 },
+          { period: 'Mar 2024', value: 290000, expenses: 205000, profit: 85000, growth: 23.4 },
+          { period: 'Apr 2024', value: 240000, expenses: 185000, profit: 55000, growth: -17.2 },
+          { period: 'May 2024', value: 280000, expenses: 230000, profit: 50000, growth: 16.7 },
+          { period: 'Jun 2024', value: 375000, expenses: 240000, profit: 135000, growth: 33.9 },
+          { period: 'Jul 2024', value: 305000, expenses: 230000, profit: 75000, growth: -18.7 },
+          { period: 'Aug 2024', value: 460000, expenses: 270000, profit: 190000, growth: 50.8 },
+          { period: 'Sep 2024', value: 485000, expenses: 280000, profit: 205000, growth: 5.4 },
+        ],
+        expenses: [
+          { category: 'Operations', amount: 119000, percentage: 42.5, color: '#8B5CF6' },
+          { category: 'Labor', amount: 100000, percentage: 35.7, color: '#06B6D4' },
+          { category: 'Technology', amount: 30000, percentage: 10.7, color: '#10B981' },
+          { category: 'Marketing', amount: 19000, percentage: 6.8, color: '#F59E0B' },
+          { category: 'Maintenance', amount: 12000, percentage: 4.3, color: '#EF4444' },
+        ]
+      }
+    }
+  };
+
+  // Get current financial data based on selected timeframe and warehouse
+  const getFilteredFinancialData = () => {
+    if (selectedWarehouse === 'all') {
+      return allFinancialData[selectedTimeframe];
+    } else {
+      // Return warehouse-specific data
+      const warehouseSpecificData = warehouseData[selectedWarehouse];
+      if (warehouseSpecificData && warehouseSpecificData[selectedTimeframe]) {
+        return {
+          ...allFinancialData[selectedTimeframe],
+          revenue: warehouseSpecificData[selectedTimeframe].revenue,
+          expenses: warehouseSpecificData[selectedTimeframe].expenses
+        };
+      }
+      return allFinancialData[selectedTimeframe];
+    }
+  };
+
+  const financialData = getFilteredFinancialData();
 
   // Dynamic KPI metrics based on selected timeframe
   const getKpiMetrics = () => {
@@ -275,27 +385,283 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
         ))}
       </div>
 
-      {/* Time Period Selector */}
-      <div className="flex space-x-4">
-        {[
-          { id: 'month', label: 'Monthly' },
-          { id: 'quarter', label: 'Quarterly' },
-          { id: 'year', label: 'Yearly' }
-        ].map((period) => (
-          <motion.button
-            key={period.id}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setSelectedTimeframe(period.id)}
-            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
-              selectedTimeframe === period.id
-                ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white'
-                : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-700/50'
-            }`}
+
+
+      {/* Warehouse Budget Analysis */}
+      <motion.div
+        key={`warehouse-budget-${selectedTimeframe}`}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
+            <span>🏭</span>
+            <span>Warehouse Budget Analysis - FY 2025</span>
+          </h3>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-400">Total Budget:</span>
+            <span className="text-lg font-bold text-green-400">₹18.5 Cr</span>
+          </div>
+        </div>
+
+        {/* Warehouse Budget Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Delhi Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-sm border border-blue-500/30 rounded-xl p-5 hover:border-blue-400/50 transition-all duration-300"
           >
-            {period.label}
-          </motion.button>
-        ))}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-blue-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏢</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">WH-Delhi</h4>
+                  <p className="text-xs text-blue-300">North Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-blue-400">₹5.2 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹2.8 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹1.5 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.6 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.3 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-blue-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">87%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '87%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Kolkata Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 backdrop-blur-sm border border-orange-500/30 rounded-xl p-5 hover:border-orange-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-orange-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏪</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">WH-Kolkata</h4>
+                  <p className="text-xs text-orange-300">East Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-orange-400">₹2.4 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹1.3 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹0.7 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.3 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.1 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-orange-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-yellow-400">65%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '65%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Pune Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-xl p-5 hover:border-green-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-green-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🌟</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">WH-Pune</h4>
+                  <p className="text-xs text-green-300">West Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-green-400">₹4.1 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹2.2 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹1.2 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.5 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.2 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-green-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">78%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Bhubaneswar Warehouse */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-5 hover:border-purple-400/50 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">🏭</span>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-white">WH-Bhubaneswar</h4>
+                  <p className="text-xs text-purple-300">East Region</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-400">Allocated</div>
+                <div className="text-sm font-bold text-purple-400">₹6.8 Cr</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Operations</span>
+                <span className="text-white font-medium">₹3.8 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Infrastructure</span>
+                <span className="text-white font-medium">₹2.1 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Technology</span>
+                <span className="text-white font-medium">₹0.7 Cr</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-300">Maintenance</span>
+                <span className="text-white font-medium">₹0.2 Cr</span>
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-purple-500/20">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-400">Utilization</span>
+                <span className="text-xs font-semibold text-green-400">92%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Filters Row */}
+      <div className="flex items-center justify-between">
+        {/* Warehouse Filter */}
+        <div className="flex items-center space-x-4">
+          <label className="text-sm font-medium text-gray-400">Filter by Warehouse:</label>
+          <select
+            value={selectedWarehouse}
+            onChange={(e) => setSelectedWarehouse(e.target.value)}
+            className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">All Warehouses</option>
+            <option value="delhi">WH-Delhi</option>
+            <option value="kolkata">WH-Kolkata</option>
+            <option value="pune">WH-Pune</option>
+            <option value="bhubaneswar">WH-Bhubaneswar</option>
+          </select>
+        </div>
+
+        {/* Time Period Selector */}
+        <div className="flex space-x-4">
+          {[
+            { id: 'month', label: 'Monthly' },
+            { id: 'quarter', label: 'Quarterly' },
+            { id: 'year', label: 'Yearly' }
+          ].map((period) => (
+            <motion.button
+              key={period.id}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSelectedTimeframe(period.id)}
+              className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+                selectedTimeframe === period.id
+                  ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white'
+                  : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-700/50'
+              }`}
+            >
+              {period.label}
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       {/* Charts Row */}
@@ -400,9 +766,11 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
                   backgroundColor: '#1F2937', 
                   border: '1px solid #374151',
                   borderRadius: '8px',
-                  color: '#fff'
+                  color: '#ffffff'
                 }}
-                formatter={(value) => {
+                labelStyle={{ color: '#ffffff' }}
+                itemStyle={{ color: '#ffffff' }}
+                formatter={(value, name) => {
                   let formattedValue;
                   if (value >= 100000) {
                     formattedValue = `₹${(value / 100000).toFixed(2)}L`;
@@ -439,298 +807,7 @@ const FinancialAgent = ({ isAgentRunning, onRunAgent }) => {
         </motion.div>
       </div>
 
-      {/* Warehouse Budget Analysis */}
-      <motion.div
-        key={`warehouse-budget-${selectedTimeframe}`}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-white flex items-center space-x-2">
-            <span>🏭</span>
-            <span>Warehouse Budget Analysis - FY 2025</span>
-          </h3>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-400">Total Budget:</span>
-            <span className="text-lg font-bold text-green-400">₹18.5 Cr</span>
-          </div>
-        </div>
 
-        {/* Warehouse Budget Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Delhi Warehouse */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-sm border border-blue-500/30 rounded-xl p-5 hover:border-blue-400/50 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-blue-500/30 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🏢</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Delhi Hub</h4>
-                  <p className="text-xs text-blue-300">North Region</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Allocated</div>
-                <div className="text-sm font-bold text-blue-400">₹5.2 Cr</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Operations</span>
-                <span className="text-white font-medium">₹2.8 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Infrastructure</span>
-                <span className="text-white font-medium">₹1.5 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Technology</span>
-                <span className="text-white font-medium">₹0.6 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Maintenance</span>
-                <span className="text-white font-medium">₹0.3 Cr</span>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-blue-500/20">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">Utilization</span>
-                <span className="text-xs font-semibold text-green-400">87%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-                <div className="bg-blue-500 h-2 rounded-full" style={{ width: '87%' }}></div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Mumbai Warehouse */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 backdrop-blur-sm border border-purple-500/30 rounded-xl p-5 hover:border-purple-400/50 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🏭</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Mumbai Hub</h4>
-                  <p className="text-xs text-purple-300">West Region</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Allocated</div>
-                <div className="text-sm font-bold text-purple-400">₹6.8 Cr</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Operations</span>
-                <span className="text-white font-medium">₹3.8 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Infrastructure</span>
-                <span className="text-white font-medium">₹2.1 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Technology</span>
-                <span className="text-white font-medium">₹0.7 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Maintenance</span>
-                <span className="text-white font-medium">₹0.2 Cr</span>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-purple-500/20">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">Utilization</span>
-                <span className="text-xs font-semibold text-green-400">92%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-                <div className="bg-purple-500 h-2 rounded-full" style={{ width: '92%' }}></div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Bangalore Warehouse */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-gradient-to-br from-green-500/20 to-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-xl p-5 hover:border-green-400/50 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-green-500/30 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🌟</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Bangalore Hub</h4>
-                  <p className="text-xs text-green-300">South Region</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Allocated</div>
-                <div className="text-sm font-bold text-green-400">₹4.1 Cr</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Operations</span>
-                <span className="text-white font-medium">₹2.2 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Infrastructure</span>
-                <span className="text-white font-medium">₹1.2 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Technology</span>
-                <span className="text-white font-medium">₹0.5 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Maintenance</span>
-                <span className="text-white font-medium">₹0.2 Cr</span>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-green-500/20">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">Utilization</span>
-                <span className="text-xs font-semibold text-green-400">78%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{ width: '78%' }}></div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Kolkata Warehouse */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-gradient-to-br from-orange-500/20 to-orange-600/20 backdrop-blur-sm border border-orange-500/30 rounded-xl p-5 hover:border-orange-400/50 transition-all duration-300"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-orange-500/30 rounded-lg flex items-center justify-center">
-                  <span className="text-lg">🏪</span>
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-white">Kolkata Hub</h4>
-                  <p className="text-xs text-orange-300">East Region</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-xs text-gray-400">Allocated</div>
-                <div className="text-sm font-bold text-orange-400">₹2.4 Cr</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Operations</span>
-                <span className="text-white font-medium">₹1.3 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Infrastructure</span>
-                <span className="text-white font-medium">₹0.7 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Technology</span>
-                <span className="text-white font-medium">₹0.3 Cr</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-300">Maintenance</span>
-                <span className="text-white font-medium">₹0.1 Cr</span>
-              </div>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t border-orange-500/20">
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">Utilization</span>
-                <span className="text-xs font-semibold text-yellow-400">65%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-                <div className="bg-orange-500 h-2 rounded-full" style={{ width: '65%' }}></div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Budget Comparison Chart */}
-        <div className="bg-gray-900/50 rounded-xl p-6">
-          <h4 className="text-lg font-semibold text-white mb-4">Budget Allocation Comparison</h4>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={[
-              { 
-                warehouse: 'Delhi', 
-                operations: 2.8, 
-                infrastructure: 1.5, 
-                technology: 0.6, 
-                maintenance: 0.3,
-                total: 5.2
-              },
-              { 
-                warehouse: 'Mumbai', 
-                operations: 3.8, 
-                infrastructure: 2.1, 
-                technology: 0.7, 
-                maintenance: 0.2,
-                total: 6.8
-              },
-              { 
-                warehouse: 'Bangalore', 
-                operations: 2.2, 
-                infrastructure: 1.2, 
-                technology: 0.5, 
-                maintenance: 0.2,
-                total: 4.1
-              },
-              { 
-                warehouse: 'Kolkata', 
-                operations: 1.3, 
-                infrastructure: 0.7, 
-                technology: 0.3, 
-                maintenance: 0.1,
-                total: 2.4
-              }
-            ]}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="warehouse" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" tickFormatter={(value) => `₹${value}Cr`} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
-                  border: '1px solid #374151',
-                  borderRadius: '8px',
-                  color: '#fff'
-                }}
-                formatter={(value, name) => [`₹${value} Cr`, name]}
-              />
-              <Bar dataKey="operations" stackId="a" fill="#3B82F6" name="Operations" />
-              <Bar dataKey="infrastructure" stackId="a" fill="#10B981" name="Infrastructure" />
-              <Bar dataKey="technology" stackId="a" fill="#8B5CF6" name="Technology" />
-              <Bar dataKey="maintenance" stackId="a" fill="#F59E0B" name="Maintenance" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </motion.div>
 
 
 

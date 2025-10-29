@@ -60,6 +60,33 @@ const warehouses = [
   }
 ];
 
+// Suppliers data
+const suppliersList = [
+  { id: 1, name: 'TechCorp Industries', category: 'Electronics', warehouses: ['Delhi', 'Pune'], rating: 4.8, status: 'Active' },
+  { id: 2, name: 'Global Electronics Hub', category: 'Electronics', warehouses: ['Delhi', 'Kolkata'], rating: 4.7, status: 'Active' },
+  { id: 3, name: 'Fashion Hub Limited', category: 'Fashion', warehouses: ['Delhi', 'BBSR'], rating: 4.6, status: 'Active' },
+  { id: 4, name: 'Regional Tech Supply', category: 'Electronics', warehouses: ['BBSR'], rating: 4.5, status: 'Active' },
+  { id: 5, name: 'Eastern Electronics', category: 'Electronics', warehouses: ['BBSR', 'Kolkata'], rating: 4.4, status: 'Active' },
+  { id: 6, name: 'Coastal Fashion', category: 'Fashion', warehouses: ['BBSR'], rating: 4.3, status: 'Active' },
+  { id: 7, name: 'Western Tech Hub', category: 'Electronics', warehouses: ['Pune'], rating: 4.9, status: 'Active' },
+  { id: 8, name: 'Maharashtra Electronics', category: 'Electronics', warehouses: ['Pune'], rating: 4.6, status: 'Active' },
+  { id: 9, name: 'Pune Fashion House', category: 'Fashion', warehouses: ['Pune'], rating: 4.7, status: 'Active' },
+  { id: 10, name: 'Bengal Electronics', category: 'Electronics', warehouses: ['Kolkata'], rating: 4.4, status: 'Active' },
+  { id: 11, name: 'Eastern Fashion Co', category: 'Fashion', warehouses: ['Kolkata'], rating: 4.5, status: 'Active' },
+  { id: 12, name: 'Kolkata Tech Center', category: 'Electronics', warehouses: ['Kolkata'], rating: 4.3, status: 'Active' },
+  { id: 13, name: 'Home Essentials Co', category: 'Household', warehouses: ['Delhi', 'Pune'], rating: 4.2, status: 'Active' },
+  { id: 14, name: 'Local Distributors', category: 'Accessories', warehouses: ['Pune'], rating: 4.1, status: 'Active' },
+  { id: 15, name: 'Local Suppliers', category: 'Accessories', warehouses: ['BBSR'], rating: 4.0, status: 'Active' },
+  { id: 16, name: 'Regional Suppliers', category: 'Accessories', warehouses: ['Kolkata'], rating: 4.2, status: 'Active' },
+  { id: 17, name: 'Premium Goods Ltd', category: 'Fashion', warehouses: ['Delhi', 'Pune'], rating: 4.8, status: 'Active' },
+  { id: 18, name: 'Smart Devices Inc', category: 'Electronics', warehouses: ['Delhi', 'BBSR', 'Pune'], rating: 4.7, status: 'Active' },
+  { id: 19, name: 'Quality Home Products', category: 'Household', warehouses: ['BBSR', 'Kolkata'], rating: 4.4, status: 'Active' },
+  { id: 20, name: 'Fashion Forward Co', category: 'Fashion', warehouses: ['All'], rating: 4.6, status: 'Active' },
+  { id: 21, name: 'Tech Solutions Hub', category: 'Electronics', warehouses: ['Delhi', 'Pune'], rating: 4.5, status: 'Active' },
+  { id: 22, name: 'Lifestyle Accessories', category: 'Accessories', warehouses: ['Delhi', 'BBSR'], rating: 4.3, status: 'Active' },
+  { id: 23, name: 'Universal Suppliers', category: 'Household', warehouses: ['All'], rating: 4.1, status: 'Active' }
+];
+
 // Individual Warehouse Card Component
 const WarehouseCard = ({ warehouse }) => {
   const router = useRouter();
@@ -153,6 +180,7 @@ export default function ProductsOverviewPage() {
   const router = useRouter();
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showSuppliers, setShowSuppliers] = useState(false);
 
   useEffect(() => {
     // Simulate loading
@@ -178,7 +206,7 @@ export default function ProductsOverviewPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black p-8">
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <Link 
             href="/"
             className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-xl 
@@ -187,7 +215,7 @@ export default function ProductsOverviewPage() {
             <span className="mr-3 transform group-hover:-translate-x-1 transition-transform duration-300">←</span>
             Back to Home
           </Link>
-        </div>
+        </div> */}
 
         {/* Header */}
         <div className="text-center mb-12">
@@ -208,9 +236,13 @@ export default function ProductsOverviewPage() {
               <div className="text-3xl font-bold text-green-400 mb-2">1,670</div>
               <div className="text-white/80 text-sm">Daily Orders</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <div className="text-3xl font-bold text-purple-400 mb-2">45</div>
-              <div className="text-white/80 text-sm">Total Suppliers</div>
+            <div 
+              onClick={() => setShowSuppliers(true)}
+              className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300 group"
+            >
+              <div className="text-3xl font-bold text-purple-400 mb-2 group-hover:scale-110 transition-transform">23</div>
+              <div className="text-white/80 text-sm group-hover:text-white transition-colors">Total Suppliers</div>
+              <div className="text-xs text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Click to view list</div>
             </div>
             <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
               <div className="text-3xl font-bold text-orange-400 mb-2">80.25%</div>
@@ -231,40 +263,116 @@ export default function ProductsOverviewPage() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-          <h3 className="text-2xl font-bold text-white mb-6 text-center">
-            🚀 Quick Actions
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 rounded-xl p-6 text-center 
-                            border border-blue-500/30 hover:border-blue-400/60 transition-all cursor-pointer group">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📊</div>
-              <h4 className="text-white font-semibold mb-2">Analytics Dashboard</h4>
-              <p className="text-white/60 text-sm">View cross-warehouse analytics and insights</p>
-            </div>
-            <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 rounded-xl p-6 text-center 
-                            border border-green-500/30 hover:border-green-400/60 transition-all cursor-pointer group">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📦</div>
-              <h4 className="text-white font-semibold mb-2">Inventory Management</h4>
-              <p className="text-white/60 text-sm">Global inventory tracking and optimization</p>
-            </div>
-            <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 rounded-xl p-6 text-center 
-                            border border-purple-500/30 hover:border-purple-400/60 transition-all cursor-pointer group">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">⚡</div>
-              <h4 className="text-white font-semibold mb-2">AI Operations</h4>
-              <p className="text-white/60 text-sm">Smart automation and predictive analytics</p>
-            </div>
-          </div>
-        </div>
-
         {/* Footer */}
         <div className="text-center mt-12 pt-8 border-t border-white/10">
           <p className="text-white/60 text-sm">
-            🌟 Powered by Advanced Warehouse Management Technology
+            🌟 Powered by Invent Gen AI Team
           </p>
         </div>
       </div>
+
+      {/* Suppliers Modal */}
+      {showSuppliers && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl border border-white/20 w-full max-w-4xl max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">📦 All Suppliers Network</h3>
+                <p className="text-white/60">Complete list of our trusted supplier partners</p>
+              </div>
+              <button 
+                onClick={() => setShowSuppliers(false)}
+                className="text-white/60 hover:text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-all"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Suppliers Grid */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {suppliersList.map((supplier) => (
+                  <div 
+                    key={supplier.id}
+                    className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                  >
+                    {/* Supplier Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h4 className="text-white font-semibold text-sm mb-1 group-hover:text-cyan-400 transition-colors">
+                          {supplier.name}
+                        </h4>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-2 py-1 text-xs rounded-full border ${
+                            supplier.category === 'Electronics' ? 'bg-blue-500/20 text-blue-300 border-blue-400/30' :
+                            supplier.category === 'Fashion' ? 'bg-purple-500/20 text-purple-300 border-purple-400/30' :
+                            supplier.category === 'Household' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                            'bg-orange-500/20 text-orange-300 border-orange-400/30'
+                          }`}>
+                            {supplier.category}
+                          </span>
+                          <span className="bg-green-500/20 text-green-300 border border-green-400/30 px-2 py-1 text-xs rounded-full">
+                            {supplier.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-yellow-400">⭐</span>
+                          <span className="text-white text-sm font-semibold">{supplier.rating}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Warehouses Served */}
+                    <div className="mb-3">
+                      <div className="text-xs text-white/60 mb-2">Serves Warehouses:</div>
+                      <div className="flex flex-wrap gap-1">
+                        {supplier.warehouses.map((warehouse, index) => (
+                          <span 
+                            key={index}
+                            className="bg-cyan-500/20 text-cyan-300 text-xs px-2 py-1 rounded border border-cyan-400/30"
+                          >
+                            {warehouse}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-black/20 rounded p-2 text-center">
+                        <div className="text-white font-semibold">ID: {supplier.id.toString().padStart(3, '0')}</div>
+                        <div className="text-white/60">Supplier ID</div>
+                      </div>
+                      <div className="bg-black/20 rounded p-2 text-center">
+                        <div className="text-green-400 font-semibold">Active</div>
+                        <div className="text-white/60">Status</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10 bg-black/20">
+              <div className="flex items-center justify-between">
+                <div className="text-white/60 text-sm">
+                  Total: <span className="text-white font-semibold">{suppliersList.length} suppliers</span> across all warehouses
+                </div>
+                <button 
+                  onClick={() => setShowSuppliers(false)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Selection Overlay */}
       {selectedWarehouse && (

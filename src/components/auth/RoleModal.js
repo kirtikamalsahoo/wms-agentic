@@ -76,7 +76,7 @@ const RoleModal = ({ isOpen, onClose, role, onLogin }) => {
       color: 'from-green-500 to-emerald-600',
       bgColor: 'from-green-600/20 to-emerald-600/20',
       borderColor: 'border-green-400/50',
-      credentials: 'manager / manager OR chinmay / chinmay123'
+      credentials: 'manager / manager'
     },
     admin: {
       title: 'Admin Login',

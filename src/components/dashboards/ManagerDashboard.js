@@ -1177,12 +1177,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
     // Sample data for deliveries and arrivals
     const calendarEvents = {
       3: { 
-        deliveries: ['📦 LED Bulbs - WH_Mumbai', '📦 Sensors - WH_Delhi'], 
+        deliveries: ['📦 LED Bulbs - WH-Delhi', '📦 Sensors - WH-Kolkata'], 
         arrivals: ['🚛 Raw Materials from Supplier A'],
         type: 'delivery'
       },
       7: { 
-        deliveries: ['📦 Smart Switches - WH_Bangalore'], 
+        deliveries: ['📦 Smart Switches - WH-Pune'], 
         arrivals: ['🚛 Electronics from Supplier B', '🚛 Packaging Materials'],
         type: 'both'
       },
@@ -1192,12 +1192,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
         type: 'arrival'
       },
       18: { 
-        deliveries: ['📦 Power Banks - WH_Chennai', '📦 Cables - WH_Kolkata'], 
+        deliveries: ['📦 Power Banks - WH-Bhubaneswar', '📦 Cables - WH-Kolkata'], 
         arrivals: [],
         type: 'delivery'
       },
       22: { 
-        deliveries: ['📦 Adapters - WH_Mumbai'], 
+        deliveries: ['📦 Adapters - WH-Delhi'], 
         arrivals: ['🚛 Inventory Restock - Multiple Items'],
         type: 'both'
       },
@@ -1257,8 +1257,21 @@ const ManagerDashboard = ({ user, onLogout }) => {
             if (hasEvents || isToday) {
               setHoveredDay(day);
               const rect = e.target.getBoundingClientRect();
+              const tooltipWidth = 250; // Estimated tooltip width
+              const viewportWidth = window.innerWidth;
+              
+              // Calculate optimal x position to prevent overflow
+              let x = rect.left + rect.width / 2;
+              if (x + tooltipWidth / 2 > viewportWidth - 20) {
+                // Too far right, position from right edge
+                x = viewportWidth - tooltipWidth / 2 - 20;
+              } else if (x - tooltipWidth / 2 < 20) {
+                // Too far left, position from left edge
+                x = tooltipWidth / 2 + 20;
+              }
+              
               setTooltipPosition({
-                x: rect.left + rect.width / 2,
+                x: x,
                 y: rect.top - 10
               });
             }
@@ -1363,10 +1376,12 @@ const ManagerDashboard = ({ user, onLogout }) => {
               style={{
                 left: tooltipPosition.x,
                 top: tooltipPosition.y,
-                transform: 'translate(-50%, -100%)'
+                transform: 'translate(-50%, -100%)',
+                maxWidth: '300px',
+                minWidth: '250px'
               }}
             >
-              <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl min-w-[250px]">
+              <div className="bg-gradient-to-br from-gray-800/95 to-gray-900/95 backdrop-blur-xl border border-white/20 rounded-2xl p-4 shadow-2xl min-w-[250px] max-w-[300px]">
                 <div className="text-white font-semibold mb-3 flex items-center space-x-2">
                   <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
                   <span>
@@ -1523,7 +1538,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                 <div className="space-y-4">
                   <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white font-medium">LED Bulb 12W – WH_Mumbai</span>
+                      <span className="text-white font-medium">LED Bulb 12W – WH-Delhi</span>
                       <span className="px-2 py-1 bg-red-500/20 text-red-200 rounded-full text-xs">❌ Below threshold</span>
                     </div>
                     <div className="flex items-center space-x-4 text-sm text-white/70">
@@ -1533,7 +1548,7 @@ const ManagerDashboard = ({ user, onLogout }) => {
                   </div>
                   <div className="bg-white/5 rounded-lg p-4 border border-white/10">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-white font-medium">LED Bulb 12W – WH_Bhubaneswar</span>
+                      <span className="text-white font-medium">LED Bulb 12W – WH-Bhubaneswar</span>
                       <span className="px-2 py-1 bg-red-500/20 text-red-200 rounded-full text-xs">❌ Below threshold</span>
                     </div>
                     <div className="flex items-center space-x-4 text-sm text-white/70">

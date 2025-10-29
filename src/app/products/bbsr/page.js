@@ -4,33 +4,33 @@ import { useState } from 'react';
 
 // BBSR warehouse products data
 const warehouseProducts = [
-  // Row 1 - Food Items
-  { id: 1, name: 'Pakhala Rice', quantity: 280, category: 'Food', maxCapacity: 400 },
-  { id: 2, name: 'Arhar Dal', quantity: 160, category: 'Food', maxCapacity: 220 },
-  { id: 3, name: 'Ragi Flour', quantity: 135, category: 'Food', maxCapacity: 180 },
-  { id: 4, name: 'Coconut Oil', quantity: 95, category: 'Food', maxCapacity: 130 },
-  { id: 5, name: 'Jaggery Blocks', quantity: 210, category: 'Food', maxCapacity: 280 },
+  // Electronics
+  { id: 1, name: 'Xiaomi Redmi 12', quantity: 78, category: 'Electronics', maxCapacity: 110 },
+  { id: 2, name: 'OnePlus Nord CE', quantity: 64, category: 'Electronics', maxCapacity: 95 },
+  { id: 3, name: 'HP Pavilion Laptop', quantity: 32, category: 'Electronics', maxCapacity: 60 },
+  { id: 4, name: 'Asus VivoBook', quantity: 28, category: 'Electronics', maxCapacity: 50 },
+  { id: 5, name: 'Samsung Tab A8', quantity: 45, category: 'Electronics', maxCapacity: 70 },
   
-  // Row 2 - Personal Care
-  { id: 6, name: 'Eco Baby Diapers', quantity: 170, category: 'Baby Care', maxCapacity: 200 },
-  { id: 7, name: 'Aloe Vera Shampoo', quantity: 125, category: 'Personal Care', maxCapacity: 160 },
-  { id: 8, name: 'Natural Toothpaste', quantity: 185, category: 'Personal Care', maxCapacity: 240 },
-  { id: 9, name: 'Turmeric Soap', quantity: 110, category: 'Personal Care', maxCapacity: 140 },
-  { id: 10, name: 'Neem Face Wash', quantity: 88, category: 'Personal Care', maxCapacity: 120 },
+  // Household
+  { id: 6, name: 'Bio Detergent', quantity: 145, category: 'Household', maxCapacity: 190 },
+  { id: 7, name: 'Recyclable Tissue', quantity: 65, category: 'Household', maxCapacity: 100 },
+  { id: 8, name: 'Cotton Towels', quantity: 120, category: 'Household', maxCapacity: 150 },
+  { id: 9, name: 'Herbal Dishwash', quantity: 95, category: 'Household', maxCapacity: 130 },
+  { id: 10, name: 'Lemon Floor Cleaner', quantity: 78, category: 'Household', maxCapacity: 110 },
   
-  // Row 3 - Household  
-  { id: 11, name: 'Bio Detergent', quantity: 145, category: 'Household', maxCapacity: 190 },
-  { id: 12, name: 'Recyclable Tissue', quantity: 65, category: 'Household', maxCapacity: 100 },
-  { id: 13, name: 'Cotton Towels', quantity: 120, category: 'Household', maxCapacity: 150 },
-  { id: 14, name: 'Herbal Dishwash', quantity: 95, category: 'Household', maxCapacity: 130 },
-  { id: 15, name: 'Lemon Floor Cleaner', quantity: 78, category: 'Household', maxCapacity: 110 },
+  // Fashion
+  { id: 11, name: 'Puma Track Suits', quantity: 89, category: 'Fashion', maxCapacity: 130 },
+  { id: 12, name: 'Lee Cooper Jeans', quantity: 142, category: 'Fashion', maxCapacity: 180 },
+  { id: 13, name: 'Biba Kurtis', quantity: 176, category: 'Fashion', maxCapacity: 220 },
+  { id: 14, name: 'Peter England Shirts', quantity: 98, category: 'Fashion', maxCapacity: 140 },
+  { id: 15, name: 'Fabindia Ethnic Wear', quantity: 67, category: 'Fashion', maxCapacity: 100 },
   
-  // Row 4 - Beverages
-  { id: 16, name: 'Green Tea', quantity: 195, category: 'Beverages', maxCapacity: 250 },
-  { id: 17, name: 'Filter Coffee', quantity: 142, category: 'Beverages', maxCapacity: 180 },
-  { id: 18, name: 'Herbal Drinks', quantity: 105, category: 'Beverages', maxCapacity: 140 },
-  { id: 19, name: 'Fresh Lime Juice', quantity: 128, category: 'Beverages', maxCapacity: 170 },
-  { id: 20, name: 'Tender Coconut', quantity: 165, category: 'Beverages', maxCapacity: 200 }
+  // Accessories
+  { id: 16, name: 'Noise ColorFit Watch', quantity: 56, category: 'Accessories', maxCapacity: 85 },
+  { id: 17, name: 'Fastrack Sunglasses', quantity: 73, category: 'Accessories', maxCapacity: 110 },
+  { id: 18, name: 'Wildcraft Backpacks', quantity: 41, category: 'Accessories', maxCapacity: 70 },
+  { id: 19, name: 'Titan Analog Watches', quantity: 62, category: 'Accessories', maxCapacity: 90 },
+  { id: 20, name: 'boAt Audio Devices', quantity: 87, category: 'Accessories', maxCapacity: 125 }
 ];
 
 // Inbound items data
@@ -87,26 +87,34 @@ const ProductCard = ({ product, onHover, onLeave }) => {
   // Get product-specific icon
   const getProductIcon = () => {
     const productName = product.name.toLowerCase();
-    if (productName.includes('pakhala') || productName.includes('rice')) return '🍚';
-    if (productName.includes('arhar') || productName.includes('dal')) return '🟡';
-    if (productName.includes('ragi') || productName.includes('flour')) return '🌾';
-    if (productName.includes('coconut') || productName.includes('oil')) return '🥥';
-    if (productName.includes('jaggery') || productName.includes('blocks')) return '🍯';
-    if (productName.includes('diaper') || productName.includes('eco')) return '🌱';
-    if (productName.includes('aloe') || productName.includes('shampoo')) return '🧴';
-    if (productName.includes('toothpaste') || productName.includes('natural')) return '🦷';
-    if (productName.includes('turmeric') || productName.includes('soap')) return '🧼';
-    if (productName.includes('neem') || productName.includes('face wash')) return '🌿';
+    // Electronics
+    if (productName.includes('xiaomi') || productName.includes('redmi')) return '📱';
+    if (productName.includes('oneplus') || productName.includes('nord')) return '�';
+    if (productName.includes('hp') || productName.includes('pavilion') || productName.includes('laptop')) return '💻';
+    if (productName.includes('asus') || productName.includes('vivobook')) return '💻';
+    if (productName.includes('samsung') || productName.includes('tab')) return '📱';
+    
+    // Household
     if (productName.includes('bio') || productName.includes('detergent')) return '🧽';
     if (productName.includes('recyclable') || productName.includes('tissue')) return '♻️';
     if (productName.includes('cotton') || productName.includes('towel')) return '🏠';
     if (productName.includes('herbal') || productName.includes('dishwash')) return '🌿';
-    if (productName.includes('lemon') || productName.includes('floor cleaner')) return '🍋';
-    if (productName.includes('green') || productName.includes('tea')) return '🍃';
-    if (productName.includes('filter') || productName.includes('coffee')) return '☕';
-    if (productName.includes('herbal') && productName.includes('drink')) return '🌿';
-    if (productName.includes('lime') || productName.includes('juice')) return '🟢';
-    if (productName.includes('tender') || productName.includes('coconut')) return '🥥';
+    if (productName.includes('lemon') || productName.includes('floor cleaner')) return '�';
+    
+    // Fashion
+    if (productName.includes('puma') || productName.includes('track')) return '👕';
+    if (productName.includes('lee') || productName.includes('cooper') || productName.includes('jeans')) return '👖';
+    if (productName.includes('biba') || productName.includes('kurti')) return '👗';
+    if (productName.includes('peter') || productName.includes('england') || productName.includes('shirt')) return '👔';
+    if (productName.includes('fabindia') || productName.includes('ethnic')) return '🥻';
+    
+    // Accessories
+    if (productName.includes('noise') || productName.includes('colorfit') || productName.includes('watch')) return '⌚';
+    if (productName.includes('fastrack') || productName.includes('sunglasses')) return '🕶️';
+    if (productName.includes('wildcraft') || productName.includes('backpack')) return '�';
+    if (productName.includes('titan') || productName.includes('analog')) return '⌚';
+    if (productName.includes('boat') || productName.includes('audio')) return '🎧';
+    
     return '📦'; // Default icon
   };
 
@@ -161,14 +169,13 @@ const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   // Generate brand data for each compartment
   const generateBrandData = () => {
     const brands = {
-      'Food': ['Organic Valley', 'Farm Fresh', 'Nature\'s Best', 'Golden Harvest', 'Pure & Simple', 'Green Fields', 'Sunrise', 'Premium Choice'],
-      'Personal Care': ['Herbal Essentials', 'Natural Glow', 'Pure Care', 'Ayur Life', 'Wellness Plus', 'Bio Natural', 'Fresh Look', 'Gentle Touch'],
-      'Baby Care': ['Little Angels', 'Baby Soft', 'Tiny Tots', 'Pure Baby', 'Comfort Care', 'Sweet Dreams', 'Baby Bliss', 'Cuddle Care'],
+      'Electronics': ['Xiaomi', 'OnePlus', 'HP', 'Asus', 'Samsung', 'Realme', 'Vivo', 'Oppo'],
       'Household': ['EcoClean', 'Fresh Home', 'Green Clean', 'Pure Living', 'Home Essentials', 'Clean & Shine', 'Sparkling', 'Natural Care'],
-      'Beverages': ['Morning Brew', 'Pure Taste', 'Natural Sip', 'Fresh Blend', 'Premium Pour', 'Golden Cup', 'Pure Energy', 'Refresh Plus']
+      'Fashion': ['Puma', 'Lee Cooper', 'Biba', 'Peter England', 'Fabindia', 'Allen Solly', 'Van Heusen', 'W'],
+      'Accessories': ['Noise', 'Fastrack', 'Wildcraft', 'Titan', 'boAt', 'Fossil', 'Skagen', 'Casio']
     };
     
-    const categoryBrands = brands[product.category] || brands['Food'];
+    const categoryBrands = brands[product.category] || brands['Electronics'];
     const compartments = [];
     
     for (let i = 0; i < bins; i++) {
@@ -208,11 +215,10 @@ const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   // Get product category icon
   const getCategoryIcon = () => {
     switch (product.category) {
-      case 'Food': return '🍽️';
-      case 'Personal Care': return '🧴';
-      case 'Baby Care': return '👶';
+      case 'Electronics': return '📱';
       case 'Household': return '🏠';
-      case 'Beverages': return '🥤';
+      case 'Fashion': return '👕';
+      case 'Accessories': return '⌚';
       default: return '📦';
     }
   };
@@ -594,6 +600,59 @@ const TooltipCard = ({ item, position, type }) => {
               // Compartment-specific tooltip
               <>
                 <p className="text-gray-300">Brand: <span className={item.brand === 'Empty' ? 'text-gray-500 font-semibold' : 'text-blue-400 font-semibold'}>{item.brand}</span></p>
+                {item.brand !== 'Empty' && (
+                  <div className="mt-2 p-2 bg-gray-800/50 rounded border border-gray-600">
+                    <p className="text-xs text-gray-400 mb-1">Brand Inventory Details:</p>
+                    <div className="space-y-1 text-xs">
+                      {item.category === 'Electronics' && item.brand === 'Xiaomi' && (
+                        <>
+                          <p className="text-white">📱 Redmi 12: <span className="text-green-400">14 units</span></p>
+                          <p className="text-white">📱 Redmi Note: <span className="text-yellow-400">8 units</span></p>
+                          <p className="text-white">📱 Mi Band: <span className="text-green-400">12 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Electronics' && item.brand === 'OnePlus' && (
+                        <>
+                          <p className="text-white">📱 Nord CE: <span className="text-green-400">10 units</span></p>
+                          <p className="text-white">📱 OnePlus 11: <span className="text-yellow-400">6 units</span></p>
+                          <p className="text-white">🎧 Buds Pro: <span className="text-green-400">8 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Fashion' && item.brand === 'Puma' && (
+                        <>
+                          <p className="text-white">👕 Track Suits: <span className="text-green-400">18 units</span></p>
+                          <p className="text-white">👟 Sports Shoes: <span className="text-yellow-400">12 units</span></p>
+                          <p className="text-white">🧢 Caps: <span className="text-green-400">6 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Fashion' && item.brand === 'Biba' && (
+                        <>
+                          <p className="text-white">👗 Kurtis: <span className="text-green-400">24 units</span></p>
+                          <p className="text-white">🥻 Ethnic Sets: <span className="text-yellow-400">16 units</span></p>
+                          <p className="text-white">👚 Tops: <span className="text-green-400">10 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Household' && item.brand === 'EcoClean' && (
+                        <>
+                          <p className="text-white">🧽 Bio Detergent: <span className="text-green-400">22 units</span></p>
+                          <p className="text-white">♻️ Tissues: <span className="text-yellow-400">15 units</span></p>
+                          <p className="text-white">🍋 Floor Cleaner: <span className="text-green-400">8 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Accessories' && item.brand === 'Noise' && (
+                        <>
+                          <p className="text-white">⌚ ColorFit Watch: <span className="text-green-400">9 units</span></p>
+                          <p className="text-white">🎧 Earbuds: <span className="text-yellow-400">12 units</span></p>
+                          <p className="text-white">📱 Smartwatch: <span className="text-green-400">7 units</span></p>
+                        </>
+                      )}
+                      {/* Generic fallback for other brands */}
+                      {!(['Xiaomi', 'OnePlus', 'Puma', 'Biba', 'EcoClean', 'Noise'].includes(item.brand)) && (
+                        <p className="text-white">📦 {item.brand} Products: <span className="text-green-400">{Math.floor(item.compartmentQuantity * 0.7)} units</span></p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <p className="text-gray-300">Category: <span className="text-purple-400">{item.category}</span></p>
                 <p className="text-gray-300">Compartment: <span className="text-yellow-400">#{item.compartmentId}</span></p>
                 <p className="text-gray-300">
@@ -721,6 +780,7 @@ export default function BhubaneswarWarehousePage() {
   const [hoveredItemType, setHoveredItemType] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeOpTab, setActiveOpTab] = useState('returns');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleItemHover = (item, type, event) => {
     setHoveredItem(item);
@@ -733,11 +793,19 @@ export default function BhubaneswarWarehousePage() {
     setHoveredItemType(null);
   };
 
-  // Group products into rows
+  // Filter products based on selected category
+  const filteredProducts = selectedCategory === 'All' 
+    ? warehouseProducts 
+    : warehouseProducts.filter(product => product.category === selectedCategory);
+
+  // Group filtered products into rows
   const productRows = [];
-  for (let i = 0; i < warehouseProducts.length; i += 5) {
-    productRows.push(warehouseProducts.slice(i, i + 5));
+  for (let i = 0; i < filteredProducts.length; i += 5) {
+    productRows.push(filteredProducts.slice(i, i + 5));
   }
+
+  // Available categories
+  const categories = ['All', 'Electronics', 'Household', 'Fashion', 'Accessories'];
 
   // Overall free space calculation
   const totalCapacity = warehouseProducts.reduce((sum, p) => sum + p.maxCapacity, 0);
@@ -759,10 +827,82 @@ export default function BhubaneswarWarehousePage() {
 
         {/* Warehouse Layout */}
         <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/30 shadow-2xl p-8">
-          <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-            <span className="w-3 h-3 bg-cyan-500 rounded-full mr-3 animate-pulse"></span>
-            Live Bhubaneswar Warehouse View
-          </h2>
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold text-white mb-3 flex items-center">
+              <span className="w-3 h-3 bg-cyan-500 rounded-full mr-3 animate-pulse"></span>
+              Live Bhubaneswar Warehouse Storage System
+            </h2>
+
+            {/* Category Filter */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                <span className="text-xl mr-2">🏷️</span>
+                Filter by Category
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-all duration-300 transform hover:scale-105 ${
+                      selectedCategory === category
+                        ? 'bg-gradient-to-r from-blue-500 to-teal-500 border-blue-400 text-white shadow-lg shadow-blue-500/30'
+                        : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20 hover:border-white/40'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>
+                        {category === 'All' ? '🏪' :
+                         category === 'Electronics' ? '📱' :
+                         category === 'Household' ? '🏠' :
+                         category === 'Fashion' ? '👕' :
+                         category === 'Accessories' ? '⌚' : '📦'}
+                      </span>
+                      {category}
+                      <span className="text-xs bg-black/30 px-1.5 py-0.5 rounded-full">
+                        {category === 'All' ? warehouseProducts.length : warehouseProducts.filter(p => p.category === category).length}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 text-sm text-gray-400">
+                Showing <span className="text-blue-400 font-semibold">{filteredProducts.length}</span> products
+                {selectedCategory !== 'All' && (
+                  <span> in <span className="text-white font-semibold">{selectedCategory}</span> category</span>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-2xl">🏭</span>
+                <h3 className="text-blue-300 font-semibold">Warehouse Storage Overview</h3>
+              </div>
+              <p className="text-gray-300 text-sm mb-2">
+                Each card below represents a <strong className="text-white">physical storage rack</strong> in our Bhubaneswar warehouse facility. 
+                The numbered compartments show individual storage sections within each rack.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-300">
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-400">📦</span>
+                  <span><strong>Compartments:</strong> Individual storage sections numbered 1-8</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-400">📊</span>
+                  <span><strong>Fill Level:</strong> Shows current stock vs maximum capacity</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-emerald-400">🏷️</span>
+                  <span><strong>Rack ID:</strong> Unique identifier for each storage rack</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-pink-400">📋</span>
+                  <span><strong>Real-time Data:</strong> Live inventory levels and availability</span>
+                </div>
+              </div>
+            </div>
+          </div>
           
           {/* Warehouse Areas Layout */}
           <div className="space-y-8">
@@ -1009,10 +1149,14 @@ export default function BhubaneswarWarehousePage() {
           <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-sm rounded-xl border border-white/10 p-6">
             <div className="flex items-center mb-2">
               <span className="text-2xl mr-2 animate-pulse">📦</span>
-              <h3 className="text-blue-400 font-semibold">Total Products</h3>
+              <h3 className="text-blue-400 font-semibold">
+                {selectedCategory === 'All' ? 'Total Products' : `${selectedCategory} Products`}
+              </h3>
             </div>
-            <p className="text-2xl font-bold text-white">{warehouseProducts.length}</p>
-            <p className="text-xs text-gray-400 mt-1">Active SKUs</p>
+            <p className="text-2xl font-bold text-white">{filteredProducts.length}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {selectedCategory === 'All' ? 'Active SKUs' : `${selectedCategory} SKUs`}
+            </p>
           </div>
           <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-xl border border-white/10 p-6">
             <div className="flex items-center mb-2">
@@ -1020,7 +1164,7 @@ export default function BhubaneswarWarehousePage() {
               <h3 className="text-green-400 font-semibold">In Stock</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => (p.quantity / p.maxCapacity) >= 0.7).length}
+              {filteredProducts.filter(p => (p.quantity / p.maxCapacity) >= 0.7).length}
             </p>
             <p className="text-xs text-gray-400 mt-1">Well stocked items</p>
           </div>
@@ -1030,7 +1174,7 @@ export default function BhubaneswarWarehousePage() {
               <h3 className="text-yellow-400 font-semibold">Low Stock</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => {
+              {filteredProducts.filter(p => {
                 const ratio = p.quantity / p.maxCapacity;
                 return ratio >= 0.4 && ratio < 0.7;
               }).length}
@@ -1043,7 +1187,7 @@ export default function BhubaneswarWarehousePage() {
               <h3 className="text-red-400 font-semibold">Critical</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => (p.quantity / p.maxCapacity) < 0.4).length}
+              {filteredProducts.filter(p => (p.quantity / p.maxCapacity) < 0.4).length}
             </p>
             <p className="text-xs text-gray-400 mt-1">Urgent attention</p>
           </div>

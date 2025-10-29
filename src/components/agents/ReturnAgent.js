@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { PieChart } from '@mui/x-charts';
-import { Box } from '@mui/material';
 
 const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = [], isLoadingReturns = false, returnStats }) => {
-  const [inspectionNote, setInspectionNote] = useState('');
-  const [returnId, setReturnId] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRunningAgent, setIsRunningAgent] = useState(false);
   const [agentResults, setAgentResults] = useState(null);
   const [submittedNotes, setSubmittedNotes] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [popupType, setPopupType] = useState('success'); // 'success' or 'error'
+  const [editingNote, setEditingNote] = useState(null); // { returnId: number, note: string }
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // Return stats now come from props
   const stats = returnStats || {
     totalReturns: 156,
@@ -28,6 +25,13 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
     setPopupType(type);
     setShowPopup(true);
   }, []);
+
+  // Filter pending inspections
+  const pendingInspections = useMemo(() => {
+    return returnsData.filter(returnItem => 
+      returnItem.return_status?.toLowerCase() === 'pending inspection'
+    );
+  }, [returnsData]);
 
   // Data fetching is now handled by parent component
 
@@ -107,9 +111,8 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
     return stats;
   }, [returnsData]);
 
-  const handleSubmitNote = async (e) => {
-    e.preventDefault();
-    if (!inspectionNote.trim() || !returnId.trim()) return;
+  const handleSubmitNote = async (returnId, inspectionNote) => {
+    if (!inspectionNote.trim() || !returnId) return;
 
     setIsSubmitting(true);
     
@@ -144,8 +147,10 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         };
         
         setSubmittedNotes(prev => [newNote, ...prev]);
-        setInspectionNote('');
-        setReturnId('');
+        setEditingNote(null);
+        
+        // Refresh data to show updated status
+        if (onRefreshData) onRefreshData();
         
         // Show success message
         showPopupMessage(`Inspection note submitted successfully for Return ID: ${returnId}`, 'success');
@@ -288,70 +293,10 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
           </div>
         </div>
 
-        {chartData.length > 0 ? (
+        {agentResults.totalProcessed > 0 ? (
           <>
-            <Box sx={{ width: '100%', height: 300 }}>
-              <PieChart
-                series={[{
-                  data: chartData,
-                  innerRadius: 60,
-                  outerRadius: 120,
-                  paddingAngle: 3,
-                  cornerRadius: 8,
-                  highlightScope: { faded: 'global', highlighted: 'item' },
-                  arcLabel: (item) => `${item.label}`,
-                  arcLabelMinAngle: 35
-                }]}
-                margin={{ top: 20, bottom: 20, left: 20, right: 20 }}
-                slotProps={{
-                  legend: {
-                    direction: 'column',
-                    position: { vertical: 'middle', horizontal: 'right' },
-                    padding: 0,
-                    itemMarkWidth: 12,
-                    itemMarkHeight: 12,
-                    markGap: 8,
-                    itemGap: 16
-                  }
-                }}
-                sx={{
-                  // Legend text styling
-                  '& .MuiChartsLegend-series text': { 
-                    fill: 'rgba(255, 255, 255, 0.9) !important',
-                    fontSize: '14px !important',
-                    fontWeight: '500 !important'
-                  },
-                  '& .MuiChartsLegend-label': { 
-                    fill: 'rgba(255, 255, 255, 0.9) !important',
-                    fontSize: '14px !important'
-                  },
-                  '& .MuiChartsLegend-root text': { 
-                    fill: 'rgba(255, 255, 255, 0.9) !important',
-                    fontSize: '14px !important'
-                  },
-                  // Arc label styling (text on pie slices)
-                  '& .MuiChartsArcLabel-root text': {
-                    fill: 'white !important',
-                    fontSize: '12px !important',
-                    fontWeight: 'bold !important',
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.8) !important'
-                  },
-                  // All other text elements
-                  '& text': { 
-                    fill: 'rgba(255, 255, 255, 0.9) !important'
-                  },
-                  // Pie slice labels
-                  '& .MuiPieArc-label': {
-                    fill: 'white !important',
-                    fontSize: '12px !important',
-                    fontWeight: 'bold !important'
-                  }
-                }}
-              />
-            </Box>
-
             {/* Enhanced Statistics with Beautiful Cards */}
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-3 gap-4 mt-2">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -580,88 +525,153 @@ const ReturnAgent = ({ isAgentRunning, onRunAgent, onRefreshData, returnsData = 
         />
       </div>
 
-      {/* Inspection Note Section */}
+      {/* Pending Inspections Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="bg-gradient-to-br from-gray-600/20 to-gray-800/20 backdrop-blur-sm rounded-2xl border border-white/10 p-6 hover:border-white/20 transition-all duration-300"
       >
-        <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-            <span className="text-2xl">📝</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-orange-500/30 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
+              <span className="text-2xl">�</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white">Pending Inspections</h3>
+              <p className="text-white/60">Returns waiting for inspection notes</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-xl font-semibold text-white">Inspection Note</h3>
-            <p className="text-white/60">Add notes for return inspection</p>
+          <div className="px-3 py-1 bg-yellow-500/20 border border-yellow-400/30 rounded-full text-xs text-yellow-200">
+            📋 {pendingInspections.length} items pending
           </div>
         </div>
 
-        <form onSubmit={handleSubmitNote} className="space-y-6">
-          <motion.div
-            whileFocus={{ scale: 1.02 }}
-            className="space-y-3"
-          >
-            <label className="block text-white/80 text-sm font-medium">Return ID</label>
-            <input
-              key="return-id-input"
-              type="number"
-              value={returnId}
-              onChange={(e) => setReturnId(e.target.value)}
-              placeholder="Enter Return ID"
-              className="w-full h-12 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl px-4 text-white placeholder-white/50 focus:border-blue-400/60 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300"
-              required
+        {isLoadingReturns ? (
+          <div className="flex items-center justify-center py-12">
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full"
             />
-          </motion.div>
-          
-          <motion.div
-            whileFocus={{ scale: 1.02 }}
-            className="space-y-3"
-          >
-            <label className="block text-white/80 text-sm font-medium">Inspection Notes</label>
-            <textarea
-              key="inspection-note-textarea"
-              value={inspectionNote}
-              onChange={(e) => setInspectionNote(e.target.value)}
-              placeholder="Enter inspection details, condition assessment, recommended actions..."
-              className="w-full h-32 bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-white placeholder-white/50 focus:border-blue-400/60 focus:outline-none focus:ring-2 focus:ring-blue-400/20 resize-none transition-all duration-300"
-              required
-            />
-          </motion.div>
-          
-          <div className="pt-4 flex justify-end">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              disabled={isSubmitting || !inspectionNote.trim() || !returnId.trim()}
-              className="px-6 py-2.5 bg-gradient-to-r from-blue-500/80 to-cyan-500/80 backdrop-blur-sm border border-white/20 text-white font-medium rounded-lg hover:border-white/40 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-            {isSubmitting ? (
-              <div className="flex items-center space-x-2">
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                />
-                <span>Submitting...</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <span>📝</span>
-                <span>Submit Inspection Note</span>
-              </div>
-            )}
-            </motion.button>
           </div>
-        </form>
+        ) : pendingInspections.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Return ID</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Order ID</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Product</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Customer Reason</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Quantity</th>
+                  <th className="text-left text-white/80 font-medium py-3 px-2 text-sm">Requested</th>
+                  <th className="text-center text-white/80 font-medium py-3 px-2 text-sm">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingInspections.map((returnItem, index) => (
+                  <motion.tr
+                    key={returnItem.return_id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="border-b border-white/5 hover:bg-white/5 transition-all duration-300"
+                  >
+                    <td className="py-4 px-2">
+                      <div className="text-white font-medium">#{returnItem.return_id}</div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/90">#{returnItem.order_id}</div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/90 max-w-32 truncate" title={returnItem.product_name}>
+                        {returnItem.product_name}
+                      </div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/80 text-sm max-w-40 truncate" title={returnItem.reason_for_return}>
+                        {returnItem.reason_for_return}
+                      </div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/90 text-center">{returnItem.return_quantity}</div>
+                    </td>
+                    <td className="py-4 px-2">
+                      <div className="text-white/70 text-xs">
+                        {formatDate(returnItem.requested_at)}
+                      </div>
+                    </td>
+                    <td className="py-4 px-2 text-center">
+                      {editingNote?.returnId === returnItem.return_id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editingNote.note}
+                            onChange={(e) => setEditingNote({ ...editingNote, note: e.target.value })}
+                            placeholder="Enter inspection details..."
+                            className="w-full h-20 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 text-white text-xs placeholder-white/50 focus:border-blue-400/60 focus:outline-none focus:ring-1 focus:ring-blue-400/20 resize-none transition-all duration-300"
+                          />
+                          <div className="flex space-x-2">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => handleSubmitNote(returnItem.return_id, editingNote.note)}
+                              disabled={isSubmitting || !editingNote.note.trim()}
+                              className="px-3 py-1.5 bg-gradient-to-r from-green-500/80 to-emerald-500/80 backdrop-blur-sm border border-white/20 text-white text-xs font-medium rounded-lg hover:border-white/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {isSubmitting ? (
+                                <motion.div 
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  className="w-3 h-3 border border-white/30 border-t-white rounded-full"
+                                />
+                              ) : (
+                                '✅ Submit'
+                              )}
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setEditingNote(null)}
+                              className="px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-xs font-medium rounded-lg hover:border-white/40 transition-all duration-300"
+                            >
+                              ❌ Cancel
+                            </motion.button>
+                          </div>
+                        </div>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => setEditingNote({ returnId: returnItem.return_id, note: '' })}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-500/80 to-cyan-500/80 backdrop-blur-sm border border-white/20 text-white text-xs font-medium rounded-lg hover:border-white/40 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300"
+                        >
+                          <div className="flex items-center space-x-1">
+                            <span>📝</span>
+                            <span>Add Note</span>
+                          </div>
+                        </motion.button>
+                      )}
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-white/60 text-lg mb-2">✅</div>
+            <div className="text-white/80">No pending inspections</div>
+            <div className="text-white/60 text-sm mt-1">All returns have been inspected</div>
+          </div>
+        )}
 
         {/* Recent Notes */}
         {submittedNotes.length > 0 && (
           <div className="mt-8 pt-6 border-t border-white/10">
             <h4 className="text-sm font-medium text-white/80 mb-4 flex items-center space-x-2">
               <span>📋</span>
-              <span>Recent Inspection Notes</span>
+              <span>Recently Added Notes</span>
             </h4>
             <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
               {submittedNotes.slice(0, 3).map((note) => (

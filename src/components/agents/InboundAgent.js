@@ -49,32 +49,32 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
   // Warehouse-specific shipment data
   const warehouseShipments = {
     'wh-delhi': [
-      { id: 'DL001234', supplier: 'TechCorp Industries', products: 'iPhone 15 Pro (50 units)', eta: '2024-01-15', status: 'In Transit' },
-      { id: 'DL005678', supplier: 'Global Electronics Hub', products: 'MacBook Pro (30 units)', eta: '2024-01-16', status: 'Scheduled' },
-      { id: 'DL009876', supplier: 'Fashion Hub Limited', products: 'Premium Shirts (100 units)', eta: '2024-01-17', status: 'Delayed' },
-      { id: 'DL002345', supplier: 'TechCorp Industries', products: 'Samsung Galaxy S24 (40 units)', eta: '2024-01-18', status: 'Processing' },
-      { id: 'DL006789', supplier: 'Global Electronics Hub', products: 'Gaming Laptops (15 units)', eta: '2024-01-19', status: 'In Transit' }
+      { id: 'DL001234', supplier: 'TechCorp Industries', products: 'iPhone 15 Pro (50 units)', eta: '2025-11-04', status: 'In Transit' },
+      { id: 'DL005678', supplier: 'Global Electronics Hub', products: 'MacBook Pro (30 units)', eta: '2025-11-07', status: 'Scheduled' },
+      { id: 'DL009876', supplier: 'Fashion Hub Limited', products: 'Premium Shirts (100 units)', eta: '2025-11-09', status: 'Delayed' },
+      { id: 'DL002345', supplier: 'TechCorp Industries', products: 'Samsung Galaxy S24 (40 units)', eta: '2025-11-12', status: 'Processing' },
+      { id: 'DL006789', supplier: 'Global Electronics Hub', products: 'Gaming Laptops (15 units)', eta: '2025-11-14', status: 'In Transit' }
     ],
     'wh-bhubaneswar': [
-      { id: 'BB001345', supplier: 'Regional Tech Supply', products: 'Xiaomi Phones (35 units)', eta: '2024-01-15', status: 'Scheduled' },
-      { id: 'BB005789', supplier: 'Eastern Electronics', products: 'Tablets (25 units)', eta: '2024-01-16', status: 'In Transit' },
-      { id: 'BB009987', supplier: 'Coastal Fashion', products: 'Casual Wear (80 units)', eta: '2024-01-17', status: 'Processing' },
-      { id: 'BB002456', supplier: 'Regional Tech Supply', products: 'Smart Watches (20 units)', eta: '2024-01-18', status: 'Scheduled' },
-      { id: 'BB006890', supplier: 'Eastern Electronics', products: 'Headphones (45 units)', eta: '2024-01-19', status: 'In Transit' }
+      { id: 'BB001345', supplier: 'Regional Tech Supply', products: 'Xiaomi Phones (35 units)', eta: '2025-11-05', status: 'Scheduled' },
+      { id: 'BB005789', supplier: 'Eastern Electronics', products: 'Tablets (25 units)', eta: '2025-11-08', status: 'In Transit' },
+      { id: 'BB009987', supplier: 'Coastal Fashion', products: 'Casual Wear (80 units)', eta: '2025-11-10', status: 'Processing' },
+      { id: 'BB002456', supplier: 'Regional Tech Supply', products: 'Smart Watches (20 units)', eta: '2025-11-13', status: 'Scheduled' },
+      { id: 'BB006890', supplier: 'Eastern Electronics', products: 'Headphones (45 units)', eta: '2025-11-15', status: 'In Transit' }
     ],
     'wh-pune': [
-      { id: 'PN001456', supplier: 'Western Tech Hub', products: 'OnePlus Devices (40 units)', eta: '2024-01-15', status: 'In Transit' },
-      { id: 'PN005890', supplier: 'Maharashtra Electronics', products: 'Smart TVs (12 units)', eta: '2024-01-16', status: 'Scheduled' },
-      { id: 'PN009098', supplier: 'Pune Fashion House', products: 'Designer Shirts (60 units)', eta: '2024-01-17', status: 'In Transit' },
-      { id: 'PN002567', supplier: 'Western Tech Hub', products: 'Bluetooth Speakers (55 units)', eta: '2024-01-18', status: 'Processing' },
-      { id: 'PN006901', supplier: 'Maharashtra Electronics', products: 'Monitors (18 units)', eta: '2024-01-19', status: 'Scheduled' }
+      { id: 'PN001456', supplier: 'Western Tech Hub', products: 'OnePlus Devices (40 units)', eta: '2025-11-03', status: 'In Transit' },
+      { id: 'PN005890', supplier: 'Maharashtra Electronics', products: 'Smart TVs (12 units)', eta: '2025-11-06', status: 'Scheduled' },
+      { id: 'PN009098', supplier: 'Pune Fashion House', products: 'Designer Shirts (60 units)', eta: '2025-11-11', status: 'In Transit' },
+      { id: 'PN002567', supplier: 'Western Tech Hub', products: 'Bluetooth Speakers (55 units)', eta: '2025-11-13', status: 'Processing' },
+      { id: 'PN006901', supplier: 'Maharashtra Electronics', products: 'Monitors (18 units)', eta: '2025-11-16', status: 'Scheduled' }
     ],
     'wh-kolkata': [
-      { id: 'KL001567', supplier: 'Bengal Electronics', products: 'Vivo Smartphones (28 units)', eta: '2024-01-15', status: 'Processing' },
-      { id: 'KL005901', supplier: 'Eastern Fashion Co', products: 'Traditional Wear (45 units)', eta: '2024-01-16', status: 'In Transit' },
-      { id: 'KL009109', supplier: 'Kolkata Tech Center', products: 'Keyboards & Mouse (70 units)', eta: '2024-01-17', status: 'Scheduled' },
-      { id: 'KL002678', supplier: 'Bengal Electronics', products: 'Power Banks (35 units)', eta: '2024-01-18', status: 'In Transit' },
-      { id: 'KL006012', supplier: 'Eastern Fashion Co', products: 'Winter Jackets (25 units)', eta: '2024-01-19', status: 'Delayed' }
+      { id: 'KL001567', supplier: 'Bengal Electronics', products: 'Vivo Smartphones (28 units)', eta: '2025-11-02', status: 'Processing' },
+      { id: 'KL005901', supplier: 'Eastern Fashion Co', products: 'Traditional Wear (45 units)', eta: '2025-11-05', status: 'In Transit' },
+      { id: 'KL009109', supplier: 'Kolkata Tech Center', products: 'Keyboards & Mouse (70 units)', eta: '2025-11-08', status: 'Scheduled' },
+      { id: 'KL002678', supplier: 'Bengal Electronics', products: 'Power Banks (35 units)', eta: '2025-11-12', status: 'In Transit' },
+      { id: 'KL006012', supplier: 'Eastern Fashion Co', products: 'Winter Jackets (25 units)', eta: '2025-11-14', status: 'Delayed' }
     ]
   };
 
@@ -109,28 +109,28 @@ const InboundAgent = ({ isAgentRunning, onRunAgent }) => {
   // Warehouse-specific received goods
   const warehouseReceivedGoods = {
     'wh-delhi': [
-      { date: '2024-01-13', supplier: 'TechCorp Industries', items: '25 Electronics', quantity: '25 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-12', supplier: 'Fashion Hub Limited', items: '30 Apparel', quantity: '30 units', status: 'Received', quality: 'Excellent' },
-      { date: '2024-01-11', supplier: 'Global Electronics Hub', items: '20 Laptops', quantity: '20 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-10', supplier: 'Home Essentials Co', items: '40 Home Items', quantity: '40 units', status: 'Received', quality: 'Fair' }
+      { date: '2025-11-01', supplier: 'TechCorp Industries', items: '25 Electronics', quantity: '25 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-30', supplier: 'Fashion Hub Limited', items: '30 Apparel', quantity: '30 units', status: 'Received', quality: 'Excellent' },
+      { date: '2025-10-28', supplier: 'Global Electronics Hub', items: '20 Laptops', quantity: '20 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-26', supplier: 'Home Essentials Co', items: '40 Home Items', quantity: '40 units', status: 'Received', quality: 'Fair' }
     ],
     'wh-bhubaneswar': [
-      { date: '2024-01-13', supplier: 'Regional Tech Supply', items: '18 Mobile Phones', quantity: '18 units', status: 'Received', quality: 'Excellent' },
-      { date: '2024-01-12', supplier: 'Coastal Fashion', items: '25 Casual Wear', quantity: '25 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-11', supplier: 'Eastern Electronics', items: '15 Tablets', quantity: '15 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-10', supplier: 'Local Suppliers', items: '22 Accessories', quantity: '22 units', status: 'Received', quality: 'Excellent' }
+      { date: '2025-10-31', supplier: 'Regional Tech Supply', items: '18 Mobile Phones', quantity: '18 units', status: 'Received', quality: 'Excellent' },
+      { date: '2025-10-29', supplier: 'Coastal Fashion', items: '25 Casual Wear', quantity: '25 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-27', supplier: 'Eastern Electronics', items: '15 Tablets', quantity: '15 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-26', supplier: 'Local Suppliers', items: '22 Accessories', quantity: '22 units', status: 'Received', quality: 'Excellent' }
     ],
     'wh-pune': [
-      { date: '2024-01-13', supplier: 'Western Tech Hub', items: '28 Smart Devices', quantity: '28 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-12', supplier: 'Pune Fashion House', items: '35 Designer Items', quantity: '35 units', status: 'Received', quality: 'Excellent' },
-      { date: '2024-01-11', supplier: 'Maharashtra Electronics', items: '10 Smart TVs', quantity: '10 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-10', supplier: 'Local Distributors', items: '20 Audio Equipment', quantity: '20 units', status: 'Received', quality: 'Fair' }
+      { date: '2025-11-01', supplier: 'Western Tech Hub', items: '28 Smart Devices', quantity: '28 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-30', supplier: 'Pune Fashion House', items: '35 Designer Items', quantity: '35 units', status: 'Received', quality: 'Excellent' },
+      { date: '2025-10-28', supplier: 'Maharashtra Electronics', items: '10 Smart TVs', quantity: '10 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-27', supplier: 'Local Distributors', items: '20 Audio Equipment', quantity: '20 units', status: 'Received', quality: 'Fair' }
     ],
     'wh-kolkata': [
-      { date: '2024-01-13', supplier: 'Bengal Electronics', items: '12 Smartphones', quantity: '12 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-12', supplier: 'Eastern Fashion Co', items: '28 Traditional Wear', quantity: '28 units', status: 'Received', quality: 'Excellent' },
-      { date: '2024-01-11', supplier: 'Kolkata Tech Center', items: '32 Computer Peripherals', quantity: '32 units', status: 'Received', quality: 'Good' },
-      { date: '2024-01-10', supplier: 'Regional Suppliers', items: '16 Power Accessories', quantity: '16 units', status: 'Received', quality: 'Fair' }
+      { date: '2025-11-01', supplier: 'Bengal Electronics', items: '12 Smartphones', quantity: '12 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-31', supplier: 'Eastern Fashion Co', items: '28 Traditional Wear', quantity: '28 units', status: 'Received', quality: 'Excellent' },
+      { date: '2025-10-29', supplier: 'Kolkata Tech Center', items: '32 Computer Peripherals', quantity: '32 units', status: 'Received', quality: 'Good' },
+      { date: '2025-10-27', supplier: 'Regional Suppliers', items: '16 Power Accessories', quantity: '16 units', status: 'Received', quality: 'Fair' }
     ]
   };
 

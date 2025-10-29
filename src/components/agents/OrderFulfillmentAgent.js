@@ -564,7 +564,7 @@ const OrderFulfillmentAgent = ({ isAgentRunning, onRunAgent }) => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Message</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Packing Material</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Size</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white/70 uppercase">Packing Size</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/10">

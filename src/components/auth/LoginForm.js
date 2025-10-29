@@ -158,9 +158,9 @@ const LoginForm = ({ onLogin }) => {
             <div className="bg-white/5 rounded-lg p-2">
               <span className="font-medium text-green-400">Manager:</span> manager / manager
             </div>
-            <div className="bg-white/5 rounded-lg p-2">
+            {/* <div className="bg-white/5 rounded-lg p-2">
               <span className="font-medium text-green-400">Manager:</span> chinmay / chinmay123
-            </div>
+            </div> */}
             <div className="bg-white/5 rounded-lg p-2">
               <span className="font-medium text-purple-400">Admin:</span> admin / admin
             </div>

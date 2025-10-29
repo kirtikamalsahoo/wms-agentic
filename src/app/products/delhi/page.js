@@ -5,33 +5,33 @@ import { useState } from 'react';
 
 // Delhi warehouse products data
 const warehouseProducts = [
-  // Row 1 - Food Items
-  { id: 1, name: 'Rajma Beans', quantity: 320, category: 'Food', maxCapacity: 500 },
-  { id: 2, name: 'Quinoa Rice', quantity: 150, category: 'Food', maxCapacity: 200 },
-  { id: 3, name: 'Moong Dal', quantity: 180, category: 'Food', maxCapacity: 250 },
-  { id: 4, name: 'Multigrain Flour', quantity: 280, category: 'Food', maxCapacity: 400 },
-  { id: 5, name: 'Mustard Oil', quantity: 85, category: 'Food', maxCapacity: 120 },
+  // Electronics
+  { id: 1, name: 'iPhone 15 Pro', quantity: 85, category: 'Electronics', maxCapacity: 120 },
+  { id: 2, name: 'Samsung Galaxy S24', quantity: 92, category: 'Electronics', maxCapacity: 150 },
+  { id: 3, name: 'MacBook Air M2', quantity: 45, category: 'Electronics', maxCapacity: 80 },
+  { id: 4, name: 'Dell XPS Laptop', quantity: 38, category: 'Electronics', maxCapacity: 70 },
+  { id: 5, name: 'iPad Pro', quantity: 67, category: 'Electronics', maxCapacity: 100 },
   
-  // Row 2 - Personal Care
-  { id: 6, name: 'Premium Diapers', quantity: 190, category: 'Baby Care', maxCapacity: 220 },
-  { id: 7, name: 'Herbal Shampoo', quantity: 140, category: 'Personal Care', maxCapacity: 180 },
-  { id: 8, name: 'Ayurvedic Toothpaste', quantity: 200, category: 'Personal Care', maxCapacity: 280 },
-  { id: 9, name: 'Neem Soap', quantity: 95, category: 'Personal Care', maxCapacity: 150 },
-  { id: 10, name: 'Charcoal Face Wash', quantity: 110, category: 'Personal Care', maxCapacity: 140 },
+  // Household
+  { id: 6, name: 'Eco Detergent', quantity: 160, category: 'Household', maxCapacity: 220 },
+  { id: 7, name: 'Bamboo Tissue', quantity: 75, category: 'Household', maxCapacity: 120 },
+  { id: 8, name: 'Microfiber Towels', quantity: 130, category: 'Household', maxCapacity: 160 },
+  { id: 9, name: 'Enzyme Dishwash', quantity: 105, category: 'Household', maxCapacity: 140 },
+  { id: 10, name: 'Citrus Floor Cleaner', quantity: 88, category: 'Household', maxCapacity: 110 },
   
-  // Row 3 - Household
-  { id: 11, name: 'Eco Detergent', quantity: 160, category: 'Household', maxCapacity: 220 },
-  { id: 12, name: 'Bamboo Tissue', quantity: 75, category: 'Household', maxCapacity: 120 },
-  { id: 13, name: 'Microfiber Towels', quantity: 130, category: 'Household', maxCapacity: 160 },
-  { id: 14, name: 'Enzyme Dishwash', quantity: 105, category: 'Household', maxCapacity: 140 },
-  { id: 15, name: 'Citrus Floor Cleaner', quantity: 88, category: 'Household', maxCapacity: 110 },
+  // Fashion
+  { id: 11, name: 'Nike Air Jordans', quantity: 124, category: 'Fashion', maxCapacity: 180 },
+  { id: 12, name: 'Adidas Hoodie', quantity: 95, category: 'Fashion', maxCapacity: 140 },
+  { id: 13, name: 'Levi\'s Jeans', quantity: 156, category: 'Fashion', maxCapacity: 200 },
+  { id: 14, name: 'Zara T-Shirts', quantity: 203, category: 'Fashion', maxCapacity: 280 },
+  { id: 15, name: 'H&M Dresses', quantity: 78, category: 'Fashion', maxCapacity: 120 },
   
-  // Row 4 - Beverages
-  { id: 16, name: 'Masala Chai', quantity: 210, category: 'Beverages', maxCapacity: 280 },
-  { id: 17, name: 'Organic Coffee', quantity: 125, category: 'Beverages', maxCapacity: 160 },
-  { id: 18, name: 'Protein Shakes', quantity: 95, category: 'Beverages', maxCapacity: 130 },
-  { id: 19, name: 'Fresh Juice', quantity: 140, category: 'Beverages', maxCapacity: 180 },
-  { id: 20, name: 'Sparkling Water', quantity: 175, category: 'Beverages', maxCapacity: 200 }
+  // Accessories
+  { id: 16, name: 'Apple Watch Series 9', quantity: 52, category: 'Accessories', maxCapacity: 80 },
+  { id: 17, name: 'Ray-Ban Sunglasses', quantity: 89, category: 'Accessories', maxCapacity: 130 },
+  { id: 18, name: 'Louis Vuitton Bags', quantity: 34, category: 'Accessories', maxCapacity: 60 },
+  { id: 19, name: 'Fossil Watches', quantity: 71, category: 'Accessories', maxCapacity: 110 },
+  { id: 20, name: 'Beats Headphones', quantity: 96, category: 'Accessories', maxCapacity: 140 }
 ];
 
 // Inbound items data
@@ -92,26 +92,34 @@ const ProductCard = ({ product, onHover, onLeave }) => {
   // Get product-specific icon
   const getProductIcon = () => {
     const productName = product.name.toLowerCase();
-    if (productName.includes('rajma') || productName.includes('beans')) return '🫘';
-    if (productName.includes('rice') || productName.includes('quinoa')) return '🍚';
-    if (productName.includes('dal') || productName.includes('moong')) return '🟡';
-    if (productName.includes('flour') || productName.includes('multigrain')) return '🌾';
-    if (productName.includes('oil') || productName.includes('mustard')) return '🫒';
-    if (productName.includes('diaper')) return '👶';
-    if (productName.includes('shampoo') || productName.includes('herbal')) return '🧴';
-    if (productName.includes('toothpaste') || productName.includes('ayurvedic')) return '🦷';
-    if (productName.includes('soap') || productName.includes('neem')) return '🧼';
-    if (productName.includes('face wash') || productName.includes('charcoal')) return '🖤';
-    if (productName.includes('detergent') || productName.includes('eco')) return '🧽';
-    if (productName.includes('tissue') || productName.includes('bamboo')) return '🧻';
+    // Electronics
+    if (productName.includes('iphone')) return '📱';
+    if (productName.includes('samsung') || productName.includes('galaxy')) return '�';
+    if (productName.includes('macbook') || productName.includes('laptop')) return '💻';
+    if (productName.includes('dell') || productName.includes('xps')) return '💻';
+    if (productName.includes('ipad')) return '�';
+    
+    // Household
+    if (productName.includes('detergent') || productName.includes('eco')) return '�';
+    if (productName.includes('tissue') || productName.includes('bamboo')) return '�';
     if (productName.includes('towel') || productName.includes('microfiber')) return '🏠';
     if (productName.includes('dishwash') || productName.includes('enzyme')) return '🍽️';
-    if (productName.includes('floor cleaner') || productName.includes('citrus')) return '🧹';
-    if (productName.includes('tea') || productName.includes('chai') || productName.includes('masala')) return '🍵';
-    if (productName.includes('coffee') || productName.includes('organic')) return '☕';
-    if (productName.includes('protein') || productName.includes('shakes')) return '💪';
-    if (productName.includes('juice') || productName.includes('fresh')) return '🧃';
-    if (productName.includes('sparkling') || productName.includes('water')) return '💧';
+    if (productName.includes('floor cleaner') || productName.includes('citrus')) return '�';
+    
+    // Fashion
+    if (productName.includes('nike') || productName.includes('jordans')) return '👟';
+    if (productName.includes('adidas') || productName.includes('hoodie')) return '👕';
+    if (productName.includes('levi') || productName.includes('jeans')) return '👖';
+    if (productName.includes('zara') || productName.includes('t-shirt')) return '👕';
+    if (productName.includes('h&m') || productName.includes('dress')) return '👗';
+    
+    // Accessories
+    if (productName.includes('apple watch')) return '⌚';
+    if (productName.includes('ray-ban') || productName.includes('sunglasses')) return '🕶️';
+    if (productName.includes('louis vuitton') || productName.includes('bag')) return '�';
+    if (productName.includes('fossil') || productName.includes('watch')) return '⌚';
+    if (productName.includes('beats') || productName.includes('headphones')) return '🎧';
+    
     return '📦'; // Default icon
   };
 
@@ -166,14 +174,13 @@ const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   // Generate brand data for each compartment
   const generateBrandData = () => {
     const brands = {
-      'Food': ['Organic Valley', 'Farm Fresh', 'Nature\'s Best', 'Golden Harvest', 'Pure & Simple', 'Green Fields', 'Sunrise', 'Premium Choice'],
-      'Personal Care': ['Herbal Essentials', 'Natural Glow', 'Pure Care', 'Ayur Life', 'Wellness Plus', 'Bio Natural', 'Fresh Look', 'Gentle Touch'],
-      'Baby Care': ['Little Angels', 'Baby Soft', 'Tiny Tots', 'Pure Baby', 'Comfort Care', 'Sweet Dreams', 'Baby Bliss', 'Cuddle Care'],
+      'Electronics': ['Apple', 'Samsung', 'Sony', 'LG', 'Dell', 'HP', 'Asus', 'Lenovo'],
       'Household': ['EcoClean', 'Fresh Home', 'Green Clean', 'Pure Living', 'Home Essentials', 'Clean & Shine', 'Sparkling', 'Natural Care'],
-      'Beverages': ['Morning Brew', 'Pure Taste', 'Natural Sip', 'Fresh Blend', 'Premium Pour', 'Golden Cup', 'Pure Energy', 'Refresh Plus']
+      'Fashion': ['Nike', 'Adidas', 'Puma', 'Levi\'s', 'Zara', 'H&M', 'Uniqlo', 'Gap'],
+      'Accessories': ['Apple', 'Ray-Ban', 'Louis Vuitton', 'Fossil', 'Beats', 'Oakley', 'Gucci', 'Rolex']
     };
     
-    const categoryBrands = brands[product.category] || brands['Food'];
+    const categoryBrands = brands[product.category] || brands['Electronics'];
     const compartments = [];
     
     for (let i = 0; i < bins; i++) {
@@ -213,11 +220,10 @@ const RackProductCard = ({ product, bins = 8, onHover, onLeave }) => {
   // Get product category icon
   const getCategoryIcon = () => {
     switch (product.category) {
-      case 'Food': return '🍽️';
-      case 'Personal Care': return '🧴';
-      case 'Baby Care': return '👶';
+      case 'Electronics': return '📱';
       case 'Household': return '🏠';
-      case 'Beverages': return '🥤';
+      case 'Fashion': return '👕';
+      case 'Accessories': return '⌚';
       default: return '📦';
     }
   };
@@ -599,6 +605,59 @@ const TooltipCard = ({ item, position, type }) => {
               // Compartment-specific tooltip
               <>
                 <p className="text-gray-300">Brand: <span className={item.brand === 'Empty' ? 'text-gray-500 font-semibold' : 'text-cyan-400 font-semibold'}>{item.brand}</span></p>
+                {item.brand !== 'Empty' && (
+                  <div className="mt-2 p-2 bg-gray-800/50 rounded border border-gray-600">
+                    <p className="text-xs text-gray-400 mb-1">Brand Inventory Details:</p>
+                    <div className="space-y-1 text-xs">
+                      {item.category === 'Electronics' && item.brand === 'Apple' && (
+                        <>
+                          <p className="text-white">📱 iPhone 15 Pro: <span className="text-green-400">12 units</span></p>
+                          <p className="text-white">💻 MacBook Air: <span className="text-yellow-400">8 units</span></p>
+                          <p className="text-white">📱 iPad Pro: <span className="text-green-400">15 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Electronics' && item.brand === 'Samsung' && (
+                        <>
+                          <p className="text-white">📱 Galaxy S24: <span className="text-green-400">18 units</span></p>
+                          <p className="text-white">📺 Smart TV: <span className="text-yellow-400">6 units</span></p>
+                          <p className="text-white">⌚ Galaxy Watch: <span className="text-green-400">10 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Fashion' && item.brand === 'Nike' && (
+                        <>
+                          <p className="text-white">👟 Air Jordans: <span className="text-green-400">22 units</span></p>
+                          <p className="text-white">👕 T-Shirts: <span className="text-yellow-400">14 units</span></p>
+                          <p className="text-white">🧢 Caps: <span className="text-green-400">8 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Fashion' && item.brand === 'Adidas' && (
+                        <>
+                          <p className="text-white">👟 Sneakers: <span className="text-green-400">16 units</span></p>
+                          <p className="text-white">🧥 Hoodies: <span className="text-yellow-400">11 units</span></p>
+                          <p className="text-white">👕 Jerseys: <span className="text-green-400">9 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Household' && item.brand === 'EcoClean' && (
+                        <>
+                          <p className="text-white">🧽 Detergent: <span className="text-green-400">25 units</span></p>
+                          <p className="text-white">🧻 Tissues: <span className="text-yellow-400">18 units</span></p>
+                          <p className="text-white">🧹 Floor Cleaner: <span className="text-green-400">12 units</span></p>
+                        </>
+                      )}
+                      {item.category === 'Accessories' && item.brand === 'Apple' && (
+                        <>
+                          <p className="text-white">⌚ Apple Watch: <span className="text-green-400">8 units</span></p>
+                          <p className="text-white">🎧 AirPods: <span className="text-yellow-400">15 units</span></p>
+                          <p className="text-white">📱 Cases: <span className="text-green-400">20 units</span></p>
+                        </>
+                      )}
+                      {/* Generic fallback for other brands */}
+                      {!(['Apple', 'Samsung', 'Nike', 'Adidas', 'EcoClean'].includes(item.brand)) && (
+                        <p className="text-white">📦 {item.brand} Products: <span className="text-green-400">{Math.floor(item.compartmentQuantity * 0.6)} units</span></p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <p className="text-gray-300">Category: <span className="text-purple-400">{item.category}</span></p>
                 <p className="text-gray-300">Compartment: <span className="text-yellow-400">#{item.compartmentId}</span></p>
                 <p className="text-gray-300">
@@ -726,6 +785,7 @@ export default function DelhiWarehousePage() {
   const [hoveredItemType, setHoveredItemType] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [activeOpTab, setActiveOpTab] = useState('returns');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   const handleItemHover = (item, type, event) => {
     setHoveredItem(item);
@@ -740,11 +800,19 @@ export default function DelhiWarehousePage() {
     setHoveredItemType(null);
   };
 
-  // Group products into rows
+  // Filter products based on selected category
+  const filteredProducts = selectedCategory === 'All' 
+    ? warehouseProducts 
+    : warehouseProducts.filter(product => product.category === selectedCategory);
+
+  // Group filtered products into rows
   const productRows = [];
-  for (let i = 0; i < warehouseProducts.length; i += 5) {
-    productRows.push(warehouseProducts.slice(i, i + 5));
+  for (let i = 0; i < filteredProducts.length; i += 5) {
+    productRows.push(filteredProducts.slice(i, i + 5));
   }
+
+  // Available categories
+  const categories = ['All', 'Electronics', 'Household', 'Fashion', 'Accessories'];
 
   // Overall free space calculation
   const totalCapacity = warehouseProducts.reduce((sum, p) => sum + p.maxCapacity, 0);
@@ -771,6 +839,47 @@ export default function DelhiWarehousePage() {
               <span className="w-3 h-3 bg-cyan-500 rounded-full mr-3 animate-pulse"></span>
               Live Delhi Warehouse Storage System
             </h2>
+
+            {/* Category Filter */}
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
+                <span className="text-xl mr-2">🏷️</span>
+                Filter by Category
+              </h3>
+              <div className="flex flex-wrap gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-4 py-2 rounded-lg border-2 font-medium transition-all duration-300 transform hover:scale-105 ${
+                      selectedCategory === category
+                        ? 'bg-gradient-to-r from-cyan-500 to-blue-500 border-cyan-400 text-white shadow-lg shadow-cyan-500/30'
+                        : 'bg-white/10 border-white/20 text-gray-300 hover:bg-white/20 hover:border-white/40'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>
+                        {category === 'All' ? '🏪' :
+                         category === 'Electronics' ? '📱' :
+                         category === 'Household' ? '🏠' :
+                         category === 'Fashion' ? '👕' :
+                         category === 'Accessories' ? '⌚' : '📦'}
+                      </span>
+                      {category}
+                      <span className="text-xs bg-black/30 px-1.5 py-0.5 rounded-full">
+                        {category === 'All' ? warehouseProducts.length : warehouseProducts.filter(p => p.category === category).length}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 text-sm text-gray-400">
+                Showing <span className="text-cyan-400 font-semibold">{filteredProducts.length}</span> products
+                {selectedCategory !== 'All' && (
+                  <span> in <span className="text-white font-semibold">{selectedCategory}</span> category</span>
+                )}
+              </div>
+            </div>
             <div className="bg-cyan-500/10 border border-cyan-400/30 rounded-lg p-4 mb-4">
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-2xl">🏭</span>
@@ -821,68 +930,7 @@ export default function DelhiWarehousePage() {
                   </div>
                 ))}
 
-                {/* Enhanced Legend for Storage Racks */}
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-white/20 p-4 mt-4">
-                  <h4 className="text-white font-semibold mb-3 text-center flex items-center justify-center gap-2">
-                    <span>🏗️</span>
-                    <span>Smart Warehouse Storage Racks Guide</span>
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <div className="w-6 h-4 bg-gray-800 border border-cyan-300 rounded flex relative">
-                          <div className="w-3/4 h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-l"></div>
-                        </div>
-                        <span className="text-cyan-300 font-semibold">Battery Style</span>
-                      </div>
-                      <p className="text-xs text-gray-400">Each compartment shows brand fill level</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="inline-block h-4 w-4 rounded-[3px] bg-white/20 border border-cyan-200/40" />
-                        <span className="text-gray-300 font-semibold">Empty Slots</span>
-                      </div>
-                      <p className="text-xs text-gray-400">Available space for new brands</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="inline-block h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-                        <span className="text-cyan-400 font-semibold">Brand Indicator</span>
-                      </div>
-                      <p className="text-xs text-gray-400">Shows active brand in compartment</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <span className="text-xs bg-gray-700 text-white px-1 rounded">85%</span>
-                        <span className="text-purple-400 font-semibold">Fill Percentage</span>
-                      </div>
-                      <p className="text-xs text-gray-400">Brand-specific stock level</p>
-                    </div>
-                  </div>
-                  
-                  {/* Battery Color Legend */}
-                  <div className="mt-4 pt-3 border-t border-gray-600">
-                    <h5 className="text-white text-sm font-semibold mb-2 text-center">Battery Fill Levels</h5>
-                    <div className="flex justify-center gap-6 text-xs">
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded"></div>
-                        <span className="text-green-400">80-100%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded"></div>
-                        <span className="text-yellow-400">50-79%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-2 bg-gradient-to-r from-orange-400 to-red-500 rounded"></div>
-                        <span className="text-orange-400">25-49%</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-2 bg-gradient-to-r from-red-500 to-red-600 rounded"></div>
-                        <span className="text-red-400">0-24%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
               </div>
 
               {/* Gauge panel */}
@@ -1097,10 +1145,14 @@ export default function DelhiWarehousePage() {
           <div className="bg-gradient-to-br from-cyan-600/20 to-cyan-800/20 backdrop-blur-sm rounded-xl border border-white/10 p-6">
             <div className="flex items-center mb-2">
               <span className="text-2xl mr-2 animate-pulse">📦</span>
-              <h3 className="text-cyan-400 font-semibold">Total Products</h3>
+              <h3 className="text-cyan-400 font-semibold">
+                {selectedCategory === 'All' ? 'Total Products' : `${selectedCategory} Products`}
+              </h3>
             </div>
-            <p className="text-2xl font-bold text-white">{warehouseProducts.length}</p>
-            <p className="text-xs text-gray-400 mt-1">Active SKUs</p>
+            <p className="text-2xl font-bold text-white">{filteredProducts.length}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {selectedCategory === 'All' ? 'Active SKUs' : `${selectedCategory} SKUs`}
+            </p>
           </div>
           <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 backdrop-blur-sm rounded-xl border border-white/10 p-6">
             <div className="flex items-center mb-2">
@@ -1108,7 +1160,7 @@ export default function DelhiWarehousePage() {
               <h3 className="text-green-400 font-semibold">In Stock</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => (p.quantity / p.maxCapacity) >= 0.7).length}
+              {filteredProducts.filter(p => (p.quantity / p.maxCapacity) >= 0.7).length}
             </p>
             <p className="text-xs text-gray-400 mt-1">Well stocked items</p>
           </div>
@@ -1118,7 +1170,7 @@ export default function DelhiWarehousePage() {
               <h3 className="text-yellow-400 font-semibold">Low Stock</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => {
+              {filteredProducts.filter(p => {
                 const ratio = p.quantity / p.maxCapacity;
                 return ratio >= 0.4 && ratio < 0.7;
               }).length}
@@ -1131,7 +1183,7 @@ export default function DelhiWarehousePage() {
               <h3 className="text-pink-400 font-semibold">Critical</h3>
             </div>
             <p className="text-2xl font-bold text-white">
-              {warehouseProducts.filter(p => (p.quantity / p.maxCapacity) < 0.4).length}
+              {filteredProducts.filter(p => (p.quantity / p.maxCapacity) < 0.4).length}
             </p>
             <p className="text-xs text-gray-400 mt-1">Urgent attention</p>
           </div>
