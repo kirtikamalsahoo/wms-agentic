@@ -307,7 +307,7 @@ export default function ProductsOverviewPage() {
             {/* Modal Header */}
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold text-white mb-2">📋 Today's Live Orders</h3>
+                <h3 className="text-2xl font-bold text-white mb-2">📋 Today&apos;s Live Orders</h3>
                 <p className="text-white/60">Real-time order tracking across all warehouses</p>
               </div>
               <button 
