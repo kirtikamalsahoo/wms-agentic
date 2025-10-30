@@ -941,9 +941,9 @@ export default function BhubaneswarWarehousePage() {
               <div>
                 <CircularGauge percent={Math.max(0, Math.min(100, freePercent))} title="BBSR Hub Free Space" />
                 <div className="mt-4 text-center text-sm text-gray-300">
-                  <div>Total Capacity: <span className="text-white font-medium">{totalCapacity}</span></div>
-                  <div>Used: <span className="text-cyan-300 font-medium">{totalUsed}</span></div>
-                  <div>Free: <span className="text-teal-400 font-medium">{Math.max(0, totalCapacity - totalUsed)}</span></div>
+                  <div>Total Racks: <span className="text-white font-medium">{totalCapacity}</span></div>
+                  <div>Used Racks: <span className="text-cyan-300 font-medium">{totalUsed}</span></div>
+                  <div>Free Racks: <span className="text-teal-400 font-medium">{Math.max(0, totalCapacity - totalUsed)}</span></div>
                 </div>
               </div>
             </div>
