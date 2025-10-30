@@ -176,11 +176,36 @@ const WarehouseCard = ({ warehouse }) => {
 
 
 // Main Products Overview Page
+// Orders data
+const ordersList = [
+  { id: 'ORD-2024-001', customer: 'Tech Solutions Pvt Ltd', warehouse: 'Delhi', items: 15, value: '₹45,600', status: 'Processing', priority: 'High', time: '09:15 AM' },
+  { id: 'ORD-2024-002', customer: 'Fashion Hub Corp', warehouse: 'BBSR', items: 8, value: '₹23,400', status: 'Shipped', priority: 'Medium', time: '09:32 AM' },
+  { id: 'ORD-2024-003', customer: 'Electronics World', warehouse: 'Pune', items: 22, value: '₹78,900', status: 'Processing', priority: 'High', time: '09:45 AM' },
+  { id: 'ORD-2024-004', customer: 'Home Essentials Ltd', warehouse: 'Kolkata', items: 12, value: '₹34,200', status: 'Delivered', priority: 'Low', time: '10:15 AM' },
+  { id: 'ORD-2024-005', customer: 'Smart Devices Inc', warehouse: 'Delhi', items: 18, value: '₹56,700', status: 'Processing', priority: 'Medium', time: '10:30 AM' },
+  { id: 'ORD-2024-006', customer: 'Quality Fashion', warehouse: 'BBSR', items: 6, value: '₹18,300', status: 'Packed', priority: 'Medium', time: '10:45 AM' },
+  { id: 'ORD-2024-007', customer: 'Tech Innovations', warehouse: 'Pune', items: 25, value: '₹89,400', status: 'Processing', priority: 'High', time: '11:00 AM' },
+  { id: 'ORD-2024-008', customer: 'Lifestyle Products', warehouse: 'Kolkata', items: 9, value: '₹27,600', status: 'Shipped', priority: 'Low', time: '11:20 AM' },
+  { id: 'ORD-2024-009', customer: 'Premium Electronics', warehouse: 'Delhi', items: 14, value: '₹42,800', status: 'Processing', priority: 'High', time: '11:35 AM' },
+  { id: 'ORD-2024-010', customer: 'Fashion Forward Co', warehouse: 'BBSR', items: 11, value: '₹31,500', status: 'Delivered', priority: 'Medium', time: '11:50 AM' },
+  { id: 'ORD-2024-011', customer: 'Western Tech Hub', warehouse: 'Pune', items: 20, value: '₹67,200', status: 'Processing', priority: 'High', time: '12:10 PM' },
+  { id: 'ORD-2024-012', customer: 'Bengal Suppliers', warehouse: 'Kolkata', items: 7, value: '₹21,900', status: 'Packed', priority: 'Low', time: '12:25 PM' },
+  { id: 'ORD-2024-013', customer: 'Capital Electronics', warehouse: 'Delhi', items: 16, value: '₹48,700', status: 'Processing', priority: 'Medium', time: '12:40 PM' },
+  { id: 'ORD-2024-014', customer: 'Coastal Fashion', warehouse: 'BBSR', items: 13, value: '₹39,400', status: 'Shipped', priority: 'Medium', time: '01:05 PM' },
+  { id: 'ORD-2024-015', customer: 'Maharashtra Tech', warehouse: 'Pune', items: 19, value: '₹58,600', status: 'Processing', priority: 'High', time: '01:20 PM' },
+  { id: 'ORD-2024-016', customer: 'Eastern Electronics', warehouse: 'Kolkata', items: 10, value: '₹29,800', status: 'Delivered', priority: 'Low', time: '01:35 PM' },
+  { id: 'ORD-2024-017', customer: 'Premium Goods Ltd', warehouse: 'Delhi', items: 21, value: '₹73,500', status: 'Processing', priority: 'High', time: '01:50 PM' },
+  { id: 'ORD-2024-018', customer: 'Regional Suppliers', warehouse: 'BBSR', items: 5, value: '₹16,200', status: 'Packed', priority: 'Low', time: '02:10 PM' },
+  { id: 'ORD-2024-019', customer: 'Pune Fashion House', warehouse: 'Pune', items: 17, value: '₹52,400', status: 'Processing', priority: 'Medium', time: '02:25 PM' },
+  { id: 'ORD-2024-020', customer: 'Kolkata Tech Center', warehouse: 'Kolkata', items: 12, value: '₹36,900', status: 'Shipped', priority: 'Medium', time: '02:40 PM' }
+];
+
 export default function ProductsOverviewPage() {
   const router = useRouter();
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showSuppliers, setShowSuppliers] = useState(false);
+  const [showOrders, setShowOrders] = useState(false);
 
   useEffect(() => {
     // Simulate loading
@@ -232,9 +257,13 @@ export default function ProductsOverviewPage() {
               <div className="text-3xl font-bold text-blue-400 mb-2">4</div>
               <div className="text-white/80 text-sm">Active Warehouses</div>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-              <div className="text-3xl font-bold text-green-400 mb-2">1,670</div>
-              <div className="text-white/80 text-sm">Daily Orders</div>
+            <div 
+              onClick={() => setShowOrders(true)}
+              className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300 group"
+            >
+              <div className="text-3xl font-bold text-green-400 mb-2 group-hover:scale-110 transition-transform">1,670</div>
+              <div className="text-white/80 text-sm group-hover:text-white transition-colors">Daily Orders</div>
+              <div className="text-xs text-white/60 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">Click to view orders</div>
             </div>
             <div 
               onClick={() => setShowSuppliers(true)}
@@ -270,6 +299,111 @@ export default function ProductsOverviewPage() {
           </p>
         </div>
       </div>
+
+      {/* Orders Modal */}
+      {showOrders && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl border border-white/20 w-full max-w-5xl max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">📋 Today's Live Orders</h3>
+                <p className="text-white/60">Real-time order tracking across all warehouses</p>
+              </div>
+              <button 
+                onClick={() => setShowOrders(false)}
+                className="text-white/60 hover:text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-all"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Orders List */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-3">
+                {ordersList.map((order) => (
+                  <div 
+                    key={order.id}
+                    className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                  >
+                    <div className="flex items-center justify-between">
+                      {/* Order Info */}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">
+                            {order.id}
+                          </h4>
+                          <span className={`px-2 py-1 text-xs rounded-full border ${
+                            order.warehouse === 'Delhi' ? 'bg-blue-500/20 text-blue-300 border-blue-400/30' :
+                            order.warehouse === 'BBSR' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                            order.warehouse === 'Pune' ? 'bg-purple-500/20 text-purple-300 border-purple-400/30' :
+                            'bg-orange-500/20 text-orange-300 border-orange-400/30'
+                          }`}>
+                            📍 {order.warehouse}
+                          </span>
+                          <span className={`px-2 py-1 text-xs rounded-full border ${
+                            order.status === 'Processing' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' :
+                            order.status === 'Shipped' ? 'bg-blue-500/20 text-blue-300 border-blue-400/30' :
+                            order.status === 'Delivered' ? 'bg-green-500/20 text-green-300 border-green-400/30' :
+                            'bg-purple-500/20 text-purple-300 border-purple-400/30'
+                          }`}>
+                            {order.status}
+                          </span>
+                          <span className={`px-2 py-1 text-xs rounded-full border ${
+                            order.priority === 'High' ? 'bg-red-500/20 text-red-300 border-red-400/30' :
+                            order.priority === 'Medium' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30' :
+                            'bg-gray-500/20 text-gray-300 border-gray-400/30'
+                          }`}>
+                            {order.priority} Priority
+                          </span>
+                        </div>
+                        <div className="text-white/80 text-sm mb-1">{order.customer}</div>
+                        <div className="text-white/60 text-xs">⏰ {order.time}</div>
+                      </div>
+
+                      {/* Order Stats */}
+                      <div className="flex items-center space-x-6">
+                        <div className="text-center">
+                          <div className="text-cyan-400 font-bold text-lg">{order.items}</div>
+                          <div className="text-white/60 text-xs">Items</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-green-400 font-bold text-lg">{order.value}</div>
+                          <div className="text-white/60 text-xs">Value</div>
+                        </div>
+                        <div className="text-center">
+                          <div className={`w-3 h-3 rounded-full ${
+                            order.status === 'Processing' ? 'bg-yellow-400 animate-pulse' :
+                            order.status === 'Shipped' ? 'bg-blue-400' :
+                            order.status === 'Delivered' ? 'bg-green-400' :
+                            'bg-purple-400'
+                          }`}></div>
+                          <div className="text-white/60 text-xs mt-1">Status</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-white/10 bg-black/20">
+              <div className="flex items-center justify-between">
+                <div className="text-white/60 text-sm">
+                  Total: <span className="text-white font-semibold">{ordersList.length} orders</span> processed today across all warehouses
+                </div>
+                <button 
+                  onClick={() => setShowOrders(false)}
+                  className="bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-blue-700 transition-all duration-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Suppliers Modal */}
       {showSuppliers && (
